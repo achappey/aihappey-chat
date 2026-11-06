@@ -55,6 +55,108 @@ const toolPart = (item, extra = {}) => ({ type: 'tool-' + item.name, toolCallId:
   input: JSON.parse(item.arguments), output: { ok: true }, providerExecuted: false,
   callProviderMetadata: { openai: { type: item.type, id: item.id, item_id: item.id, call_id: item.call_id } }, ...extra });
 
+const program = n => ({ type: 'program', id: `prog_${n}`, call_id: `call_prog_${n}`,
+  code: 'const values = await Promise.all([tools.lookup({query:"hello"}), tools.lookup({query:"two"})]); text(JSON.stringify(values));',
+  fingerprint: `opaque-fingerprint-${n}` });
+const programOutput = n => ({ type: 'program_output', id: `prog_out_${n}`, call_id: `call_prog_${n}`,
+  result: '{"found":true}', status: 'completed' });
+const programCall = (n, p = 1) => ({ ...call(n, 'lookup'), status: 'in_progress',
+  caller: { type: 'program', caller_id: `call_prog_${p}`, future: { preserve: true } } });
+
+for (const route of ['gateway', 'direct']) for (const snapshotsOnly of [false, true]) {
+  test(`real SDK ${route} programmatic tools pause, resume, replay and reach final text (${snapshotsOnly ? 'snapshots' : 'stream'})`, async () => {
+    const { createResponsesContinuation } = load(base + 'responsesContinuation.ts');
+    const p = program(1), a = programCall(1), b = programCall(2), c = programCall(3), result = programOutput(1);
+    const requests = [], executions = [], errors = [];
+    const batches = [[reasoning, p, a, b], [c], [result], [{ type: 'message', id: 'msg_program_final', role: 'assistant',
+      status: 'completed', content: [{ type: 'output_text', text: 'Program complete.' }] }]];
+    const guard = createResponsesContinuation();
+    let chat;
+    const transport = new GenericChatEndpointTransport('/v1/responses', route === 'direct' ? 'openai' : undefined, undefined, {
+      api: `https://${route}.test/v1/responses`,
+      prepareSendMessagesRequest: ({ messages }) => ({ body: buildResponsesBody({ model: 'openai/model',
+        providerRequestConfigProviderKey: 'openai', messages, tools: [{ name: 'lookup', inputSchema: { type: 'object' } }],
+        toolRequestConfig: { lookup: { allowed_callers: ['programmatic'] } },
+        providerRequestConfig: { tools: [{ type: 'programmatic_tool_calling' }] } }) }),
+      fetch: async (_url, init) => {
+        const body = JSON.parse(init.body); requests.push(body);
+        assert.ok(requests.length <= batches.length, 'stop after the final message');
+        assert.equal(body.store, false); assert.equal(body.previous_response_id, undefined);
+        assert.ok(body.tools.some(tool => tool.type === 'programmatic_tool_calling'));
+        if (requests.length > 1) {
+          assert.deepEqual(body.input.find(item => item.type === 'program'), p);
+          assert.deepEqual(body.input.filter(item => item.type === 'function_call_output').map(item => item.call_id),
+            requests.length === 2 ? [a.call_id, b.call_id] : [a.call_id, b.call_id, c.call_id]);
+          for (const item of body.input.filter(item => item.type === 'function_call_output')) assert.deepEqual(item.caller, a.caller);
+          assert.ok(body.input.some(item => item.type === 'reasoning' && item.encrypted_content === reasoning.encrypted_content));
+        }
+        if (requests.length === 4) assert.deepEqual(body.input.find(item => item.type === 'program_output'), result);
+        const output = batches[requests.length - 1];
+        const events = snapshotsOnly ? [] : output.flatMap((item, output_index) => [
+          { type: 'response.output_item.added', item: { ...item, ...(item.type === 'program' ? { code: '', fingerprint: 'provisional' } : {}) }, output_index },
+          { type: 'response.output_item.done', item, output_index }, { type: 'response.output_item.done', item, output_index },
+        ]);
+        events.push({ ...done(output), response: { ...done(output).response, id: `resp_program_${requests.length}` } });
+        return nativeResponse(events, { fragment: 1 });
+      },
+    }, 'openai/model');
+    chat = new Chat({ transport, onError: error => errors.push(error), sendAutomaticallyWhen: options => guard.shouldSend(options),
+      onToolCall: async ({ toolCall }) => {
+        executions.push(toolCall.toolCallId);
+        if (toolCall.toolCallId === a.call_id) await new Promise(resolve => setTimeout(resolve, 5));
+        chat.addToolOutput({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId, output: { found: true } });
+      } });
+    await chat.sendMessage({ text: 'Run the program.' });
+    assert.deepEqual(errors, []); assert.equal(requests.length, 4);
+    assert.deepEqual(executions, [a.call_id, b.call_id, c.call_id]);
+    assert.equal(chat.messages.at(-1).parts.filter(part => part.type === 'text').map(part => part.text).join(''), 'Program complete.');
+    const saved = clone(chat.messages);
+    const history = buildResponsesBody({ model: 'openai/model', providerRequestConfigProviderKey: 'openai', messages: saved }).input;
+    assert.deepEqual(history.filter(item => item.type === 'program'), [p]);
+    assert.deepEqual(history.filter(item => item.type === 'program_output'), [result]);
+    assert.ok(history.findIndex(item => item.type === 'program_output') > history.findLastIndex(item => item.type === 'function_call_output'));
+    assert.equal(saved.flatMap(message => message.parts).find(part => part.type === 'tool-program').providerExecuted, true);
+    assert.equal(guard.shouldSend({ messages: saved }), false);
+  });
+}
+
+test('program replay preserves code, opaque fingerprints, native results and chronology within a step', async () => {
+  const p = program(1), result = programOutput(1);
+  const message = { type: 'message', id: 'msg_between', role: 'assistant', phase: 'final_answer', content: [{ type: 'output_text', text: 'Working.' }] };
+  const { errors, parts, executions } = await sdkFor([done([p, reasoning, message, result])]);
+  assert.deepEqual(errors, []); assert.deepEqual(executions, []);
+  assert.deepEqual(replay(clone(parts)).map(item => item.type), ['program', 'reasoning', 'message', 'program_output']);
+  assert.deepEqual(replay(clone(parts)).find(item => item.type === 'program'), p);
+  assert.deepEqual(replay(clone(parts)).find(item => item.type === 'program_output'), result);
+  assert.deepEqual(replay(clone(parts), { model: 'other/model', providerRequestConfigProviderKey: 'other' }),
+    replay(clone(parts), { model: 'other/model', providerRequestConfigProviderKey: 'other' }).filter(item => !['program', 'program_output'].includes(item.type)));
+});
+
+test('program-owned functions require terminal items and complete JSON, reject failed statuses, and retain caller exactly', async () => {
+  const p = program(1), item = programCall(1);
+  const ok = await chunksFor([done([p, item])]);
+  assert.equal(ok.filter(chunk => chunk.type === 'tool-input-available' && chunk.toolCallId === item.call_id).length, 1);
+  assert.deepEqual(ok.find(chunk => chunk.toolCallId === item.call_id && chunk.type === 'tool-input-available').providerMetadata.openai.caller, item.caller);
+  for (const bad of [{ ...item, status: 'incomplete' }, { ...item, status: 'failed' }, { ...item, arguments: '{bad' },
+    { ...item, caller: undefined }, { ...item, caller: { type: 'program' } }]) {
+    const chunks = await chunksFor([done([p, bad])]);
+    assert.ok(chunks.some(chunk => chunk.type === 'error'));
+    assert.equal(chunks.filter(chunk => chunk.type === 'tool-input-available' && chunk.toolCallId === item.call_id).length, 0);
+  }
+  const partial = await chunksFor([{ type: 'response.output_item.added', item }], { appendDone: false });
+  assert.equal(partial.filter(chunk => chunk.type === 'tool-input-available').length, 0);
+});
+
+test('Responses function configuration preserves output schemas, strictness, allowed callers and namespaces', () => {
+  const schema = { type: 'object', properties: { found: { type: 'boolean' } }, required: ['found'], additionalProperties: false };
+  const body = buildResponsesBody({ model: 'openai/model', tools: [{ name: 'lookup', inputSchema: { type: 'object' }, outputSchema: schema }],
+    useToolNamespaces: true, toolRequestConfig: { lookup: { allowed_callers: ['direct', 'programmatic'], strict: true, defer_loading: true } },
+    providerRequestConfig: { tools: [{ type: 'programmatic_tool_calling' }] } });
+  const tool = body.tools.find(item => item.type === 'namespace').tools[0];
+  assert.deepEqual(tool.output_schema, schema); assert.equal(tool.strict, true);
+  assert.deepEqual(tool.allowed_callers, ['direct', 'programmatic']); assert.equal(tool.defer_loading, true);
+});
+
 test('main chat keeps fragmented text streaming for Chat Completions, Messages and Responses without playground helpers', async () => {
   const cases = [
     ['/v1/chat/completions', [
@@ -661,18 +763,20 @@ test('provider-hosted tool errors remain tool errors and cannot be replayed as s
 
 test('native program and tool-search results correlate to one hosted invocation, including snapshot-only results first', async () => {
   for (const [type, resultType] of [['program', 'program_output'], ['tool_search_call', 'tool_search_output']]) {
-    const item = { type, id: 'native_call_item', call_id: 'native_call_id', name: null, status: 'completed', arguments: {} };
+    const item = { type, id: 'native_call_item', call_id: 'native_call_id', name: null, status: 'completed', arguments: {},
+      ...(type === 'program' ? { code: 'text("found");', fingerprint: 'opaque-state' } : {}) };
     const value = type === 'program' ? { found: true } : [{ type: 'function', name: 'lookup', parameters: { type: 'object' } }];
     const result = { type: resultType, id: 'native_result_item', call_id: item.call_id, status: 'completed',
-      ...(type === 'program' ? { output: value } : { tools: value }) };
-    for (const events of [[done([result, item])], [
+      ...(type === 'program' ? { result: JSON.stringify(value) } : { tools: value }) };
+    const final = { type: 'message', id: 'msg_native_final', role: 'assistant', content: [] };
+    for (const events of [[done([result, item, final])], [
       { type: 'response.output_item.added', item }, { type: 'response.output_item.done', item },
-      { type: 'response.output_item.done', item: result }, done([item, result]),
+      { type: 'response.output_item.done', item: result }, done([item, result, final]),
     ]]) {
       const { errors, executions, parts } = await sdkFor(events);
       assert.deepEqual(errors, []); assert.deepEqual(executions, []);
       const tools = parts.filter(part => part.type.startsWith('tool-'));
-      assert.equal(tools.length, 1); assert.deepEqual(tools[0].output, value);
+      assert.equal(tools.length, 1); assert.deepEqual(tools[0].output, type === 'program' ? { result: JSON.stringify(value), status: 'completed' } : value);
       assert.equal(tools[0].resultProviderMetadata.openai.id, result.id);
     }
   }
