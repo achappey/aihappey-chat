@@ -177,7 +177,12 @@ const toAnthropicMessages = (messages: GenericMappedMessage[], providerKey?: str
         if (!output) continue;
         if (!isOutputOnlyToolPart(part) && !seenCalls.has(id)) {
           const metadata = providerKey ? part.callProviderMetadata?.[providerKey] ?? part.providerMetadata?.[providerKey] : undefined;
-          content.push({ block: compactObject({ type: "tool_use", id, name: toolPartName(part), input: toolPartInput(part), caller: metadata?.caller }), metadata });
+          // Messages requires input even for parameterless tools ({}), just as
+          // the gateway does. Compact only optional metadata, not required input.
+          content.push({ block: {
+            type: "tool_use", id, name: toolPartName(part), input: toolPartInput(part),
+            ...compactObject({ caller: metadata?.caller }),
+          }, metadata });
           seenCalls.add(id);
         }
         if (seenCalls.has(id) && !seenResults.has(id)) {
