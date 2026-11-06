@@ -98,11 +98,7 @@
   {
     "id": "routera",
     "file": "routera.json"
-  },
-  {
-    "id": "mara",
-    "file": "mara.json"
-  },
+  }, 
   {
     "id": "mycoai",
     "file": "mycoai.json"

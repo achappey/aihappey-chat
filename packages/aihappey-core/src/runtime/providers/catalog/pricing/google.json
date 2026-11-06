@@ -149,5 +149,11 @@
       "input": "0.000001",
       "output": "0.00002"
     }
+  },
+  "google/gemini-omni-1.2-flash": {
+    "pricing": {
+      "input": "0.0000015",
+      "output": "0.000009"
+    }
   }
 }

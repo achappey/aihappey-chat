@@ -1315,7 +1315,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "24f261d10c694d7a32630dda416cdcb8d7d3e7eb09c29329d624debf2c4989d3"
+      "sha256": "85b729b1680a449989bd9e91c832f1bd95606d536b0fab909fee5f6277b02ee5"
     },
     {
       "source": "providers/infercom.json",
@@ -1736,11 +1736,6 @@
       "source": "providers/manyfold.json",
       "file": "catalog/manyfold.json",
       "sha256": "8426026813d0394c8b3c0574d1082108911934279c3c63709f02202c6eddf467"
-    },
-    {
-      "source": "providers/mara.json",
-      "file": "catalog/mara.json",
-      "sha256": "26c0dd68f71ee2206f6271ff350ccbd6129f3575f097c5c5c16e003356f16ffc"
     },
     {
       "source": "providers/maritacaai.json",
@@ -2530,7 +2525,7 @@
     {
       "source": "pricing/providers/google.json",
       "file": "catalog/pricing/google.json",
-      "sha256": "cbf1ec56037cefdcf43a8bd2955f79fe6f9ea6db70a3bb5eaf6e8403158f02be"
+      "sha256": "91065288b5666d32d149a19b7f4fcd5528af747b1d7f83f5ca070c94ec88504a"
     },
     {
       "source": "pricing/providers/greenpt.json",
