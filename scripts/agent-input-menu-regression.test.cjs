@@ -26,7 +26,21 @@ function setup(chatMode = "agent") {
     const state = {
         chatMode, mcpServerContent: {}, mcpServers: {}, models: [], agents: [], remoteAgentModels: [],
         selectedAgentNames: [], mcpSkills: [],
+        activePlugins: [], enabledAgentPluginIds: [], enabledLocalTools: [], enabledSkillIds: [],
+        setActivePlugins: ids => { state.activePlugins = ids; },
+        setEnabledAgentPluginIds: ids => { state.enabledAgentPluginIds = ids; },
+        setEnabledLocalTools: ids => { state.enabledLocalTools = ids; },
+        setEnabledSkillIds: ids => { state.enabledSkillIds = ids; },
         updateMcpServers: updates => serverUpdates.push(updates),
+    };
+    const localTools = { items: [] }, skills = { items: [] }, agentPlugins = { items: [], enabled: [] };
+    const pluginToggleItems = [];
+    const messageInput = {
+        value: "", serverTags: [], canSend: true,
+        disconnectServer: async id => {
+            serverUpdates.push(id);
+            messageInput.serverTags = messageInput.serverTags.filter(tag => tag.key !== id);
+        },
     };
     const resourceSelect = { hasResources: false, resources: [], resourceTemplates: [], open: false };
     resourceSelect.setOpen = value => { resourceSelect.open = value; };
@@ -49,10 +63,10 @@ function setup(chatMode = "agent") {
         },
         "aihappey-state": { useAppStore: selector => selector(state) },
         "aihappey-i18n": { useTranslation: () => ({ t: key => key }) },
-        "aihappey-tools": { useLocalTools: () => ({ items: [] }) },
-        "aihappey-skills": { useSkills: () => ({ items: [] }) },
-        "aihappey-plugins": { usePlugins: () => ({ items: [] }) },
-        "./useMessageInput": { useMessageInput: () => ({ value: "", serverTags: [], canSend: true }) },
+        "aihappey-tools": { useLocalTools: () => localTools },
+        "aihappey-skills": { useSkills: () => skills },
+        "aihappey-plugins": { usePlugins: () => agentPlugins },
+        "./useMessageInput": { useMessageInput: () => messageInput },
         "./useResourceSelect": { useResourceSelect: () => resourceSelect },
         "./useChatAttachmentAdmission": { useChatAttachmentAdmission: () => files => admitted.push(files) },
         "./usePromptDictationControls": { usePromptDictationControls: () => ({}) },
@@ -68,7 +82,10 @@ function setup(chatMode = "agent") {
         "../../../runtime/mcp/mcpPrompts": {
             getPrompts: async server => { promptRequests.push(server); return [{ name: "summarize" }]; },
         },
-        "../../tools/toolCatalogItems": { buildLocalToolToggleItems: () => [], usePluginToggleItems: () => [] },
+        "../../tools/toolCatalogItems": {
+            buildLocalToolToggleItems: items => items.map(item => ({ id: item.id, label: item.name })),
+            usePluginToggleItems: () => pluginToggleItems,
+        },
     };
     for (const name of [
         "AgentSettingsButton", "ChatSettingsButton", "SystemMessageButton", "ServerManagementModal",
@@ -96,7 +113,9 @@ function setup(chatMode = "agent") {
         extractTemplateParams: uri => [...uri.matchAll(/\{(\w+)\}/g)].map(match => match[1]),
         applyTemplateParams: (uri, args) => uri.replace(/\{(\w+)\}/g, (_, key) => args[key]),
     };
-    mocks["../../skills/connectedMcpSkills"] = { connectedMcpSkills: () => [] };
+    mocks["../../skills/connectedMcpSkills"] = {
+        connectedMcpSkills: () => [], disconnectedSkillLabel: id => `Unavailable: ${id}`,
+    };
     const menuFilename = "packages/aihappey-core/src/features/chat/input/useChatInputMenu.tsx";
     const menuOutput = ts.transpileModule(fs.readFileSync(path.resolve(__dirname, "..", menuFilename), "utf8"), {
         fileName: menuFilename,
@@ -126,8 +145,75 @@ function setup(chatMode = "agent") {
     const one = type => { const nodes = all(type); assert.equal(nodes.length, 1, type); return nodes[0]; };
     const item = key => one("Menu").props.items.find(item => item.key === key);
     render();
-    return { render, all, one, item, state, resourceSelect, admitted, addedUrls, executedPrompts, promptRequests, serverUpdates, resourceReads, addedResources };
+    return { render, all, one, item, state, resourceSelect, admitted, addedUrls, executedPrompts, promptRequests, serverUpdates, resourceReads, addedResources,
+        localTools, skills, agentPlugins, pluginToggleItems, messageInput };
 }
+
+for (const mode of ["chat", "agent"]) {
+    test(`${mode} composer shows supported tool-source badges and removes only the chosen shared selection`, async () => {
+        const h = setup(mode);
+        h.pluginToggleItems.push({ id: "history", label: "Chat history" });
+        h.localTools.items = [{ id: "local-one", name: "Local lookup" }];
+        h.skills.items = [{ skillId: "selected-skill", name: "Selected skill" }];
+        h.agentPlugins.items = [{ id: "mcp-package", name: "MCP package" }, { id: "skill-package", name: "Skill package" }];
+        h.agentPlugins.enabled = [
+            { id: "mcp-package", mcpServers: [{ key: "plugin-server" }] },
+            { id: "skill-package", mcpServers: [] },
+        ];
+        h.state.activePlugins = ["history", "unknown-plugin"];
+        h.state.enabledLocalTools = ["local-one", "missing-local"];
+        h.state.enabledAgentPluginIds = ["mcp-package", "skill-package", "missing-package"];
+        h.state.enabledSkillIds = ["selected-skill", "missing-skill"];
+        h.messageInput.serverTags = [{ key: "docs", label: "Documentation", icon: "mcpServer" }];
+        h.render();
+        const toolTags = () => h.all("Tags").find(node => node.props.items.some(tag => tag.key.startsWith("plugin:")));
+        const tags = toolTags().props.items;
+        assert.deepEqual(tags.filter(tag => tag.key.startsWith("plugin:")), [
+            { key: "plugin:history", label: "Chat history", icon: "tool" },
+            { key: "plugin:unknown-plugin", label: "unknown-plugin", icon: "tool" },
+        ]);
+        assert.deepEqual(tags.filter(tag => tag.key.startsWith("local:")), [
+            { key: "local:local-one", label: "Local lookup", icon: "tool" },
+            { key: "local:missing-local", label: "missing-local", icon: "tool" },
+        ]);
+        assert.deepEqual(tags.filter(tag => tag.key.startsWith("agent-plugin:")).map(tag => [tag.key, tag.label]), mode === "chat"
+            ? [["agent-plugin:mcp-package", "MCP package"], ["agent-plugin:skill-package", "Skill package"], ["agent-plugin:missing-package", "missing-package"]]
+            : [["agent-plugin:mcp-package", "MCP package"]]);
+        assert.deepEqual(tags.filter(tag => tag.key.startsWith("skill:")).map(tag => tag.label), mode === "chat"
+            ? ["Selected skill", "Unavailable: missing-skill"] : []);
+
+        toolTags().props.onRemove("local:local-one"); h.render();
+        assert.deepEqual(h.state.enabledLocalTools, ["missing-local"]);
+        toolTags().props.onRemove("agent-plugin:mcp-package"); h.render();
+        assert.deepEqual(h.state.enabledAgentPluginIds, ["skill-package", "missing-package"]);
+        toolTags().props.onRemove("plugin:history"); h.render();
+        assert.deepEqual(h.state.activePlugins, ["unknown-plugin"]);
+        assert.deepEqual(h.state.enabledSkillIds, ["selected-skill", "missing-skill"]);
+        assert.equal(toolTags().props.items.some(tag => ["local:local-one", "agent-plugin:mcp-package", "plugin:history"].includes(tag.key)), false);
+
+        const servers = h.all("Tags").find(node => node.props.items.some(tag => tag.key === "docs"));
+        await servers.props.onRemove("docs"); h.render();
+        assert.deepEqual(h.serverUpdates, ["docs"]);
+        assert.equal(h.all("Tags").some(node => node.props.items.some(tag => tag.key === "docs")), false);
+
+        h.state.chatMode = mode === "chat" ? "agent" : "chat"; h.render();
+        assert.equal(toolTags().props.items.some(tag => ["local:local-one", "agent-plugin:mcp-package", "plugin:history"].includes(tag.key)), false);
+        assert.deepEqual(h.state.enabledSkillIds, ["selected-skill", "missing-skill"]);
+    });
+}
+
+test("agent composer updates package badges when supported MCP sources load or disappear, without showing skill-only packages", () => {
+    const h = setup();
+    h.state.enabledAgentPluginIds = ["package"];
+    h.agentPlugins.items = [{ id: "package", name: "Package" }];
+    h.render();
+    assert.equal(h.all("Tags").length, 0);
+    h.agentPlugins.enabled = [{ id: "package", mcpServers: [{ key: "server" }] }]; h.render();
+    assert.deepEqual(h.one("Tags").props.items, [{ key: "agent-plugin:package", label: "Package", icon: "plugins" }]);
+    h.agentPlugins.enabled = [{ id: "package", mcpServers: [] }]; h.render();
+    assert.equal(h.all("Tags").length, 0);
+    assert.deepEqual(h.state.enabledAgentPluginIds, ["package"]);
+});
 
 test("agent composer exposes only the four requested actions and preserves agent settings", () => {
     const h = setup();
