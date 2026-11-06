@@ -53,13 +53,13 @@ export async function modelCacheScope(context: {
   identity?: string;
   gatewayEnabled: boolean;
   headers?: Record<string, string>;
-  providers?: Record<string, { apiBaseUrl?: string }>;
+  providers?: Record<string, { name?: string; apiBaseUrl?: string }>;
 }): Promise<string | undefined> {
   if (context.authenticated && !context.identity?.trim()) return undefined;
   if (!globalThis.crypto?.subtle) return undefined;
   const headers = Object.fromEntries(new Headers(context.headers).entries());
   const providers = Object.fromEntries(Object.entries(context.providers ?? {})
-    .map(([key, provider]) => [key, provider.apiBaseUrl ?? ""]));
+    .map(([key, provider]) => [key, { name: provider.name ?? "", apiBaseUrl: provider.apiBaseUrl ?? "" }]));
   const bytes = new TextEncoder().encode(JSON.stringify(canonical({ ...context, headers, providers })));
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");

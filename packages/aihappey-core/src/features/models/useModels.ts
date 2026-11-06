@@ -97,34 +97,32 @@ export const useModels = (
     let published = false;
 
     const publish = (loadedModels: ModelOption[]) => {
-        if (cancelled) return;
+      if (cancelled) return;
 
-        const background = published;
-        published = true;
-        setModels(loadedModels)
+      const background = published;
+      published = true;
+      setModels(loadedModels);
 
-        // Refreshing credentials/catalogs must not replace an explicit chat candidate selection.
-        if (!selectionRef.current.model && appStore.getState().selectedChatModelIds !== undefined) return;
+      // Refreshing credentials/catalogs must not replace an explicit chat candidate selection.
+      const state = appStore.getState();
+      if (!selectionRef.current.model && state.selectedChatModelIds !== undefined) return;
 
-        const {
-          model: latestUrlModel,
-          selectedModel: latestSelectedModel,
-          userPreferredModel: latestUserPreferredModel,
-        } = selectionRef.current;
-        const preferredModel = latestUrlModel
-          ?? (background ? latestSelectedModel ?? latestUserPreferredModel : latestUserPreferredModel ?? latestSelectedModel);
-        const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel);
-        if (resolvedPreferredModel) {
-          setSelectedModel(resolvedPreferredModel);
-          return;
-        }
+      const latestUrlModel = selectionRef.current.model;
+      const preferredModel = latestUrlModel ?? (background
+        ? state.selectedModel ?? state.userPreferredModel
+        : state.userPreferredModel ?? state.selectedModel);
+      const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel);
+      if (resolvedPreferredModel) {
+        setSelectedModel(resolvedPreferredModel);
+        return;
+      }
 
-        const previousModels = lastSelectionRef.current.models;
-        const previousType = modelTypeFor(previousModels, preferredModel)
-          ?? modelTypeFor(previousModels, lastSelectionRef.current.selectedModel)
-          ?? "language";
-        const fallbackModel = newestModelOfType(loadedModels, previousType);
-        setSelectedModel(fallbackModel?.id);
+      const previousModels = lastSelectionRef.current.models;
+      const previousType = modelTypeFor(previousModels, preferredModel)
+        ?? modelTypeFor(previousModels, lastSelectionRef.current.selectedModel)
+        ?? "language";
+      const fallbackModel = newestModelOfType(loadedModels, previousType);
+      setSelectedModel(fallbackModel?.id);
     };
 
     const load = async () => {
@@ -152,12 +150,12 @@ export const useModels = (
     };
 
     void load().catch((err) => {
-        if (cancelled) return;
+      if (cancelled) return;
 
-        // Never replace a usable cached catalog with a failed refresh.
-        if (!published) setModels([])
-        setModelsLoadingProgress?.(undefined)
-        console.error("Failed to load models:", err);
+      // Never replace a usable cached catalog with a failed refresh.
+      if (!published) setModels([]);
+      setModelsLoadingProgress?.(undefined);
+      console.error("Failed to load models:", err);
     });
 
     return () => {

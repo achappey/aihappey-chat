@@ -11,7 +11,7 @@
     "build:packages": "npm run -w packages --if-present build",
     "watch:packages": "npm run -w packages --if-present watch",
     "clean": "rimraf --glob \"packages/*/dist\" \"samples/*/dist\" \"samples/*/public/bundle.js\" \"samples/*/public/bundle.js.map\"",
-    "test": "node --test scripts/*.test.cjs packages/aihappey-state/tests/*.test.mjs && npm test --workspace=aihappey-agents"
+    "test": "npm run build --workspace=aihappey-models && node --test scripts/*.test.cjs packages/aihappey-state/tests/*.test.mjs && npm test --workspace=aihappey-agents && npm test --workspace=aihappey-models"
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",
