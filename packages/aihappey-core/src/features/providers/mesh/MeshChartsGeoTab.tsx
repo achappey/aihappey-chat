@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTheme } from "aihappey-components";
+import type { TFunction } from "aihappey-i18n";
 import WorldMap from "../WorldMap";
 import {
   buildCountryProviderCounts,
@@ -13,7 +14,7 @@ import { MeshNoDataCard } from "./MeshNoDataCard";
 type Props = {
   models: MeshModel[];
   providerMetadata: Record<string, ProviderLocationMeta>;
-  t: (key: string, options?: any) => string;
+  t: TFunction;
 };
 
 export const MeshChartsGeoTab = ({ models, providerMetadata, t }: Props) => {

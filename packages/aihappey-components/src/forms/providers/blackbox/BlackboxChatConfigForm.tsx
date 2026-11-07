@@ -1,4 +1,4 @@
-import { useTranslation } from "aihappey-i18n";
+import { useTranslation, type TFunction } from "aihappey-i18n";
 import { useTheme } from "../../../theme/ThemeContext";
 
 const REASONING_EFFORT_OPTIONS = ["", "none", "minimal", "low", "medium", "high", "xhigh"] as const;
@@ -37,7 +37,7 @@ const twoColumnGrid = {
     alignItems: "end",
 } as const;
 
-const tk = (t: (key: string, options?: any) => string, key: string, fallback: string) =>
+const tk = (t: TFunction, key: string, fallback: string) =>
     t(`providers:blackbox.${key}`) ?? fallback;
 
 export const BlackboxChatConfigForm = ({

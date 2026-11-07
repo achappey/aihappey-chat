@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import type { TFunction } from "aihappey-i18n";
 import WorldMap from "../WorldMap";
 
 type Props = {
   regionProviderCounts: Record<string, number>;
-  t: (key: string, options?: any) => string;
+  t: TFunction;
 };
 
 type RestCountryRegion = {

@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
+import type { TFunction } from "aihappey-i18n";
 
 export type Handoff = [string, string[]] | [string[], string];
 
 interface HandoffsEditorProps {
     theme: any;
-    t: (key: string, opts?: any) => string;
+    t: TFunction;
     agents: { id: string; name: string }[];
     handoffs: Handoff[];
     setHandoffs: (value: Handoff[]) => void;

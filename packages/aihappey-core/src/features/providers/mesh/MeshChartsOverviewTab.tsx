@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { ChartJsBlock, useTheme } from "aihappey-components";
+import type { TFunction } from "aihappey-i18n";
 import {
   buildProviderModelGraphData,
   buildStackedByProviderTypeData,
@@ -12,7 +13,7 @@ type Props = {
   models: MeshModel[];
   providerMetadata: Record<string, ProviderLocationMeta>;
   filterSignature: string;
-  t: (key: string, options?: any) => string;
+  t: TFunction;
 };
 
 export const MeshChartsOverviewTab = ({

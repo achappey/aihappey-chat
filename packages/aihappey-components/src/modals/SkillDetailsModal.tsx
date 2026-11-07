@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useTheme } from "../theme/ThemeContext";
-import { useTranslation } from "aihappey-i18n";
+import { useTranslation, type TOptions } from "aihappey-i18n";
 import { VersionBadge } from "../badges/VersionBadge";
 
 type SkillDetailsCatalogItem = {
@@ -67,8 +67,8 @@ export const SkillDetailsModal = ({
     setActiveTab("overview");
   }, [open]);
 
-  const tx = (key: string, fallback: string, options?: Record<string, unknown>) => {
-    const value = t(key, options);
+  const tx = (key: string, fallback: string, options?: TOptions) => {
+    const value = t(key, options ?? {});
     return value && value !== key ? value : fallback;
   };
 

@@ -1,6 +1,6 @@
 import { JSX, useEffect, useMemo, useState } from "react";
 import { useTheme } from "aihappey-components";
-import { useTranslation } from "aihappey-i18n";
+import { useTranslation, type TFunction } from "aihappey-i18n";
 import type { IconToken } from "aihappey-types";
 import type { UsageAnalytics, UsageModelStat, UsageMessageFact } from "./usageAnalytics";
 import {
@@ -30,7 +30,7 @@ import {
 
 type Props = {
   analytics: UsageAnalytics;
-  t: (key: string, options?: any) => string;
+  t: TFunction;
 };
 
 type UsageTab = {

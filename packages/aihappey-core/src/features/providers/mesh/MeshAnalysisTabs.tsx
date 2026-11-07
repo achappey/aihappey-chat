@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { useTheme } from "aihappey-components";
+import type { TFunction } from "aihappey-i18n";
 import type { IconToken } from "aihappey-types";
 import { MeshChartsGeoTab } from "./MeshChartsGeoTab";
 import { MeshChartsInsightsTab } from "./MeshChartsInsightsTab";
@@ -11,7 +12,7 @@ type Props = {
   models: MeshModel[];
   providerMetadata: Record<string, ProviderLocationMeta>;
   filterSignature: string;
-  t: (key: string, options?: any) => string;
+  t: TFunction;
 };
 
 const srOnly: CSSProperties = {

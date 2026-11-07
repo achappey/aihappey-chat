@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { ChartJsBlock, useTheme } from "aihappey-components";
+import type { TFunction } from "aihappey-i18n";
 import {
   buildProvidersByRegionBarData,
   buildTopProvidersByUniqueModelCountData,
@@ -11,7 +12,7 @@ import { MeshNoDataCard } from "./MeshNoDataCard";
 type Props = {
   models: MeshModel[];
   providerMetadata: Record<string, ProviderLocationMeta>;
-  t: (key: string, options?: any) => string;
+  t: TFunction;
 };
 
 export const MeshChartsInsightsTab = ({

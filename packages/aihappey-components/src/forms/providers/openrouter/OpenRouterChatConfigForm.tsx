@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useTranslation } from "aihappey-i18n";
+import { useTranslation, type TFunction } from "aihappey-i18n";
 import { useTheme } from "../../../theme/ThemeContext";
 import {
   buildCanonicalProviderToolsConfig,
@@ -150,7 +150,7 @@ const selectLabel = (value: string | undefined, notSetLabel: string) => value ||
 
 const compactStack = { display: "flex", flexDirection: "column" } as const;
 
-const tk = (t: (key: string, options?: any) => string, key: string, fallback: string) =>
+const tk = (t: TFunction, key: string, fallback: string) =>
   t(`providers:openrouter.${key}`) ?? fallback;
 
 export const OpenRouterChatConfigForm = ({

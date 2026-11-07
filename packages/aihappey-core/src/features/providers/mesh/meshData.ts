@@ -1,7 +1,7 @@
 import {
   PROVIDER_LOCATION_ALL_FILTER_VALUE,
 } from "aihappey-components";
-import { useTranslation } from "aihappey-i18n";
+import { useTranslation, type TFunction } from "aihappey-i18n";
 
 export type MeshModel = {
   id: string;
@@ -114,7 +114,7 @@ export const buildProviderModelGraphData = ({
 }: {
   models: MeshModel[];
   providerMetadata: Record<string, ProviderLocationMeta>;
-  t: (k: string, o?: any) => string;
+  t: TFunction;
 }) => {
   const providerIndex = new Map<string, number>();
   const modelIndex = new Map<string, number>();
@@ -187,7 +187,7 @@ export const buildStackedByProviderTypeData = ({
 }: {
   models: MeshModel[];
   providerMetadata: Record<string, ProviderLocationMeta>;
-  t: (k: string, o?: any) => string;
+  t: TFunction;
 }) => {
   const providers = Array.from(new Set(models.map((m) => getProviderKey(m)))).sort();
   const modelTypes = Array.from(new Set(models.map((m) => m.type))).sort();
@@ -255,7 +255,7 @@ export const buildModelTypeDistributionData = ({
   t,
 }: {
   models: MeshModel[];
-  t: (k: string, o?: any) => string;
+  t: TFunction;
 }) => {
   const byType = new Map<string, Set<string>>();
 
@@ -438,7 +438,7 @@ export const buildRegionTypeHeatData = ({
 }: {
   models: MeshModel[];
   providerMetadata: Record<string, ProviderLocationMeta>;
-  t: (k: string, o?: any) => string;
+  t: TFunction;
 }) => {
   const regions = new Set<string>();
   const types = new Set<string>();
