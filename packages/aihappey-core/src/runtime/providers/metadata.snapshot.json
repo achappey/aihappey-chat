@@ -1345,7 +1345,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "04f3a0ff4bd4314043975c8c52507a9bcea175fb415e7dd108f1b4ca9442b32a"
+      "sha256": "f215e345a8a0a686c14d91fefce270d15596a9fca9426b59b8248033dd739a5f"
     },
     {
       "source": "providers/infercom.json",
@@ -3211,6 +3211,11 @@
       "source": "providers/sunbirdai.json",
       "file": "catalog/sunbirdai.json",
       "sha256": "67feced2279e22a654d793b04b1581d3fa16cbfd30d1daa7b3878a2e3001be9a"
+    },
+    {
+      "source": "providers/sundaypyjamas.json",
+      "file": "catalog/sundaypyjamas.json",
+      "sha256": "92f5f23ea0f8fddeb2a82635d18b1cc6864655ceff604ecb88280eac49a295ed"
     },
     {
       "source": "providers/sunoapi.json",
