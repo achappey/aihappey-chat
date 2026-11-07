@@ -43,7 +43,7 @@ test("timeago export patch adds declaration targets without changing runtime exp
 test("strict bundler resolution retains real types for the main API and every locale", () => {
     // An in-memory entry keeps test artifacts out of the source tree while resolving
     // imports from this repository's actual installed dependency.
-    const filename = path.join(__dirname, "timeago-typecheck.ts");
+    const filename = path.join(__dirname, "timeago-typecheck.ts").replace(/\\/g, "/");
     const source = `
         import { format, register, render, cancel, type LocaleFunc } from "timeago.js";
         import { registerTimeagoLocales } from "../packages/aihappey-i18n/src/timeago";
