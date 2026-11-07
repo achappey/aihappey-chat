@@ -10,7 +10,6 @@
     "serve": "npx serve public --single -l 3032"
   },
   "dependencies": {
-    "@microsoft/applicationinsights-react-js": "^19.3.8",
     "aihappey-core": "*",
     "aihappey-theme-bootstrap": "*",
     "aihappey-theme-chakra": "*",
