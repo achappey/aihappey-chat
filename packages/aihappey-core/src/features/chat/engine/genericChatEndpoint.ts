@@ -1823,12 +1823,25 @@ const createUiMessageChunkStream = ({
     if (emittedToolOutputs.has(id) || !messagesCompletedToolIds.has(id)) return;
     if (!messagesProviderToolIds.has(id)) throw new Error("Messages provider result cannot complete a client tool call.");
     const errorText = messagesToolError(block);
+    const output = errorText ? undefined : messagesToolOutput(block);
     enqueueChunk(controller, {
       type: errorText ? "tool-output-error" : "tool-output-available",
       toolCallId: id, providerExecuted: true, providerMetadata: messagesPartMetadata(block, index),
-      ...(errorText ? { errorText } : { output: messagesToolOutput(block) }),
+      ...(errorText ? { errorText } : { output }),
     });
     emittedToolOutputs.add(id);
+    // Like Responses, retain the full tool result for activity and emit a
+    // separate file part for the answer's download attachment control.
+    if (!errorText && toolNameById.get(id) === "download_file" && output?.isError !== true) {
+      const file = output?.structuredContent;
+      const url = file?.data_url ?? file?.dataUrl ?? file?.url;
+      if (typeof url === "string" && url) enqueueChunk(controller, {
+        type: "file", url, mediaType: file.media_type ?? file.mediaType ?? "application/octet-stream",
+        providerMetadata: providerMetadataFor({
+          ...messagesBlockMetadata(block, index, messagesNativeId), filename: file.filename, file_id: file.file_id,
+        }),
+      });
+    }
   };
 
   const handleMessagesPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
