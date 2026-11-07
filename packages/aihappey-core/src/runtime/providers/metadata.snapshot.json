@@ -1345,7 +1345,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "398e61dd8775be56a445b2fcf0c99b46afb95a06bcab7f117603b02055f5ff19"
+      "sha256": "04f3a0ff4bd4314043975c8c52507a9bcea175fb415e7dd108f1b4ca9442b32a"
     },
     {
       "source": "providers/infercom.json",
@@ -3451,6 +3451,11 @@
       "source": "providers/unrealspeech.json",
       "file": "catalog/unrealspeech.json",
       "sha256": "c146c8b9e51b6b1f0432d661541cf58a4b14cebca3e1b5231fc606ebaefedb16"
+    },
+    {
+      "source": "providers/upivia.json",
+      "file": "catalog/upivia.json",
+      "sha256": "fbdec2fd6b619ef7d128d0b0e54b96f351e9edcb45aaa6f54fb6567d02c09e64"
     },
     {
       "source": "providers/upstage.json",
