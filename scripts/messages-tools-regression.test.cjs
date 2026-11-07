@@ -449,6 +449,87 @@ test('real SDK saved UI history switches Messages to Responses to Gateway API ch
 
 const hostedCall = (id, name, input = {}, extra = {}) => ({ type: 'server_tool_use', id, name, input, ...extra });
 const result = (index, type, tool_use_id, content, extra = {}) => [blockStart(index, { type, tool_use_id, content, ...extra }), stop(index)];
+const downloadResult = () => ({
+  content: [{ type: 'resource', resource: {
+    uri: 'https://api.anthropic.com/v1/files/file_document/content',
+    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', text: 'PK\u0003\u0004',
+  } }],
+  isError: null, resultType: null, _meta: null,
+  structuredContent: {
+    data_url: 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,UEsDBA==',
+    file_id: 'file_document', filename: 'willekeurig_document.docx',
+    media_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    url: 'https://api.anthropic.com/v1/files/file_document/content',
+  },
+});
+
+test('Messages provider downloads emit one attachment from the existing result envelope, correlated by call ID', async () => {
+  for (const resultFirst of [false, true]) {
+    const output = downloadResult(), item = hostedCall('srvtoolu_download', 'download_file', { file_id: 'file_document' });
+    const events = [start, ...(resultFirst
+      ? [...result(0, 'mcp_tool_result', item.id, output), stop(0), ...tool(1, item), stop(1)]
+      : [...tool(0, item), ...tool(1, hostedCall('srvtoolu_other', 'other_tool')),
+        ...result(2, 'mcp_tool_result', item.id, output), stop(2)]), ...text(3, 'Your document.'), ...end()];
+    const chunks = await chunksFor(events, { fragment: 1 });
+    assert.deepEqual(chunks.filter(chunk => chunk.type === 'error'), []);
+    assert.deepEqual(chunks.find(chunk => chunk.type === 'tool-output-available').output, output);
+    const files = chunks.filter(chunk => chunk.type === 'file');
+    assert.equal(files.length, 1);
+    assert.equal(files[0].url, output.structuredContent.data_url, 'prefer inline data over the authenticated provider URL');
+    assert.equal(files[0].mediaType, output.structuredContent.media_type);
+    assert.equal(files[0].providerMetadata.anthropic.filename, output.structuredContent.filename);
+    assert.equal(files[0].providerMetadata.anthropic.file_id, output.structuredContent.file_id);
+  }
+});
+
+test('Messages downloads match Responses URL aliases and skip failed, URL-less, or unrelated results', async () => {
+  for (const variant of ['dataUrl', 'url', 'isError', 'is_error', 'missing-url', 'other-tool']) {
+    const output = downloadResult(), file = output.structuredContent;
+    const item = hostedCall('srvtoolu_download', variant === 'other-tool' ? 'other_tool' : 'download_file');
+    if (variant === 'dataUrl') { file.dataUrl = file.data_url; delete file.data_url; }
+    if (variant === 'url') delete file.data_url;
+    if (variant === 'isError') output.isError = true;
+    if (variant === 'missing-url') { delete file.data_url; delete file.url; }
+    const chunks = await chunksFor([start, ...tool(0, item),
+      ...result(1, 'mcp_tool_result', item.id, output, variant === 'is_error' ? { is_error: true } : {}), ...end()]);
+    assert.deepEqual(chunks.filter(chunk => chunk.type === 'error'), [], variant);
+    const files = chunks.filter(chunk => chunk.type === 'file');
+    assert.equal(files.length, ['dataUrl', 'url'].includes(variant) ? 1 : 0, variant);
+    if (files.length) assert.equal(files[0].url, file.dataUrl ?? file.url, variant);
+  }
+});
+
+test('real SDK Messages downloads become answer attachments live and after reload without client execution or continuation', async () => {
+  const output = downloadResult(), item = hostedCall('srvtoolu_download', 'download_file', { file_id: 'file_document' },
+    { type: 'mcp_tool_use', server_name: 'aihappey' });
+  const errors = [], executions = [];
+  let requests = 0;
+  const { createClientToolContinuation } = load(base + 'clientToolContinuation.ts');
+  const guard = createClientToolContinuation();
+  const chat = new Chat({ transport: new GenericChatEndpointTransport('/v1/messages', undefined, undefined, {
+    api: 'https://gateway.test/v1/messages', fetch: async () => {
+      requests++; assert.equal(requests, 1, 'provider download must not trigger automatic continuation');
+      return nativeResponse([start, ...tool(0, item), ...result(1, 'mcp_tool_result', item.id, output), stop(1),
+        ...text(2, 'Download your document.'), ...end()]);
+    },
+  }, 'anthropic/claude-test'), onError: error => errors.push(error),
+    onToolCall: ({ toolCall }) => executions.push(toolCall), sendAutomaticallyWhen: options => guard.shouldSend(options) });
+  await chat.sendMessage({ text: 'Create a document.' });
+  assert.deepEqual(errors, []); assert.deepEqual(executions, []); assert.equal(requests, 1);
+  const { toChatMessages } = load(base + '../messages/toChatMessages.ts');
+  for (const messages of [chat.messages, clone(chat.messages)]) {
+    const parts = messages.at(-1).parts;
+    const toolPart = parts.find(part => part.toolCallId === item.id);
+    assert.equal(toolPart.providerExecuted, true); assert.equal(toolPart.state, 'output-available');
+    assert.deepEqual(toolPart.output, output);
+    assert.equal(parts.filter(part => part.type === 'file').length, 1);
+    const answer = toChatMessages(messages).find(card => card.content.some(part => part.type === 'text' && part.text === 'Download your document.'));
+    assert.equal(answer.attachments.length, 1);
+    assert.equal(answer.attachments[0].url, output.structuredContent.data_url);
+    assert.equal(answer.attachments[0].providerMetadata.anthropic.filename, output.structuredContent.filename);
+  }
+});
+
 const hostedFixtures = [
   ['web_search', 'web_search_tool_result', [{ type: 'web_search_result', url: 'https://news.test/item', title: 'News', encrypted_content: 'opaque-search-result', page_age: '1 day' }]],
   ['web_fetch', 'web_fetch_tool_result', { type: 'web_fetch_result', url: 'https://news.test/item', retrieved_at: '2026-11-05T09:00:00Z', content: { type: 'document', title: 'Article', source: { type: 'text', media_type: 'text/plain', data: 'Article body' } } }],
