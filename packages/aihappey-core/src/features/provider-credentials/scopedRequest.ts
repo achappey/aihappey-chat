@@ -30,6 +30,7 @@ export const requestCredentialModels = (body: any, remoteModels: any[] = []): st
   }
   for (const model of Array.isArray(body?.models) ? body.models : []) add(model);
   for (const agent of [
+    ...(body?.agent && typeof body.agent === "object" && !Array.isArray(body.agent) ? [body.agent] : []),
     ...(Array.isArray(body?.agents) ? body.agents : []),
     ...(Array.isArray(body?.metadata?.agents) ? body.metadata.agents : []),
   ]) for (const model of getAgentCredentialModels(agent)) add(model.id);

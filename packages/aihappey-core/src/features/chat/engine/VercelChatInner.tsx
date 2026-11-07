@@ -383,15 +383,16 @@ export function VercelChatInner({
     return wrapGenericChatFetch({
       endpoint: requestEndpoint,
       fetcher: authFetch as typeof fetch,
+      preserveAgentSelection: chatMode === "agent",
       providerKey: isProviderEndpointProfile ? requestEndpointProfile.providerKey : undefined,
       providers,
     });
-  }, [authFetch, requestEndpointProfile, isProviderEndpointProfile, providers, requestEndpoint]);
+  }, [authFetch, chatMode, requestEndpointProfile, isProviderEndpointProfile, providers, requestEndpoint]);
 
-  const api = chatMode === "agent"
-    ? config?.agentEndpoint + "/api/chat"
-    : isGenericChatEndpoint(requestEndpoint)
-      ? resolveGenericChatEndpointUrl(requestBaseUrl, requestEndpoint)
+  const api = isGenericChatEndpoint(requestEndpoint)
+    ? resolveGenericChatEndpointUrl(chatMode === "agent" ? config.agentEndpoint! : requestBaseUrl, requestEndpoint)
+    : chatMode === "agent"
+      ? config.agentEndpoint?.replace(/\/+$/, "") + "/api/chat"
       : config.baseUrl + config.endpoints.chat;
 
   const systemPrompt = useMemo(

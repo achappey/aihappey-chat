@@ -2711,11 +2711,13 @@ export class GenericChatEndpointTransport extends DefaultChatTransport<any> {
 export function wrapGenericChatFetch({
   endpoint,
   fetcher,
+  preserveAgentSelection = false,
   providerKey,
   providers,
 }: {
   endpoint: GenericEndpointId;
   fetcher: typeof fetch;
+  preserveAgentSelection?: boolean;
   providerKey?: string;
   providers?: Record<string, Provider>;
 }): typeof fetch {
@@ -2742,7 +2744,16 @@ export function wrapGenericChatFetch({
       const hasRawUiMessages = Array.isArray(rawBody?.messages)
         && rawBody.messages.some((message: any) => Array.isArray(message?.parts));
       if (hasRawUiMessages) {
-        const mappedBody = buildGenericChatEndpointBody(requestEndpoint, rawBody);
+        const mappedBody = {
+          ...buildGenericChatEndpointBody(requestEndpoint, rawBody),
+          // Agent backends accept these routing fields alongside each native
+          // protocol. Do not forward gateway-only selections to direct providers.
+          ...(preserveAgentSelection ? compactObject({
+            models: rawBody.models,
+            agent: rawBody.agent,
+            agents: rawBody.agents,
+          }) : {}),
+        };
         const providerRequestHeaders = rawBody?.providerRequestHeaders && typeof rawBody.providerRequestHeaders === "object"
           ? rawBody.providerRequestHeaders as Record<string, string>
           : undefined;
