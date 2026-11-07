@@ -54,6 +54,10 @@ test("final fetch boundary isolates concurrent chat, tools, decisions, embedding
     const cases = [
         [{ model: "openai/model" }, ["openai-SECRET"]],
         [{ model: "google/model" }, ["google-SECRET"]],
+        [{ agent: { model: { id: "openai/model" } } }, ["openai-SECRET"]],
+        [{ agents: [{ model: { id: "openai/model" } }, { model: { id: "anthropic/model" } }] }, ["anthropic-SECRET", "openai-SECRET"]],
+        [{ agent: { model: { id: "openai/model" } }, models: ["remote-known"] }, ["anthropic-SECRET", "openai-SECRET"]],
+        [{ agent: [{ model: { id: "openai/model" } }] }, []],
         [{ metadata: { agents: [{ model: { id: "openai/model" } }, { model: { id: "anthropic/model" } }] } }, ["anthropic-SECRET", "openai-SECRET"]],
         [{ models: ["remote-known"] }, ["anthropic-SECRET"]],
         [{ model: "remote-opaque" }, []],

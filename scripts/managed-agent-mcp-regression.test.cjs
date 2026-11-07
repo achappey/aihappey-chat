@@ -163,7 +163,17 @@ function engineCallback(name, bindings) {
         ...bindings,
     });
 }
-function prepareRequest(h, chatMode = "agent") {
+function engineValue(name, bindings) {
+    let expression;
+    function visit(node) {
+        if (ts.isVariableDeclaration(node) && node.name.getText(engine) === name) expression = node.initializer.getText(engine);
+        ts.forEachChild(node, visit);
+    }
+    visit(engine);
+    assert.ok(expression, `Missing engine value ${name}`);
+    return evaluate(`module.exports = ${expression};`, {}, bindings);
+}
+function prepareRequest(h, chatMode = "agent", overrides = {}) {
     const credentials = require("./credential-test-loader.cjs");
     const agents = [{ name: "Managed", tools: [{ name: "server_tool" }] }];
     return engineCallback("prepareSendMessagesRequest", {
@@ -190,6 +200,7 @@ function prepareRequest(h, chatMode = "agent") {
         }).shouldForceToolChoiceNone,
         headers: {}, agentApiKeyHeaders: {}, isGenericChatEndpoint: () => false,
         requestEndpoint: "/api/chat", getGatewayProviderHeaders: () => ({}), api: "https://agents.example/api/chat",
+        ...overrides,
     });
 }
 function dispatchTool(h, addToolOutput, signal) {
@@ -252,6 +263,137 @@ test("agent transport keeps tools top-level despite namespace settings/overrides
     const regular = (await prepareRequest(h, "chat")(opts)).body;
     assert.ok(regular.providerMetadata.openai.tools.some(t => t.type === "namespace"));
 });
+
+const genericEndpoints = require("./credential-test-loader.cjs").load(root + "chat/engine/genericChatEndpoint.ts", {
+    "aihappey-ai": { DefaultChatTransport },
+    "aihappey-components": { canonicalizeAnthropicTools: value => value },
+});
+const { useAuthFetch } = load(root + "chat/engine/useAuthFetch.ts", {
+    react: { useMemo: factory => factory() },
+    "../../provider-credentials/scopedRequest": { createCredentialScopedFetch: fetcher => fetcher },
+    "./apiDebug": { setApiDebugHeader() {} },
+});
+const gatewayEndpoints = ["/api/chat", "/v1/responses", "/v1/messages", "/v1/chat/completions"];
+function protocolResponse(endpoint) {
+    const events = endpoint === "/v1/responses" ? [
+        { type: "response.created", response: { id: "resp-1" } },
+        { type: "response.output_text.delta", item_id: "message-1", output_index: 0, content_index: 0, delta: "Done" },
+        { type: "response.completed", response: { id: "resp-1", status: "completed", output: [] } },
+    ] : endpoint === "/v1/messages" ? [
+        { type: "message_start", message: { id: "msg-1", role: "assistant", content: [], usage: {} } },
+        { type: "content_block_start", index: 0, content_block: { type: "text", text: "" } },
+        { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: "Done" } },
+        { type: "content_block_stop", index: 0 },
+        { type: "message_delta", delta: { stop_reason: "end_turn" }, usage: {} },
+        { type: "message_stop" },
+    ] : endpoint === "/v1/chat/completions" ? [
+        { id: "completion-1", choices: [{ index: 0, delta: { role: "assistant", content: "Done" }, finish_reason: null }] },
+        { id: "completion-1", choices: [{ index: 0, delta: {}, finish_reason: "stop" }] },
+    ] : [
+        { type: "start", messageId: "assistant" }, { type: "start-step" },
+        { type: "text-start", id: "text" }, { type: "text-delta", id: "text", delta: "Done" },
+        { type: "text-end", id: "text" }, { type: "finish-step" }, { type: "finish", finishReason: "stop" },
+    ];
+    return new Response(events.map(event => `data: ${JSON.stringify(event)}\n\n`).join("") + "data: [DONE]\n\n", {
+        headers: { "Content-Type": "text/event-stream" },
+    });
+}
+
+for (const endpoint of gatewayEndpoints.slice(1)) {
+    test(`agent selection fields survive ${endpoint} mapping without leaking into ordinary chat`, async () => {
+        const agent = { name: "Custom", model: { id: "openai/model" }, instructions: "Keep these instructions",
+            tools: [{ name: "server_tool" }], metadata: { nested: { retained: true } } };
+        const cases = [
+            { model: "remote-one" }, { models: ["remote-one"] }, { models: ["remote-one", "remote-two"] },
+            { agent }, { agents: [agent] }, { agents: [agent, { ...agent, name: "Second" }] },
+            { models: ["remote-one"], agents: [agent] },
+        ];
+        const user = { id: "user", role: "user", parts: [{ type: "text", text: "Hello" }] };
+        const result = { id: "assistant", role: "assistant", parts: [{ type: "tool-lookup", toolCallId: "call-1",
+            state: "output-available", input: {}, output: "record-found" }] };
+        for (const selection of cases) for (const chatMode of ["agent", "chat"]) {
+            const source = JSON.stringify(selection);
+            const requests = [];
+            const fetcher = engineValue("chatFetch", { ...genericEndpoints, chatMode, requestEndpoint: endpoint,
+                isProviderEndpointProfile: chatMode === "chat", requestEndpointProfile: { providerKey: "openai" },
+                providers: {}, useMemo: factory => factory(), authFetch: async (url, init) => {
+                    requests.push(JSON.parse(init.body));
+                    return new Response(null, { status: 204 });
+                },
+            });
+            for (const messages of [[user], [user, result]]) {
+                await fetcher("https://agents.example" + endpoint, { body: JSON.stringify({ ...selection, messages }) });
+            }
+            assert.equal(JSON.stringify(selection), source, "mapping must not mutate agent definitions");
+            for (const body of requests) for (const field of ["model", "models", "agent", "agents"]) {
+                assert.deepEqual(body[field], chatMode === "agent" || field === "model" ? selection[field] : undefined,
+                    `${chatMode} ${endpoint} must preserve only its own ${field} selection`);
+            }
+        }
+    });
+}
+
+for (const endpoint of gatewayEndpoints) for (const suffix of ["", "/"]) {
+    test(`agent gateway ${endpoint} dispatches the matching URL, auth, payload and continuation (base suffix '${suffix}')`, async () => {
+        const config = { baseUrl: "https://chat.example/gateway", agentEndpoint: "https://agents.example/backend" + suffix,
+            endpoints: { chat: "/api/chat" }, agentScopes: ["agent-scope"] };
+        const common = { config, requestEndpoint: endpoint, requestBaseUrl: config.baseUrl, ...genericEndpoints };
+        const api = engineValue("api", { ...common, chatMode: "agent" });
+        assert.equal(api, "https://agents.example/backend" + endpoint);
+        assert.equal(engineValue("api", { ...common, chatMode: "chat" }), config.baseUrl + endpoint);
+        const requests = [];
+        let tokenCalls = 0;
+        const authFetch = useAuthFetch({ chatMode: "agent", agentConfig: config,
+            refreshToken: async () => { tokenCalls++; return "agent-token"; },
+            getAccessToken: async () => { throw Error("Must not request the ordinary chat token"); },
+            customFetch: async (url, init) => {
+                requests.push({ url, headers: new Headers(init.headers), body: JSON.parse(init.body) });
+                return protocolResponse(endpoint);
+            },
+        });
+        const chatFetch = engineValue("chatFetch", { ...common, authFetch, chatMode: "agent", isProviderEndpointProfile: false,
+            requestEndpointProfile: undefined, providers: {}, useMemo: factory => factory() });
+        const h = runtimeHarness();
+        h.ref = { current: h.catalog };
+        const toolName = h.catalog.tools[0].name;
+        const user = { id: "user", role: "user", parts: [{ type: "text", text: "Look up a record" }] };
+        const completed = { id: "assistant", role: "assistant", parts: [{ type: `tool-${toolName}`,
+            toolCallId: "call-1", state: "output-available", input: { query: "q" }, output: { result: "record-found" } }] };
+        const transport = new ManagedAgentChatTransport({ fetch: chatFetch,
+            prepareSendMessagesRequest: prepareRequest(h, "agent", { ...common, api, config }) });
+        for (const messages of [[user], [user, completed]]) {
+            const stream = await transport.sendMessages({ chatId: "conversation", trigger: "submit-message", messages });
+            const chunks = [];
+            for await (const chunk of stream) chunks.push(chunk);
+            assert.equal(chunks.some(chunk => chunk.type === "error"), false, JSON.stringify(chunks));
+            assert.equal(chunks.filter(chunk => chunk.type === "text-delta").map(chunk => chunk.delta).join(""), "Done");
+        }
+        assert.equal(requests.length, 2);
+        assert.equal(tokenCalls, 2);
+        for (const request of requests) {
+            assert.equal(request.url, "https://agents.example/backend" + endpoint);
+            assert.equal(request.headers.get("Authorization"), "Bearer agent-token");
+        }
+        const [first, continuation] = requests.map(request => request.body);
+        for (const body of [first, continuation]) {
+            assert.deepEqual(body.agents, [{ name: "Managed", tools: [{ name: "server_tool" }] }]);
+        }
+        if (endpoint === "/api/chat") {
+            assert.equal(first.id, "conversation");
+            assert.deepEqual(first.messages, [user]);
+            assert.equal(continuation.messages[1].parts[0].output.result, "record-found");
+        } else {
+            assert.equal(first.stream, true);
+            const messages = endpoint === "/v1/responses" ? first.input : first.messages;
+            assert.equal(messages[0].role, "user");
+            assert.equal(messages[0].parts, undefined);
+            assert.match(JSON.stringify(continuation), /record-found/);
+            if (endpoint === "/v1/responses") assert.ok(continuation.input.some(item => item.type === "function_call_output"));
+            if (endpoint === "/v1/messages") assert.ok(continuation.messages.some(item => item.content?.some(part => part.type === "tool_result")));
+            if (endpoint === "/v1/chat/completions") assert.ok(continuation.messages.some(item => item.role === "tool"));
+        }
+    });
+}
 
 test("real SDK streaming returns MCP results to agent backend and continues; provider tools stay server-side", async () => {
     const h = runtimeHarness();
