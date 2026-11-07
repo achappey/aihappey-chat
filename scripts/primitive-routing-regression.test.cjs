@@ -148,19 +148,27 @@ test("primitive routing blocks concurrent sends and late winners after selection
 
 test("model discovery forwards configured header-auth credentials and preserves custom overrides", async () => {
     let options;
+    let resolveDiscovery;
+    const discovered = new Promise(resolve => { resolveDiscovery = resolve; });
     const state = { modelsLoaded: false, customHeaders: { "X-Tenant": "override" }, models: [],
         setModels: () => {}, resetModels: () => {}, setSelectedModel: () => {} };
     const { useModels } = load(base + "models/useModels.ts", {
+        "aihappey-models": require("aihappey-models"),
         react: { useEffect: effect => effect(), useRef: value => ({ current: value }), useState: initial => [typeof initial === "function" ? initial() : initial, () => {}] },
         "aihappey-state": { store: { getState: () => state }, useAppStore: selector => selector(state) },
         "react-router": { useSearchParams: () => [new URLSearchParams()] },
         "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => ({}) },
         "../provider-credentials/providerAuthHeaders": {
             mergeCredentialHeaders: require("./credential-test-loader.cjs").auth.mergeCredentialHeaders,
-            listModelsWithSplitProviderHeaders: async request => { options = request; return { data: [] }; },
+            listModelsWithSplitProviderHeaders: async request => {
+                options = request;
+                resolveDiscovery();
+                return { data: [] };
+            },
         },
     });
     useModels("https://gateway/api/models", undefined, { headers: { "X-Api-Key": "configured-auth", "X-OpenAI-Key": "router-key", "X-Tenant": "base" } });
+    await discovered;
     assert.deepEqual(options.customHeaders, { "x-api-key": "configured-auth", "x-openai-key": "router-key", "x-tenant": "override" });
     await new Promise(setImmediate);
 });

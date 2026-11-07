@@ -28,6 +28,7 @@ const { resolvePreferredProviderChatEndpoint } = load("packages/aihappey-state/s
 function modelLoader(data) {
     const calls = [];
     const api = load("packages/aihappey-core/src/features/provider-credentials/providerAuthHeaders.ts", {
+        "aihappey-models": require("aihappey-models"),
         "aihappey-http": {
             createHttpClient: (config) => createHttpClient({
                 ...config,

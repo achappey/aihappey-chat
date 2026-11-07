@@ -281,10 +281,6 @@ test('real SDK client-tool continuation uses new request timings, not tool execu
   const guard = createClientToolContinuation();
   let requests = 0, chat;
   const start = { type: 'message_start', message: { id: 'msg', model: 'native-model', usage: { input_tokens: 9 } } };
-  const end = (reason, tokens) => [
-    [h.clock.time + 1000, { type: 'message_delta', delta: { stop_reason: reason }, usage: { output_tokens: tokens } }],
-    [h.clock.time + 2000, { type: 'message_stop' }],
-  ];
   const transport = new h.GenericChatEndpointTransport('/v1/messages', 'testprovider', undefined, {
     api: 'https://provider.test/v1/messages', fetch: async () => {
       if (++requests === 1) return nativeResponse(h.clock, [
@@ -297,8 +293,10 @@ test('real SDK client-tool continuation uses new request timings, not tool execu
       assert.equal(h.clock.time, 16000);
       return nativeResponse(h.clock, [
         [17000, start], [18000, { type: 'content_block_start', index: 0, content_block: { type: 'text', text: 'Answer' } }],
-        [19000, { type: 'content_block_stop', index: 0 }], ...end('end_turn', 60),
-      ].sort((a, b) => a[0] - b[0]));
+        [19000, { type: 'content_block_stop', index: 0 }],
+        [20000, { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 60 } }],
+        [21000, { type: 'message_stop' }],
+      ]);
     },
   });
   const errors = [];

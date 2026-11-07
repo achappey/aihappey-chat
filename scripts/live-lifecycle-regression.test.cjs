@@ -4,16 +4,21 @@ const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
 const root = 'packages/aihappey-core/src/features/realtime/';
-function load(file) {
+function load(file, mocks = {}) {
   const module = { exports: {} };
   const source = fs.readFileSync(path.resolve(__dirname, '..', root, file), 'utf8');
   const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  new Function('require', 'module', 'exports', code)(id => { throw new Error('Unexpected runtime dependency: ' + id); }, module, module.exports);
+  new Function('require', 'module', 'exports', code)(id => {
+    if (Object.hasOwn(mocks, id)) return mocks[id];
+    throw new Error('Unexpected runtime dependency: ' + id);
+  }, module, module.exports);
   return module.exports;
 }
 const { RealtimeHistoryWriter } = load('realtimeHistoryWriter.ts');
 const { LiveConversationRuntime } = load('liveConversationRuntime.ts');
-const { completeLiveToolCalls } = load('completeLiveToolCalls.ts');
+const { completeLiveToolCalls } = load('completeLiveToolCalls.ts', {
+  '../chat/engine/toolApprovalMetadata': load('../chat/engine/toolApprovalMetadata.ts'),
+});
 const { buildLiveSessionConfig } = load('liveSessionConfig.ts');
 
 test('ordered ordinary UI-part history preserves final fragments and full tool results before navigation', async () => {

@@ -655,8 +655,8 @@ test("existing approval UI requires consent, respects owner-scoped allowlists, a
     approvalHost(messages, { ...state, allowedToolList: [catalog.tools[1].name] }, d => decisions.push(d));
     assert.deepEqual(decisions, []);
     approvalHost(messages, { ...state, allowedToolList: [toolName] }, d => decisions.push(d));
-    assert.deepEqual(decisions.pop(), { id: "approval", approved: true, reason: toolName });
+    assert.deepEqual(decisions.pop(), { id: "approval", approved: true, reason: toolName, signature: undefined, isAutomatic: true });
     approvalHost(messages, { ...state, approveAll: true }, d => decisions.push(d));
-    assert.deepEqual(decisions.pop(), { id: "approval", approved: true, reason: "BRRR" });
+    assert.deepEqual(decisions.pop(), { id: "approval", approved: true, reason: "BRRR", signature: undefined, isAutomatic: true });
     assert.equal(sendAutomaticallyWhen({ messages }), false);
 });

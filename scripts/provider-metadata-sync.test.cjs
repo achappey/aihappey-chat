@@ -58,17 +58,82 @@ test('validated offline development works, but release checks require the source
   assert.throws(() => sync(options), /hash mismatch/);
 });
 
-test('mixed revisions and malformed indexes fail before touching snapshots', (t) => {
+test('current source edits refresh snapshots even when upstream hashes have not been regenerated', (t) => {
   const options = fixture(t);
   sync(options);
   const before = fs.readFileSync(path.join(options.destination, 'metadata.snapshot.json'), 'utf8');
-  fs.writeFileSync(path.join(options.source, 'models/providers/zai.json'), '{"data":[]}');
-  assert.throws(() => sync(options), /Stale or mixed/);
+  const upstreamManifest = fs.readFileSync(path.join(options.source, 'index.json'), 'utf8');
+  const edits = {
+    'models/providers/zai.json': { data: [{ id: 'zai/latest-model' }] },
+    'providers/example.json': { name: 'Latest Example', icons: [] },
+    'pricing/providers/example.json': { 'example/model': { pricing: { input: '0.009', output: '0.008' } } },
+  };
+  for (const [file, content] of Object.entries(edits))
+    fs.writeFileSync(path.join(options.source, file), JSON.stringify(content));
+  assert.throws(() => sync({ ...options, check: true }), /Stale snapshot manifest/);
   assert.equal(fs.readFileSync(path.join(options.destination, 'metadata.snapshot.json'), 'utf8'), before);
-  options.documents['providers/index.json'].push({ id: 'example', file: 'example.json' });
+  const snapshot = sync(options);
+  for (const [source, content] of Object.entries(edits)) {
+    const entry = snapshot.files.find(entry => entry.source === source);
+    const bytes = fs.readFileSync(path.join(options.destination, entry.file));
+    assert.deepEqual(JSON.parse(bytes), content);
+    assert.equal(entry.sha256, hash(bytes));
+  }
+  assert.equal(fs.readFileSync(path.join(options.source, 'index.json'), 'utf8'), upstreamManifest);
+  assert.deepEqual(sync({ ...options, check: true, requireSource: true }), snapshot);
+  fs.rmSync(options.source, { recursive: true });
+  assert.deepEqual(sync({ ...options, check: true, warn() {} }), snapshot);
+});
+
+test('invalid current source data is rejected before changing any snapshot asset', (t) => {
+  const options = fixture(t);
+  const snapshot = sync(options);
+  const files = ['metadata.snapshot.json', ...snapshot.files.map(entry => entry.file)];
+  const before = new Map(files.map(file => [file, fs.readFileSync(path.join(options.destination, file))]));
+  for (const [file, invalid, error] of [
+    ['providers/example.json', '{"name":"Example","unknown":true}', /Invalid provider metadata/],
+    ['pricing/providers/example.json', '{invalid JSON}', /Invalid strict JSON/],
+    ['providers/index.json', JSON.stringify([{ id: 'example', file: 'example.json' }, { id: 'example', file: 'example.json' }]), /Duplicate provider/],
+  ]) {
+    const source = path.join(options.source, file);
+    const original = fs.readFileSync(source);
+    fs.writeFileSync(source, invalid);
+    assert.throws(() => sync(options), error);
+    for (const [file, content] of before)
+      assert.deepEqual(fs.readFileSync(path.join(options.destination, file)), content);
+    fs.writeFileSync(source, original);
+  }
+});
+
+test('unconsumed upstream edits do not block generation or freshness checks', (t) => {
+  const options = fixture(t);
+  const snapshot = sync(options);
+  const before = fs.readFileSync(path.join(options.destination, 'metadata.snapshot.json'), 'utf8');
+  fs.writeFileSync(path.join(options.source, 'pricing/providers/example/long_context.json'), '{"tiers":[{}]}');
+  assert.deepEqual(sync(options), snapshot);
+  assert.deepEqual(sync({ ...options, check: true, requireSource: true }), snapshot);
+  assert.equal(fs.readFileSync(path.join(options.destination, 'metadata.snapshot.json'), 'utf8'), before);
+});
+
+test('deleted providers are removed and remaining providers can refresh without upstream hash updates', (t) => {
+  const options = fixture(t);
+  options.documents['providers/index.json'].push({ id: 'remaining', file: 'remaining.json' });
+  options.documents['providers/remaining.json'] = { name: 'Remaining', icons: [] };
   options.publish();
-  assert.throws(() => sync(options), /Duplicate provider/);
+  sync(options);
+  fs.unlinkSync(path.join(options.source, 'providers/example.json'));
+  const snapshot = sync(options);
+  assert.equal(fs.existsSync(path.join(options.destination, 'catalog/example.json')), false);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(options.destination, 'catalog/index.json'), 'utf8')),
+    [{ id: 'remaining', file: 'remaining.json' }]);
+  assert.deepEqual(sync({ ...options, check: true }), snapshot);
+  const before = fs.readFileSync(path.join(options.destination, 'metadata.snapshot.json'), 'utf8');
+  fs.writeFileSync(path.join(options.source, 'providers/remaining.json'), '{"name":"Edited","icons":[]}');
+  assert.throws(() => sync({ ...options, check: true }), /Stale snapshot manifest/);
   assert.equal(fs.readFileSync(path.join(options.destination, 'metadata.snapshot.json'), 'utf8'), before);
+  sync(options);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(options.destination, 'catalog/remaining.json'), 'utf8')).name, 'Edited');
+  sync({ ...options, check: true });
 });
 
 test('source edits refresh local data and obsolete snapshots are removed, not silently retained', (t) => {
