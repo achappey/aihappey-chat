@@ -745,7 +745,9 @@ export function VercelChatInner({
             }
           }
 
-          if (!isGenericChatEndpoint(requestEndpoint)) {
+          // Native gateway chat routes need the same provider headers as /api/chat,
+          // before body mapping drops them. Direct routes own their scoped headers.
+          if (!isGenericChatEndpoint(requestEndpoint) || (chatMode === "chat" && !isProviderEndpointProfile)) {
             Object.entries(getGatewayProviderHeaders(mergedBody)).forEach(([key, value]) => {
               requestHeaders.set(key, value);
             });
