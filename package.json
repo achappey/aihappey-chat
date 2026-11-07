@@ -6,6 +6,7 @@
     "samples/*"
   ],
   "scripts": {
+    "postinstall": "patch-package --error-on-fail",
     "build": "npm run clean && node scripts/build-workspaces.cjs",
     "dev": "npm run -ws dev",
     "build:packages": "npm run -w packages --if-present build",
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@types/ws": "^8.18.1",
     "esbuild": "^0.28.0",
+    "patch-package": "^8.0.1",
     "rimraf": "^6.0.0",
     "typescript": "^6.0.3"
   },

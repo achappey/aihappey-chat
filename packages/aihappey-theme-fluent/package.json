@@ -28,7 +28,7 @@
     "@fluentui/react-components": "^9.64.0",
     "@fluentui/react-icons": "^2.0.301",
     "chroma-js": "^3.2.0",
-    "timeago.js": "4.0.2",
+    "timeago.js": "^4.0.2",
     "usehooks-ts": "^3.1.1"
   },
   "license": "MIT"

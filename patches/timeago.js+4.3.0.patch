@@ -1,0 +1,21 @@
+diff --git a/node_modules/timeago.js/package.json b/node_modules/timeago.js/package.json
+--- a/node_modules/timeago.js/package.json
++++ b/node_modules/timeago.js/package.json
+@@ -11,14 +11,17 @@
+   "types": "dist/index.d.ts",
+   "exports": {
+     ".": {
++      "types": "./dist/index.d.ts",
+       "import": "./dist/index.mjs",
+       "require": "./dist/index.cjs"
+     },
+     "./lib/*": {
++      "types": "./dist/*.d.ts",
+       "import": "./dist/esm/*.js",
+       "require": "./dist/lib/*.js"
+     },
+     "./esm/*": {
++      "types": "./dist/*.d.ts",
+       "import": "./dist/esm/*.js"
+     }
+   },
