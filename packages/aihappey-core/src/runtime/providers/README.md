@@ -82,12 +82,16 @@ npm run build --workspace aihappey-core
 Commit refreshed snapshots, their hash manifest, and regenerated
 [catalog.generated.ts](catalog.generated.ts) together. A sibling providers checkout
 is the default source; an explicit metadata-root override is supported by the
-[synchronizer](../../../scripts/sync-provider-metadata.cjs). Source files and the
-upstream manifest must agree before any local snapshot is changed. Obsolete local
-JSON files are removed. An absent checkout permits hash-validated offline
-development; package creation requires the source and checks generated imports
-before compiling. Other release automation should run the synchronizer's strict
-source-required check before building. No new npm package is introduced.
+[synchronizer](../../../scripts/sync-provider-metadata.cjs). The upstream manifest
+supplies the file inventory; current source contents are authoritative even when
+upstream hashes have not been regenerated after provider, model, or pricing edits.
+Generation validates the consumed JSON and provider metadata before writing any
+snapshot, and records fresh hashes from the exact bytes being copied. Obsolete
+local JSON files are removed. An absent checkout permits hash-validated offline
+development. Checks are read-only and compare local snapshots against current
+source contents, not outdated upstream hashes. Package creation requires the source
+and checks snapshot freshness and generated imports before compiling; run generation
+first after upstream edits. No new npm package is introduced.
 The existing [registry export](providers.ts:10) and
 [compatibility export](providerMetadata.ts:7) continue to work unchanged.
 
