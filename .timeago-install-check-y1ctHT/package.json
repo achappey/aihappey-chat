@@ -1,0 +1,1 @@
+{"name":"timeago-install-check","version":"1.0.0","private":true,"scripts":{"postinstall":"patch-package --error-on-fail"},"dependencies":{"timeago.js":"4.3.0"},"devDependencies":{"patch-package":"^8.0.1"}}
