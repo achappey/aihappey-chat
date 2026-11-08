@@ -1,17 +1,17 @@
 import { useMemo } from "react";
 import { useTranslation, type TFunction } from "aihappey-i18n";
 import { useTheme } from "../../../theme/ThemeContext";
+import { OpenRouterDelegationCard } from "./OpenRouterDelegationCard";
+import { OpenRouterWebSearchCard } from "./OpenRouterWebSearchCard";
+import { OpenRouterListInput, OpenRouterNumberInput, openRouterGrid, openRouterStack } from "./OpenRouterFields";
 import {
-  buildCanonicalProviderToolsConfig,
-  withResolvedProviderTools,
-} from "../providerToolConfig";
-
-const OPENROUTER_TOOL_TYPES = [
-  "openrouter:web_search",
-  "openrouter:datetime",
-  "openrouter:image_generation",
-  "openrouter:web_fetch",
-];
+  canonicalizeOpenRouterConfig,
+  getOpenRouterTools,
+  optionalString as normalizeOptionalString,
+  pruneOpenRouterObject as pruneEmptyObject,
+  setOpenRouterTools,
+  withOpenRouterParameters as withToolParameters,
+} from "./openRouterToolConfig";
 
 const APP_ATTRIBUTION_HEADERS = {
   referer: "HTTP-Referer",
@@ -28,77 +28,12 @@ const APP_ATTRIBUTION_HEADER_ALIASES = {
 const APP_ATTRIBUTION_CATEGORIES = "general-chat,personal-agent";
 const DEFAULT_APP_TITLE = "AIHappey";
 
-const WEB_SEARCH_ENGINES = ["", "auto", "native", "exa", "firecrawl", "parallel"] as const;
 const WEB_FETCH_ENGINES = ["", "auto", "native", "exa", "openrouter", "firecrawl"] as const;
-const SEARCH_CONTEXT_SIZES = ["", "low", "medium", "high"] as const;
 const PDF_ENGINES = ["", "cloudflare-ai", "mistral-ocr", "native"] as const;
 const OUTPUT_FORMATS = ["", "png", "jpeg", "webp"] as const;
 const BACKGROUNDS = ["", "transparent", "opaque", "auto"] as const;
 const QUALITIES = ["", "low", "medium", "high", "auto"] as const;
 const MODERATION_LEVELS = ["", "auto", "low"] as const;
-
-const normalizeOptionalString = (value: unknown) => {
-  const trimmed = String(value ?? "").trim();
-  return trimmed ? trimmed : undefined;
-};
-
-const parseOptionalInteger = (value: unknown) => {
-  const trimmed = String(value ?? "").trim();
-  if (!trimmed) return undefined;
-
-  const parsed = Number(trimmed);
-  return Number.isFinite(parsed) ? Math.trunc(parsed) : undefined;
-};
-
-const parseOptionalNumber = (value: unknown) => {
-  const trimmed = String(value ?? "").trim();
-  if (!trimmed) return undefined;
-
-  const parsed = Number(trimmed);
-  return Number.isFinite(parsed) ? parsed : undefined;
-};
-
-const parseDomainList = (value: unknown) => {
-  if (Array.isArray(value)) {
-    const list = value
-      .map((item) => normalizeOptionalString(item))
-      .filter((item): item is string => !!item);
-    return list.length ? Array.from(new Set(list)) : undefined;
-  }
-
-  const list = String(value ?? "")
-    .split(/[\n,]+/)
-    .map((item) => normalizeOptionalString(item))
-    .filter((item): item is string => !!item);
-
-  return list.length ? Array.from(new Set(list)) : undefined;
-};
-
-const serializeDomainList = (value: unknown) =>
-  Array.isArray(value) ? value.filter(Boolean).join(", ") : "";
-
-const pruneEmptyObject = <T extends Record<string, any>>(value: T) => {
-  const entries = Object.entries(value).filter(([, item]) => {
-    if (item === undefined || item === null || item === "") return false;
-    if (Array.isArray(item)) return item.length > 0;
-    if (typeof item === "object") return Object.keys(item).length > 0;
-    return true;
-  });
-
-  return entries.length ? Object.fromEntries(entries) : undefined;
-};
-
-const withToolParameters = (tool: any, patch: Record<string, any>) => {
-  const parameters = pruneEmptyObject({
-    ...(tool?.parameters ?? {}),
-    ...patch,
-  });
-
-  return {
-    ...(tool ?? {}),
-    parameters,
-  };
-};
 
 const getPlugin = (config: any, id: string) => {
   const plugins = Array.isArray(config?.plugins) ? config.plugins : [];
@@ -138,17 +73,12 @@ const removeAttributionHeaders = (headers: Record<string, any> | undefined) => {
   return Object.keys(nextHeaders).length ? nextHeaders : undefined;
 };
 
-const removeConfigHeaders = (config: any) => {
-  const { headers: _headers, ...bodyConfig } = config ?? {};
-  return bodyConfig;
-};
-
 const optionItems = (values: readonly string[], notSetLabel: string) =>
   values.map((value) => ({ value, label: value || notSetLabel }));
 
 const selectLabel = (value: string | undefined, notSetLabel: string) => value || notSetLabel;
 
-const compactStack = { display: "flex", flexDirection: "column" } as const;
+const compactStack = openRouterStack;
 
 const tk = (t: TFunction, key: string, fallback: string) =>
   t(`providers:openrouter.${key}`) ?? fallback;
@@ -168,14 +98,15 @@ export const OpenRouterChatConfigForm = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const resolvedConfig = withResolvedProviderTools(config, OPENROUTER_TOOL_TYPES);
+  const resolvedConfig = canonicalizeOpenRouterConfig(config);
   const submitConfig = (nextConfig: any) =>
-    updateConfig(buildCanonicalProviderToolsConfig(removeConfigHeaders(nextConfig), OPENROUTER_TOOL_TYPES));
+    updateConfig(canonicalizeOpenRouterConfig(nextConfig));
 
-  const webSearch = resolvedConfig?.["openrouter:web_search"];
-  const datetime = resolvedConfig?.["openrouter:datetime"];
-  const imageGeneration = resolvedConfig?.["openrouter:image_generation"];
-  const webFetch = resolvedConfig?.["openrouter:web_fetch"];
+  const webSearch = getOpenRouterTools(resolvedConfig, "openrouter:web_search")[0];
+  const datetime = getOpenRouterTools(resolvedConfig, "openrouter:datetime")[0];
+  const imageGeneration = getOpenRouterTools(resolvedConfig, "openrouter:image_generation")[0];
+  const webFetch = getOpenRouterTools(resolvedConfig, "openrouter:web_fetch")[0];
+  const searchModels = getOpenRouterTools(resolvedConfig, "openrouter:experimental__search_models")[0];
   const responseHealingPlugin = getPlugin(resolvedConfig, "response-healing");
   const contextCompressionPlugin = getPlugin(resolvedConfig, "context-compression");
   const fileParserPlugin = getPlugin(resolvedConfig, "file-parser");
@@ -185,22 +116,14 @@ export const OpenRouterChatConfigForm = ({
     !!headers?.[APP_ATTRIBUTION_HEADERS.title] &&
     headers?.[APP_ATTRIBUTION_HEADERS.categories] === APP_ATTRIBUTION_CATEGORIES;
 
-  const twoColumnGrid = {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: 12,
-    width: "100%",
-    alignItems: "end",
-  } as const;
+  const twoColumnGrid = openRouterGrid;
 
   const updateTool = (type: string, value: any) =>
-    submitConfig({
-      ...resolvedConfig,
-      [type]: value,
-    });
+    submitConfig(setOpenRouterTools(resolvedConfig, type, value ? [value] : []));
 
-  const updateToolParameter = (type: string, tool: any, patch: Record<string, any>) =>
-    updateTool(type, withToolParameters(tool, patch));
+  const updateToolParameter = (type: string, tool: any, patch: Record<string, any>) => {
+    if (tool) updateTool(type, withToolParameters(tool, patch));
+  };
 
   const updateAppAttribution = (enabled: boolean) => {
     updateHeaders?.(
@@ -293,176 +216,29 @@ export const OpenRouterChatConfigForm = ({
       >
       </theme.Card>
 
-      <theme.Card
-        size="small"
-        title={tr("webSearchServerTool", "Web Search server tool")}
-        headerActions={
-          <theme.Switch
-            id="openrouterWebSearch"
-            checked={!!webSearch}
-            onChange={(enabled) =>
-              updateTool(
-                "openrouter:web_search",
-                enabled ? { type: "openrouter:web_search" } : undefined
-              )
-            }
-          />
-        }
-      >
-        <div style={compactStack}>
-          <div style={twoColumnGrid}>
-            <theme.Select
-              label={tr("engine", "Engine")}
-              disabled={!webSearch}
-              values={[webSearch?.parameters?.engine ?? ""]}
-              valueTitle={selectLabel(webSearch?.parameters?.engine, notSetLabel)}
-              options={optionItems(WEB_SEARCH_ENGINES, notSetLabel)}
-              onChange={(value: string) =>
-                updateToolParameter("openrouter:web_search", webSearch, {
-                  engine: normalizeOptionalString(value),
-                })
-              }
-            >
-              {WEB_SEARCH_ENGINES.map((value) => (
-                <option key={value || "unset"} value={value}>{value || notSetLabel}</option>
-              ))}
-            </theme.Select>
+      <theme.Card size="small" title={tr("serverTools", "Server tools")}>
+        <OpenRouterNumberInput label={tr("maxToolCalls", "Max tool calls")}
+          value={resolvedConfig.max_tool_calls} max={30}
+          onChange={max_tool_calls => {
+            const nextConfig = { ...resolvedConfig };
+            if (max_tool_calls === undefined) delete nextConfig.max_tool_calls;
+            else nextConfig.max_tool_calls = max_tool_calls;
+            submitConfig(nextConfig);
+          }} />
+      </theme.Card>
 
-            <theme.Select
-              label={tr("searchContextSize", "Search context size")}
-              disabled={!webSearch}
-              values={[webSearch?.parameters?.search_context_size ?? ""]}
-              valueTitle={selectLabel(webSearch?.parameters?.search_context_size, notSetLabel)}
-              options={optionItems(SEARCH_CONTEXT_SIZES, notSetLabel)}
-              onChange={(value: string) =>
-                updateToolParameter("openrouter:web_search", webSearch, {
-                  search_context_size: normalizeOptionalString(value),
-                })
-              }
-            >
-              {SEARCH_CONTEXT_SIZES.map((value) => (
-                <option key={value || "unset"} value={value}>{value || notSetLabel}</option>
-              ))}
-            </theme.Select>
-          </div>
+      <OpenRouterWebSearchCard tool={webSearch} onChange={tool => updateTool("openrouter:web_search", tool)} />
 
-          <div style={twoColumnGrid}>
-            <theme.Input
-              label={tr("maxResults", "Max results")}
-              type="number"
-              min={1}
-              max={25}
-              step={1}
-              disabled={!webSearch}
-              value={webSearch?.parameters?.max_results ?? ""}
-              onChange={(e: any) =>
-                updateToolParameter("openrouter:web_search", webSearch, {
-                  max_results: parseOptionalInteger(e.target.value),
-                })
-              }
-            />
-            <theme.Input
-              label={tr("maxTotalResults", "Max total results")}
-              type="number"
-              min={1}
-              step={1}
-              disabled={!webSearch}
-              value={webSearch?.parameters?.max_total_results ?? ""}
-              onChange={(e: any) =>
-                updateToolParameter("openrouter:web_search", webSearch, {
-                  max_total_results: parseOptionalInteger(e.target.value),
-                })
-              }
-            />
-          </div>
+      <OpenRouterDelegationCard kind="advisor" config={resolvedConfig} updateConfig={submitConfig} />
+      <OpenRouterDelegationCard kind="subagent" config={resolvedConfig} updateConfig={submitConfig} />
 
-          <div style={twoColumnGrid}>
-            <theme.Input
-              label={tr("allowedDomains", "Allowed domains")}
-              placeholder="example.com, docs.example.com"
-              disabled={!webSearch}
-              value={serializeDomainList(webSearch?.parameters?.allowed_domains)}
-              onChange={(e: any) =>
-                updateToolParameter("openrouter:web_search", webSearch, {
-                  allowed_domains: parseDomainList(e.target.value),
-                })
-              }
-            />
-            <theme.Input
-              label={tr("excludedDomains", "Excluded domains")}
-              placeholder="reddit.com"
-              disabled={!webSearch}
-              value={serializeDomainList(webSearch?.parameters?.excluded_domains)}
-              onChange={(e: any) =>
-                updateToolParameter("openrouter:web_search", webSearch, {
-                  excluded_domains: parseDomainList(e.target.value),
-                })
-              }
-            />
-          </div>
-
-          <div style={twoColumnGrid}>
-            <theme.Input
-              label={tr("userCity", "User city")}
-              placeholder="Amsterdam"
-              disabled={!webSearch}
-              value={webSearch?.parameters?.user_location?.city ?? ""}
-              onChange={(e: any) => {
-                const userLocation = pruneEmptyObject({
-                  ...(webSearch?.parameters?.user_location ?? {}),
-                  type: "approximate",
-                  city: normalizeOptionalString(e.target.value),
-                });
-                updateToolParameter("openrouter:web_search", webSearch, { user_location: userLocation });
-              }}
-            />
-            <theme.Input
-              label={tr("userCountry", "User country")}
-              placeholder="NL"
-              disabled={!webSearch}
-              value={webSearch?.parameters?.user_location?.country ?? ""}
-              onChange={(e: any) => {
-                const userLocation = pruneEmptyObject({
-                  ...(webSearch?.parameters?.user_location ?? {}),
-                  type: "approximate",
-                  country: normalizeOptionalString(e.target.value),
-                });
-                updateToolParameter("openrouter:web_search", webSearch, { user_location: userLocation });
-              }}
-            />
-          </div>
-
-          <div style={twoColumnGrid}>
-            <theme.Input
-              label={tr("userRegion", "User region")}
-              placeholder="Noord-Holland"
-              disabled={!webSearch}
-              value={webSearch?.parameters?.user_location?.region ?? ""}
-              onChange={(e: any) => {
-                const userLocation = pruneEmptyObject({
-                  ...(webSearch?.parameters?.user_location ?? {}),
-                  type: "approximate",
-                  region: normalizeOptionalString(e.target.value),
-                });
-                updateToolParameter("openrouter:web_search", webSearch, { user_location: userLocation });
-              }}
-            />
-            <theme.Input
-              label={tr("userTimezone", "User timezone")}
-              placeholder="Europe/Amsterdam"
-              disabled={!webSearch}
-              value={webSearch?.parameters?.user_location?.timezone ?? ""}
-              onChange={(e: any) => {
-                const userLocation = pruneEmptyObject({
-                  ...(webSearch?.parameters?.user_location ?? {}),
-                  type: "approximate",
-                  timezone: normalizeOptionalString(e.target.value),
-                });
-                updateToolParameter("openrouter:web_search", webSearch, { user_location: userLocation });
-              }}
-            />
-          </div>
-        </div>
+      <theme.Card size="small" title={tr("searchModelsServerTool", "Model search")}
+        headerActions={<theme.Switch id="openrouterSearchModels" checked={!!searchModels}
+          onChange={enabled => updateTool("openrouter:experimental__search_models",
+            enabled ? { type: "openrouter:experimental__search_models" } : undefined)} />}>
+        {searchModels && <OpenRouterNumberInput label={tr("maxResults", "Max results")}
+          value={searchModels.parameters?.max_results} max={20}
+          onChange={max_results => updateToolParameter("openrouter:experimental__search_models", searchModels, { max_results })} />}
       </theme.Card>
 
       <theme.Card
@@ -499,55 +275,49 @@ export const OpenRouterChatConfigForm = ({
                 <option key={value || "unset"} value={value}>{value || notSetLabel}</option>
               ))}
             </theme.Select>
-            <theme.Input
+            <OpenRouterNumberInput
               label={tr("maxUses", "Max uses")}
-              type="number"
-              min={1}
-              step={1}
               disabled={!webFetch}
-              value={webFetch?.parameters?.max_uses ?? ""}
-              onChange={(e: any) =>
+              value={webFetch?.parameters?.max_uses}
+              onChange={(max_uses) =>
                 updateToolParameter("openrouter:web_fetch", webFetch, {
-                  max_uses: parseOptionalInteger(e.target.value),
+                  max_uses,
                 })
               }
             />
           </div>
 
-          <theme.Input
+          <OpenRouterNumberInput
             label={tr("maxContentTokens", "Max content tokens")}
-            type="number"
-            min={1}
-            step={1}
             disabled={!webFetch}
-            value={webFetch?.parameters?.max_content_tokens ?? ""}
-            onChange={(e: any) =>
+            value={webFetch?.parameters?.max_content_tokens}
+            onChange={(max_content_tokens) =>
               updateToolParameter("openrouter:web_fetch", webFetch, {
-                max_content_tokens: parseOptionalInteger(e.target.value),
+                max_content_tokens,
               })
             }
           />
 
           <div style={twoColumnGrid}>
-            <theme.Input
+            <OpenRouterListInput
               label={tr("allowedDomains", "Allowed domains")}
               placeholder="docs.example.com"
               disabled={!webFetch}
-              value={serializeDomainList(webFetch?.parameters?.allowed_domains)}
-              onChange={(e: any) =>
+              value={webFetch?.parameters?.allowed_domains}
+              onChange={(allowed_domains) =>
                 updateToolParameter("openrouter:web_fetch", webFetch, {
-                  allowed_domains: parseDomainList(e.target.value),
+                  allowed_domains,
                 })
               }
             />
-            <theme.Input
+            <OpenRouterListInput
               label={tr("blockedDomains", "Blocked domains")}
               placeholder="private.example.com"
               disabled={!webFetch}
-              value={serializeDomainList(webFetch?.parameters?.blocked_domains)}
-              onChange={(e: any) =>
+              value={webFetch?.parameters?.blocked_domains}
+              onChange={(blocked_domains) =>
                 updateToolParameter("openrouter:web_fetch", webFetch, {
-                  blocked_domains: parseDomainList(e.target.value),
+                  blocked_domains,
                 })
               }
             />
@@ -605,7 +375,7 @@ export const OpenRouterChatConfigForm = ({
         <div style={compactStack}>
           <theme.Input
             label={tr("imageModel", "Image model")}
-            placeholder="openai/gpt-image-1"
+            placeholder="openai/gpt-image-2.6-flare"
             disabled={!imageGeneration}
             value={imageGeneration?.parameters?.model ?? ""}
             onChange={(e: any) =>
@@ -692,17 +462,16 @@ export const OpenRouterChatConfigForm = ({
                 <option key={value || "unset"} value={value}>{value || notSetLabel}</option>
               ))}
             </theme.Select>
-            <theme.Input
+            <OpenRouterNumberInput
               label={tr("outputCompression", "Output compression")}
-              type="number"
               min={0}
               max={100}
-              step={1}
+              integer={false}
               disabled={!imageGeneration}
-              value={imageGeneration?.parameters?.output_compression ?? ""}
-              onChange={(e: any) =>
+              value={imageGeneration?.parameters?.output_compression}
+              onChange={(output_compression) =>
                 updateToolParameter("openrouter:image_generation", imageGeneration, {
-                  output_compression: parseOptionalNumber(e.target.value),
+                  output_compression,
                 })
               }
             />
