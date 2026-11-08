@@ -332,7 +332,7 @@
     "maxToolCalls": "Max tool calls",
     "searchMode": "Search mode",
     "maxCharacters": "Max characters per result",
-    "xSearch": "X search (native SpaceXAI)",
+    "xSearch": "X search",
     "allowedXHandles": "Allowed X handles",
     "excludedXHandles": "Excluded X handles",
     "fromDate": "From date",
