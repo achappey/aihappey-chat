@@ -1,0 +1,16 @@
+
+{
+  "name": "SippulseAI",
+  "description": "Transform customer experience with Voice AI technology. Advanced voice agents, WhatsApp AI, and audio intelligence. Expert consultancy and custom AI solutions.",
+  "urls": {
+    "homepage": "https://sippulse.ai",
+    "docs": "https://docs.sippulse.ai",
+    "pricing": "https://sippulse.ai/planos",
+    "console": "https://app.sippulse.ai",
+    "privacyPolicy": "https://sippulse.ai/privacy",
+    "termsOfService": "https://sippulse.ai/terms"
+  },
+  "providerCountry": "BR",
+  "category": "inference_compute",
+  "inferenceRegions": ["World"]
+}

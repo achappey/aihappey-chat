@@ -368,6 +368,11 @@
       "sha256": "cb4e3c6fd690a467cf30bbd52174d129d61082cf9613a3177e0e5097f645102e"
     },
     {
+      "source": "providers/athena.json",
+      "file": "catalog/athena.json",
+      "sha256": "6871b436da17be4c9f29a8a3a3d659442faa84bc70027eeeded57d6018126a92"
+    },
+    {
       "source": "providers/atlascloud.json",
       "file": "catalog/atlascloud.json",
       "sha256": "c8a1521eb0c5bba952142bc3b7c3b5ed38a924140b26bd53a9bfa1a8d634784f"
@@ -1345,7 +1350,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "f215e345a8a0a686c14d91fefce270d15596a9fca9426b59b8248033dd739a5f"
+      "sha256": "2afde82fce1ba0fbd5ca3636f631f9998d684e0d18757a1413bfe0b4f93d7719"
     },
     {
       "source": "providers/infercom.json",
@@ -2116,6 +2121,11 @@
       "source": "providers/noiz.json",
       "file": "catalog/noiz.json",
       "sha256": "23075fcd70b5b7513a4db55155ca4fec125e89935b83f6208bb27f4cf5e09226"
+    },
+    {
+      "source": "providers/nolgia.json",
+      "file": "catalog/nolgia.json",
+      "sha256": "4957d95236b8a2aacc1b2e5c370b5411fce715619d1efd99ccdb4124bc2e56b5"
     },
     {
       "source": "providers/nomic.json",
@@ -3081,6 +3091,11 @@
       "source": "providers/simplismart.json",
       "file": "catalog/simplismart.json",
       "sha256": "9eb33f057223c4503df4b15b1e58e7fdfe7874658612741937626f9878a02e16"
+    },
+    {
+      "source": "providers/sippulseai.json",
+      "file": "catalog/sippulseai.json",
+      "sha256": "7005b11facd5c692eead75bd4446fcf17208d91212ab8a67c9893c2ea17bb937"
     },
     {
       "source": "providers/skypooltoken.json",

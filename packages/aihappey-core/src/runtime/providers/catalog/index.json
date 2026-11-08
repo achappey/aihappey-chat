@@ -288,6 +288,10 @@
     "file": "skypooltoken.json"
   },
   {
+    "id": "nolgia",
+    "file": "nolgia.json"
+  },
+  {
     "id": "luminoai",
     "file": "luminoai.json"
   },
@@ -350,6 +354,10 @@
   {
     "id": "antimatter",
     "file": "antimatter.json"
+  },
+  {
+    "id": "athena",
+    "file": "athena.json"
   },
   {
     "id": "zyloapi",
@@ -1370,6 +1378,10 @@
   {
     "id": "smartaipi",
     "file": "smartaipi.json"
+  },
+  {
+    "id": "sippulseai",
+    "file": "sippulseai.json"
   },
   {
     "id": "assisters",

@@ -1,0 +1,17 @@
+
+{
+  "name": "NOLGIA",
+  "description": "AI video, image and audio studio for filmmakers: presets, a timeline editor, plugins for your apps and an agent that takes the busywork off your hands.",
+  "urls": {
+    "homepage": "https://nolgia.ai",
+    "docs": "https://docs.nolgia.ai/guides/agent-api.html",
+    "console": "https://nolgia.ai/create",
+    "termsOfService": "https://nolgia.ai/terms",
+    "privacyPolicy": "https://nolgia.ai/privacy"
+  },
+  "providerCountry": "US",
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}

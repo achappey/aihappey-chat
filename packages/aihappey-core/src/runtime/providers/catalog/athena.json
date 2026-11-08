@@ -1,0 +1,12 @@
+{
+  "name": "Athena",
+  "description": "Athena provides AI agents for synchronous invocation through its API.",
+  "urls": {
+    "homepage": "https://athenaintel.com",
+    "docs": "https://docs.athenaintel.com/api-reference/agents/general/invoke"
+  },
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}
