@@ -1,4 +1,4 @@
-**Last updated: 20 October 2026**
+**Last updated: 8 November 2026**
 
 This policy explains how the public aihappey browser application and its
 HeaderAuth services handle personal information. HeaderAuth is the public
@@ -98,7 +98,9 @@ Local storage is not a promise that content will never leave your device.
 Sending a message transmits the included context; enabled tools can read local
 conversations, files or memory and return their contents into a model or tool
 workflow. Exported archives and downloaded files create separate copies under
-your control.
+your control. Model catalogues and provider metadata may be cached locally 
+in IndexedDB to improve startup performance. Cached data can be refreshed 
+from the configured services
 
 ### Temporary gateway and runtime processing
 
@@ -109,10 +111,10 @@ process messages, files, credentials and responses, including in memory and
 network buffers.
 
 “Stateless” does **not** mean no processing, no logging, no caching, or no
-external storage. Model catalogues and skill content can be cached; configured
-model-listing snapshots can be stored in cloud storage. Credential-derived
-hashes can be used for cache identity. If end-user hashing is configured, a
-key-derived pseudonymous identifier can be passed to supported AI providers
+external storage. Model catalogues are discovered from providers on demand 
+and are not persistently stored or cached by the gateway. MCP skill content 
+may be cached temporarily. If end-user hashing is configured, a key-derived 
+pseudonymous identifier can be passed to supported AI providers
 for their user-related functionality. Such identifiers are not a guarantee
 of anonymity.
 
@@ -284,7 +286,7 @@ or location are separate from cookie or analytics consent.
 | --- | --- |
 | Browser conversations, files, results and settings | Remain until removed using available app controls or the browser's site-data controls, or until the browser clears them. Closing the app is not deletion. |
 | Background agent responses | No automatic response-retention expiry is implemented. Records remain until explicitly deleted or removed by an operator storage policy. Execution expiry changes status; it does not delete output or metadata. |
-| Temporary execution context and caches | Held for request/connection processing, bounded background execution or the relevant cache lifetime. Releasing application references is not guaranteed secure erasure. |
+| Temporary execution context and MCP caches | Held for request/connection processing, bounded background execution or the relevant cache lifetime. Releasing application references is not guaranteed secure erasure. |
 | Published skills and content created through tools | Remain in the configured storage or connected service until its own deletion/retention mechanisms remove them. |
 | Provider files, jobs, conversations, media and logs | Governed by the provider's controls, agreements and retention rules. Deleting local history does not recall these copies. |
 | Hosting logs, backups and storage versions | Subject to separate hosting and storage configuration; deleting a live record does not necessarily immediately remove backups, soft-deleted copies, snapshots or older versions. |
