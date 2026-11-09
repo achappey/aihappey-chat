@@ -26,6 +26,7 @@ function findAll(node, predicate) {
 function setup(overrides = {}) {
     const state = {
         chatMode: "agent", selectedModel: "mistral/chat", providerMetadata: {}, providerHeaders: {},
+        showContextSize: true,
         models: [{ id: "mistral/chat", context_window: 100 }, { id: "google/live", context_window: 2000, max_tokens: 300 }],
         setProviderMetadata() {}, setProviderHeaders() {},
     };
