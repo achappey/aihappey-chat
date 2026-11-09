@@ -145,7 +145,7 @@ for (const [name, Composer] of [["chat", MessageInput], ["realtime", RealtimeInp
     });
 }
 
-test("Chat settings places the default-on context toggle directly between provider logo and metrics", () => {
+test("Chat settings groups input, output, and tool output into always-visible cards without changing bindings", () => {
     const { SettingsModal } = load("packages/aihappey-core/src/features/user-settings/SettingsModal.tsx", {
         ...shared,
         "./ModelContextSettings": { ModelContextSettings: "model-context" },
@@ -162,16 +162,49 @@ test("Chat settings places the default-on context toggle directly between provid
     const store = createStore(ui.createUiSlice);
     state = { ...store.getState(), toolOutputContentSettings: {} };
     const render = () => SettingsModal({ open: true, onClose: empty });
-    const switches = nodes(render()).filter(node => node.type === "Switch");
-    const ids = switches.map(node => node.props.id);
-    const index = ids.indexOf("provider-logo-toggle");
-    assert.deepEqual(ids.slice(index, index + 3), ["provider-logo-toggle", "context-size-toggle", "metrics-toggle"]);
-    const context = switches[index + 1];
+    const chat = nodes(render()).find(node => node.type === "Tab" && node.props.eventKey === "chat");
+    const cards = nodes(chat).filter(node => node.type === "Card");
+    assert.deepEqual(cards.map(card => card.props.title), ["input", "output", "settingsModal.toolOutputContent"]);
+    assert.deepEqual(cards.map(card => nodes(card).filter(node => node.type === "Switch").map(node => node.props.id)), [
+        ["chat-dictation-toggle", "context-size-toggle"],
+        ["tokens-toggle", "provider-logo-toggle", "metrics-toggle", "api-debug-toggle"],
+        ["text", "links", "images", "audio", "video", "documents"].map(key => `tool-output-${key}-toggle`),
+    ]);
+    assert.equal(nodes(chat).filter(node => node.type === "Switch").length, 12);
+    assert.ok(cards.every(card => card.props.size === "small" && !card.props.collapsible));
+    const findSwitch = id => nodes(render()).find(node => node.type === "Switch" && node.props.id === id);
+    const context = findSwitch("context-size-toggle");
     assert.equal(context.props.checked, true);
     assert.equal(context.props.label, "settingsModal.showContextSize");
     context.props.onChange(false);
     state = { ...store.getState(), toolOutputContentSettings: {} };
-    assert.equal(nodes(render()).find(node => node.props.id === "context-size-toggle").props.checked, false);
+    assert.equal(findSwitch("context-size-toggle").props.checked, false);
+    for (const [id, preference] of [
+        ["chat-dictation-toggle", "chatDictationEnabled"],
+        ["tokens-toggle", "showMessageTokens"],
+        ["metrics-toggle", "showMessageMetrics"],
+        ["api-debug-toggle", "apiDebugEnabled"],
+    ]) {
+        const checked = !findSwitch(id).props.checked;
+        findSwitch(id).props.onChange(checked);
+        state = { ...store.getState(), toolOutputContentSettings: {} };
+        assert.equal(state[preference], checked, id);
+        assert.equal(findSwitch(id).props.checked, checked, id);
+    }
+    findSwitch("provider-logo-toggle").props.onChange(false);
+    state = { ...store.getState(), toolOutputContentSettings: {} };
+    assert.equal(state.disableProviderLogo, true);
+    assert.equal(findSwitch("provider-logo-toggle").props.checked, false);
+});
+
+test("Chat section headings reuse localized Input/Output and shorten Tool output in English and Dutch", () => {
+    for (const [locale, expected] of [
+        ["en", ["Input", "Output", "Tool output"]],
+        ["nl", ["Invoer", "Uitvoer", "Tooluitvoer"]],
+    ]) {
+        const json = JSON.parse(read(`packages/aihappey-i18n/src/locales/${locale}/${locale}.json`));
+        assert.deepEqual([json.input, json.output, json.settingsModal.toolOutputContent], expected, locale);
+    }
 });
 
 test("every browser locale has a localized context size label", () => {
