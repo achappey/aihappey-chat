@@ -28,10 +28,6 @@
     "file": "openai.json"
   },
   {
-    "id": "citadelis",
-    "file": "citadelis.json"
-  },
-  {
     "id": "zeroentropy",
     "file": "zeroentropy.json"
   },

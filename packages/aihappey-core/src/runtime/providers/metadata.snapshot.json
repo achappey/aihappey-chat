@@ -145,7 +145,7 @@
     {
       "source": "providers/aimagicx.json",
       "file": "catalog/aimagicx.json",
-      "sha256": "7c630c0e303310ee98e35efd2193dc73d1cccdf57c8f747caedcecf589a57089"
+      "sha256": "f254501b2b14d4e1307b327b34dd27e8858f6e3d1fbe617504983fd8d3550260"
     },
     {
       "source": "providers/aiml.json",
@@ -626,11 +626,6 @@
       "source": "providers/cirrascale.json",
       "file": "catalog/cirrascale.json",
       "sha256": "ef3132fca3593aecc51fdc525cf2c8b592cb1cc7c5c40b9a3f0c2c2d8174f1c1"
-    },
-    {
-      "source": "providers/citadelis.json",
-      "file": "catalog/citadelis.json",
-      "sha256": "32690a1a397f44addbb68644c75b351fe3596e71db29f7b0eb709ba003f4803d"
     },
     {
       "source": "providers/clankie.json",
@@ -1350,7 +1345,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "2afde82fce1ba0fbd5ca3636f631f9998d684e0d18757a1413bfe0b4f93d7719"
+      "sha256": "53559c63c52b344ad1cbd404a312b06fa7d930f8eff50be59a0cd18b8399ea8f"
     },
     {
       "source": "providers/infercom.json",

@@ -1,11 +1,6 @@
 {
   "name": "AIMagicx",
   "description": "Chat, image, video, voice, music — 50+ frontier models in a single AI workspace.",
-  "icons": [
-    {
-      "src": "https://www.aimagicx.com/favicon/favicon.ico"
-    }
-  ],
   "urls": {
     "homepage": "https://www.aimagicx.com",
     "docs": "https://www.aimagicx.com/docs",
