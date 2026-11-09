@@ -10,6 +10,7 @@ import { parseProviderIdFromModelId } from "./realtimeProviders";
 import { getTranscriptionErrorMessage } from "../transcriptionErrors";
 import { ModelOption } from "aihappey-types";
 import { buildGoogleLiveTokenPayload } from "../../realtime/googleLiveConfig";
+import { OpenAiTranscript } from "./openaiTranscript";
 
 const describeError = (e: unknown) => {
   if (!e) return "unknown";
@@ -58,6 +59,20 @@ export function useRealtimeTranscriptionController(args: {
   const smallestAiWritesRef = useRef<Promise<void>>(Promise.resolve());
   // A fatal-error checkpoint must run after any already-started preview writes.
   const persistenceWritesRef = useRef<Promise<unknown>>(Promise.resolve());
+  const openAiTranscriptRef = useRef(new OpenAiTranscript());
+  // Session ownership survives model/storage rerenders. Late callbacks from an
+  // old transport must never mutate a restarted session's buffers or history.
+  const activeRunRef = useRef<{
+    startup: AbortController;
+    providerId?: string | null;
+    id?: string;
+    stopping: boolean;
+    finished: boolean;
+    acceptingEvents: boolean;
+    error?: string;
+    snapshot: () => ReturnType<typeof computeSnapshot>;
+    save: (status: "completed" | "error") => Promise<void>;
+  } | null>(null);
 
   // Used to prevent double-handling of fatal errors (e.g. multiple error events)
   // which could otherwise trigger double-stop / double-delete races.
@@ -141,7 +156,7 @@ export function useRealtimeTranscriptionController(args: {
         segments: Array<{ text: string; startSecond: number; endSecond: number }>;
         durationInSeconds?: number;
         session?: any;
-        status?: "error";
+        status?: "completed" | "error";
       }
     ) => {
       if (!selectedModel) return;
@@ -167,6 +182,10 @@ export function useRealtimeTranscriptionController(args: {
 
   const computeSnapshot = useCallback(
     (opts?: { preferText?: string }) => {
+      if (providerId === "openai") {
+        const { displayText: _, ...snapshot } = openAiTranscriptRef.current.snapshot();
+        return { ...snapshot, session: sessionInfoRef.current ?? undefined };
+      }
       const items = Array.from(segmentsRef.current.values());
       const complete = items
         .filter((s) => typeof s.text === "string" && typeof s.startMs === "number" && typeof s.endMs === "number")
@@ -376,7 +395,7 @@ export function useRealtimeTranscriptionController(args: {
 
   const stop = useCallback(async () => {
     // A pending transport must not resurrect capture after Stop or unmount.
-    startupRef.current?.abort();
+    if (!sessionRef.current && !stopInFlightRef.current) startupRef.current?.abort();
     if (stopInFlightRef.current) {
       await stopInFlightRef.current;
       return;
@@ -384,23 +403,51 @@ export function useRealtimeTranscriptionController(args: {
 
     if (!sessionRef.current) {
       persistUpdate.cancel();
-      resetRealtimeSessionState();
+      // Repeated Stop/unmount must not erase the last completed OpenAI result.
+      if (startupRef.current || providerId !== "openai") resetRealtimeSessionState();
       return;
     }
 
-    // Immediately clear the ref so a subsequent `start()` isn't blocked if the user clicks quickly.
+    const run = activeRunRef.current;
+    if (run) run.stopping = true;
     const session = sessionRef.current;
     sessionRef.current = null;
 
     setRealtimeSessionState({ realtimeStatus: "stopping" });
     const p = (async () => {
+      // Publish stopInFlightRef before invoking a transport that can synchronously emit callbacks.
+      await Promise.resolve();
+      let finalText = "";
       try {
-        await session.stop();
+        try { await session.stop(); }
+        catch (error) {
+          if (run?.providerId !== "openai") throw error;
+          const message = getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") });
+          run.error ??= message;
+          persistence.current.onErrorAlert?.(message);
+        }
+        if (run) run.acceptingEvents = false;
         await smallestAiWritesRef.current;
         if (providerId === "mistral") { persistUpdate.cancel(); await persistenceWritesRef.current; }
+        if (run?.providerId === "openai") {
+          persistUpdate.cancel();
+          finalText = run.snapshot().text;
+          // Save after transport finalization and after all preceding writes.
+          // No preview timer may overwrite this authoritative checkpoint.
+          try { await run.save(run.error || fatalErrorHandledRef.current ? "error" : "completed"); }
+          catch (error) {
+            const message = getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") });
+            run.error ??= message;
+            persistence.current.onErrorAlert?.(message);
+          }
+        }
       } finally {
+        if (run) run.finished = true;
+        if (activeRunRef.current === run) activeRunRef.current = null;
+        run?.startup.abort(); // Ignore late events only AFTER the final snapshot is saved.
         bufferRef.current = "";
         segmentsRef.current = new Map();
+        openAiTranscriptRef.current = new OpenAiTranscript();
         sessionInfoRef.current = null;
         elevenCommitCounterRef.current = 0;
         deepgramCommitCounterRef.current = 0;
@@ -416,6 +463,10 @@ export function useRealtimeTranscriptionController(args: {
         cartesiaTurnStartMsRef.current = 0;
         cartesiaStartedAtRef.current = 0;
         resetRealtimeSessionState();
+        if (run?.providerId === "openai") {
+          setRealtimeSessionState({ realtimeText: finalText,
+            ...(run.error ? { realtimeStatus: "error", realtimeError: run.error } : {}) });
+        }
         stopInFlightRef.current = null;
       }
     })();
@@ -429,12 +480,34 @@ export function useRealtimeTranscriptionController(args: {
     if (!selectedModel) return;
     const startup = new AbortController();
     startupRef.current = startup;
+    const run = {
+      startup, providerId, stopping: false, finished: false, acceptingEvents: true,
+      id: undefined as string | undefined, error: undefined as string | undefined,
+      snapshot: () => computeSnapshot(),
+      save: async (status: "completed" | "error") => {
+        if (!run.id) return;
+        const snapshot = computeSnapshot();
+        if (snapshot.text.trim()) await persistUpdateNow(run.id, { ...snapshot, status });
+        else {
+          await persistenceWritesRef.current.catch(() => {});
+          await persistence.current.transcriptions.delete(run.id);
+        }
+      },
+    };
+    activeRunRef.current = run;
+    if (providerId === "openai") {
+      openAiTranscriptRef.current = new OpenAiTranscript();
+      sessionInfoRef.current = null;
+      bufferRef.current = "";
+    }
+    const isCurrent = () => activeRunRef.current === run && run.acceptingEvents && !startup.signal.aborted && !fatalErrorHandledRef.current;
     let createdId: string | undefined;
     fatalErrorHandledRef.current = false;
     setRealtimeSessionState({
       realtimeStatus: "starting",
       realtimeError: null,
       realtimeActiveModel: selectedModel.id,
+      realtimeText: "",
     });
 
     try {
@@ -463,6 +536,7 @@ export function useRealtimeTranscriptionController(args: {
         }
       );
       createdId = created.id;
+      run.id = created.id;
       startup.signal.throwIfAborted();
 
       setRealtimeSessionState({
@@ -509,8 +583,19 @@ export function useRealtimeTranscriptionController(args: {
           events: {
           // Parse raw events to build segments (start/end from speech events, text from completed transcript)
           onEvent: (event: any) => {
-              if (startup.signal.aborted || fatalErrorHandledRef.current) return;
+              if (!isCurrent()) return;
             try {
+              if (providerId === "openai") {
+                if (!openAiTranscriptRef.current.apply(event)) return;
+                const snapshot = openAiTranscriptRef.current.snapshot();
+                bufferRef.current = snapshot.displayText;
+                setRealtimeSessionState({ realtimeText: snapshot.displayText, realtimeStatus: run.stopping ? "stopping" : "connected" });
+                // Persist only authoritative text. Deltas are display-only drafts.
+                persistUpdate.cancel();
+                if (snapshot.text && event.type !== "conversation.item.input_audio_transcription.delta") void persistUpdateNow(created.id, computeSnapshot()).catch(error =>
+                  persistence.current.onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") })));
+                return;
+              }
               if (providerId === "mistral") {
                 if (event?.type === "transcription.text.delta" || event?.type === "transcription.done") {
                   const key = "mistral-session";
@@ -807,7 +892,7 @@ export function useRealtimeTranscriptionController(args: {
             }
           },
           onTranscriptText: (deltaText: string) => {
-            if (startup.signal.aborted || fatalErrorHandledRef.current) return;
+            if (!isCurrent() || providerId === "openai") return;
              // OpenAI emits deltas; WebSocket providers emit full-text snapshots.
              const next =
                providerId === "mistral" || providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google" || providerId === "cartesia" || providerId === "smallestai"
@@ -822,21 +907,22 @@ export function useRealtimeTranscriptionController(args: {
             }
           },
           onSessionCreated: (session: any) => {
-            if (startup.signal.aborted || fatalErrorHandledRef.current) return;
+            if (!isCurrent()) return;
             if (providerId === "google" && !googleSessionStartedAtRef.current) {
               googleSessionStartedAtRef.current = Date.now();
             }
             sessionInfoRef.current = session;
-            if (created.id && providerId !== "smallestai") void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
+            if (created.id && providerId !== "smallestai" && providerId !== "openai") void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
           },
           onError: (message: string, err?: unknown) => {
             // Fatal: retain confirmed text, never promote an interim preview to a final.
-            if (startup.signal.aborted || fatalErrorHandledRef.current) return;
+            if (!isCurrent()) return;
             fatalErrorHandledRef.current = true;
             persistUpdate.cancel();
             const confirmed = computeSnapshot();
 
             const full = `${message}${err ? ": " + describeError(err) : ""}`;
+            run.error = full;
             setRealtimeSessionState({
               realtimeStatus: "error",
               realtimeError: full,
@@ -845,6 +931,17 @@ export function useRealtimeTranscriptionController(args: {
 
             // Snapshot before stop clears segment state. Serialized persistence prevents
             // an older in-flight preview from overwriting this authoritative checkpoint.
+            if (providerId === "openai") {
+              // The shared stop owner saves confirmed text once, including a
+              // finalization failure, and never races a second delete/save path.
+              if (!sessionRef.current) {
+                // Startup has not returned its transport yet. Its continuation
+                // will close the late transport and checkpoint this same run.
+                return;
+              }
+              void stop();
+              return;
+            }
             void (async () => {
               try {
                 if (confirmed.text.trim()) {
@@ -866,6 +963,11 @@ export function useRealtimeTranscriptionController(args: {
       // If a fatal error arrived during startup (common with ElevenLabs invalid_request),
       // ensure we do NOT keep a live session around that would block subsequent starts.
       if (startup.signal.aborted || fatalErrorHandledRef.current) {
+        if (providerId === "openai" && !startup.signal.aborted && activeRunRef.current === run) {
+          sessionRef.current = session;
+          await stop();
+          return;
+        }
         try {
           await session.stop();
         } catch {
@@ -884,23 +986,45 @@ export function useRealtimeTranscriptionController(args: {
       }
     } catch (e) {
       if (startup.signal.aborted) return;
-      const message = getTranscriptionErrorMessage(e, { quotaMessage: t("storageQuotaMessage") });
+      const message = run.error ?? getTranscriptionErrorMessage(e, { quotaMessage: t("storageQuotaMessage") });
       setRealtimeSessionState({ realtimeStatus: "error", realtimeError: message });
 
       // Also bubble to page-level alerts when provided.
-      onErrorAlert?.(message);
-      await stop();
+      if (!run.error) onErrorAlert?.(message);
+      run.error = message;
+      if (providerId === "openai" && !sessionRef.current) {
+        run.acceptingEvents = false;
+        persistUpdate.cancel();
+        const confirmedText = run.snapshot().text;
+        try { await run.save("error"); }
+        catch (error) {
+          persistence.current.onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") }));
+        }
+        run.finished = true;
+        startup.abort();
+        setRealtimeSessionState({ realtimeStatus: "error", realtimeError: message, realtimeText: confirmedText });
+      } else await stop();
     } finally {
-      if (startupRef.current === startup) startupRef.current = null;
-      if (startup.signal.aborted && createdId && !sessionRef.current && !fatalErrorHandledRef.current) {
+      if (startup.signal.aborted && createdId && !sessionRef.current && (!fatalErrorHandledRef.current || providerId === "openai") && !run.finished) {
         persistUpdate.cancel();
         try {
-          await persistenceWritesRef.current.catch(() => {});
-          await persistence.current.transcriptions.delete(createdId);
+          if (providerId === "openai") {
+            const confirmedText = run.snapshot().text;
+            await run.save(run.error ? "error" : "completed");
+            setRealtimeSessionState({ realtimeText: confirmedText,
+              ...(run.error ? { realtimeStatus: "error", realtimeError: run.error } : {}) });
+          } else {
+            await persistenceWritesRef.current.catch(() => {});
+            await persistence.current.transcriptions.delete(createdId);
+          }
         } catch (error) {
           persistence.current.onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") }));
         }
       }
+      // Keep startup ownership until its last storage write finishes, so a new
+      // start cannot replace the buffers underneath a cancelled startup's save.
+      if (startupRef.current === startup) startupRef.current = null;
+      if (!sessionRef.current && activeRunRef.current === run) activeRunRef.current = null;
     }
   }, [
     canStart,

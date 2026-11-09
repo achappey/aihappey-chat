@@ -5,141 +5,213 @@ export type OpenAiRealtimeWebrtcSession = {
   dc: RTCDataChannel;
   stream: MediaStream;
   stop: () => Promise<void>;
+  commitAudio: () => void;
 };
 
 export type OpenAiRealtimeWebrtcEvents = {
   onEvent?: (event: any) => void;
   onTranscriptText?: (text: string) => void;
-  /** Fired when OpenAI emits a `session.created` event. */
   onSessionCreated?: (session: any) => void;
   onError?: (message: string, err?: unknown) => void;
 };
 
-const describeError = (e: unknown) => {
-  if (!e) return "unknown";
-  if (e instanceof Error) return e.message || e.name;
-  try {
-    return JSON.stringify(e);
-  } catch {
-    return String(e);
-  }
-};
+const FINALIZATION_TIMEOUT_MS = 5000;
+// RTP audio and reliable data-channel messages do not share an ordering guarantee.
+const AUDIO_DRAIN_MS = 150;
 
-/**
- * Connects to OpenAI Realtime via WebRTC using an *ephemeral* token.
- *
- * Token must be created on your server (never in the browser).
- */
+/** Connect using a server-issued ephemeral token, never a provider API key. */
 export async function startOpenAiRealtimeWebrtcSession(args: {
   getEphemeralToken: () => Promise<RealtimeResponse>;
   microphoneStream?: MediaStream;
   signal?: AbortSignal;
   events?: OpenAiRealtimeWebrtcEvents;
 }): Promise<OpenAiRealtimeWebrtcSession> {
-  const { events } = args;
+  const { events, signal } = args;
+  signal?.throwIfAborted();
   const token = await args.getEphemeralToken();
-  const EPHEMERAL_KEY = token.value;
+  signal?.throwIfAborted();
 
   const pc = new RTCPeerConnection();
-  args.signal?.addEventListener("abort", () => pc.close(), { once: true });
-  args.signal?.throwIfAborted();
+  let dc: RTCDataChannel | undefined;
+  let stream: MediaStream | undefined;
+  let stopping = false;
+  let closed = false;
+  let captureStopped = false;
+  let failure: Error | undefined;
+  let stopPromise: Promise<void> | undefined;
+  let notify: (() => void) | undefined;
+  let manualTurns = false;
+  let uncommittedSpeech = false;
+  let activeItemId: string | undefined;
+  let commitEventId: string | undefined;
+  let awaitingCommit = false;
+  const pending = new Set<string>();
+  const completed = new Set<string>();
 
-  // Add local mic track
-  const stream = await (args.microphoneStream ? Promise.resolve(args.microphoneStream) : navigator.mediaDevices.getUserMedia({ audio: true }));
-  const tracks = stream.getTracks();
-  if (tracks[0]) pc.addTrack(tracks[0]);
-
-  // Data channel
-  const dc = pc.createDataChannel("oai-events");
-  dc.addEventListener("message", (e) => {
-    try {
-      const event = JSON.parse(String(e.data));
-      events?.onEvent?.(event);
-
-      if (event?.type === "session.created") {
-        events?.onSessionCreated?.(event?.session);
-      }
-
-      if(event.type == "conversation.item.input_audio_transcription.delta") {
-          events?.onTranscriptText?.(event.delta);
-      }
-    } catch (err) {
-      events?.onError?.("Failed to parse realtime event", err);
-    }
-  });
-
-  // SDP exchange
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-
-  const sdpResponse = await fetch("https://api.openai.com/v1/realtime/calls", {
-    method: "POST",
-    body: offer.sdp,
-    signal: args.signal,
-    headers: {
-      Authorization: `Bearer ${EPHEMERAL_KEY}`,
-      "Content-Type": "application/sdp",
-    },
-  });
-
-  if (!sdpResponse.ok) {
-    const body = await sdpResponse.text().catch(() => "");
-    throw new Error(`Realtime SDP exchange failed (${sdpResponse.status}): ${body}`);
-  }
-
-  const answer = {
-    type: "answer" as const,
-    sdp: await sdpResponse.text(),
+  const stopCapture = () => {
+    if (!stream || captureStopped) return;
+    captureStopped = true;
+    // A sender's track is the same object as the stream's track: stop it once.
+    stream.getTracks().forEach(track => { try { track.stop(); } catch { /* Still release the other tracks and transport. */ } });
   };
-  await pc.setRemoteDescription(answer);
+  const cleanup = () => {
+    if (closed) return;
+    closed = true;
+    signal?.removeEventListener("abort", aborted);
+    stopCapture();
+    try { dc?.close(); } finally { pc.close(); }
+    notify?.();
+  };
+  const aborted = () => { cleanup(); };
+  const fail = (message: string, error?: unknown) => {
+    if (closed || signal?.aborted || failure) return;
+    failure = new Error(message);
+    notify?.();
+    // During finalization stop() reports the error after saving confirmed text.
+    // Do not re-enter the controller's fatal-stop handler from inside stop().
+    if (!stopping) events?.onError?.(message, error);
+  };
+  signal?.addEventListener("abort", aborted, { once: true });
 
-  if (args.signal) {
-    const signal = args.signal;
-    if (dc.readyState !== "open") await new Promise<void>((resolve, reject) => {
-      const cleanup = () => {
-        dc.removeEventListener("open", opened); dc.removeEventListener("close", closed);
-        signal.removeEventListener("abort", aborted);
-      };
-      const opened = () => { cleanup(); resolve(); };
-      const closed = () => { cleanup(); reject(new Error("Transcription data channel closed before opening.")); };
-      const aborted = () => { cleanup(); reject(signal.reason); };
-      dc.addEventListener("open", opened, { once: true }); dc.addEventListener("close", closed, { once: true });
-      signal.addEventListener("abort", aborted, { once: true });
-      if (signal.aborted) aborted();
+  const commitAudio = () => {
+    if (closed || dc?.readyState !== "open" || awaitingCommit) return;
+    commitEventId = crypto.randomUUID();
+    awaitingCommit = true;
+    dc.send(JSON.stringify({ type: "input_audio_buffer.commit", event_id: commitEventId }));
+  };
+
+  try {
+    stream = args.microphoneStream ?? await navigator.mediaDevices.getUserMedia({ audio: true });
+    // Permission prompts cannot be aborted. Release a late stream immediately.
+    if (signal?.aborted || closed) { stopCapture(); signal?.throwIfAborted(); throw new Error("Transcription startup cancelled."); }
+    const track = stream.getAudioTracks?.()[0] ?? stream.getTracks()[0];
+    if (track) pc.addTrack(track);
+    dc = pc.createDataChannel("oai-events");
+    dc.addEventListener("close", () => {
+      if (!closed && !signal?.aborted) fail("Realtime transcription connection closed.");
+      notify?.();
     });
-    dc.addEventListener("close", () => { if (!signal.aborted) events?.onError?.("Realtime transcription connection closed."); });
+    dc.addEventListener("error", () => fail("Realtime transcription data channel failed."));
+    pc.addEventListener("connectionstatechange", () => {
+      if (pc.connectionState === "failed" || pc.connectionState === "closed") fail("Realtime transcription connection failed.");
+    });
+    dc.addEventListener("message", e => {
+      if (closed || signal?.aborted) return;
+      let event: any;
+      try { event = JSON.parse(String(e.data)); }
+      catch (error) { fail("Failed to parse realtime event.", error); return; }
+
+      const type = event?.type;
+      const id = typeof event?.item_id === "string" ? event.item_id : undefined;
+      if (type === "session.created" || type === "transcription_session.created" || type === "session.updated" || type === "transcription_session.updated") {
+        const session = event.session;
+        const input = session?.audio?.input;
+        manualTurns = input && Object.hasOwn(input, "turn_detection")
+          ? input.turn_detection === null : session?.turn_detection === null;
+      }
+      if (type === "input_audio_buffer.speech_started") {
+        uncommittedSpeech = true;
+        activeItemId = id;
+      }
+      if (type === "input_audio_buffer.committed") {
+        awaitingCommit = false;
+        if (!activeItemId || activeItemId === id) uncommittedSpeech = false;
+      }
+      if (id && (type === "input_audio_buffer.speech_started" || type === "input_audio_buffer.committed"
+        || type === "conversation.item.input_audio_transcription.delta") && !completed.has(id)) pending.add(id);
+      if (id && (type === "conversation.item.input_audio_transcription.completed" || type === "conversation.item.input_audio_transcription.failed")) {
+        pending.delete(id);
+        completed.add(id);
+      }
+      if (type === "error") {
+        // VAD may commit between our check and our explicit commit. Only this
+        // correlated empty-buffer response is benign; all other errors are real.
+        if (awaitingCommit && event.error?.event_id === commitEventId && event.error?.code === "input_audio_buffer_commit_empty") {
+          awaitingCommit = false;
+          uncommittedSpeech = false;
+          notify?.();
+          return;
+        }
+        fail(event.error?.message ?? "OpenAI reported a realtime transcription error.");
+      } else if (type === "conversation.item.input_audio_transcription.failed") {
+        fail(event.error?.message ?? "OpenAI could not finalize the transcription.");
+      }
+
+      events?.onEvent?.(event);
+      if (type === "session.created" || type === "transcription_session.created") events?.onSessionCreated?.(event.session);
+      if (type === "conversation.item.input_audio_transcription.delta") events?.onTranscriptText?.(event.delta);
+      notify?.();
+    });
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    const response = await fetch("https://api.openai.com/v1/realtime/calls", {
+      method: "POST", body: offer.sdp, signal,
+      headers: { Authorization: `Bearer ${token.value}`, "Content-Type": "application/sdp" },
+    });
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      throw new Error(`Realtime SDP exchange failed (${response.status}): ${body}`);
+    }
+    signal?.throwIfAborted();
+    await pc.setRemoteDescription({ type: "answer", sdp: await response.text() });
+    signal?.throwIfAborted();
+    if (dc.readyState !== "open") {
+      await new Promise<void>((resolve, reject) => {
+        const channel = dc!;
+        const timer = setTimeout(() => finish(new Error("Timed out opening the transcription data channel.")), 30000);
+        const finish = (error?: unknown) => {
+          clearTimeout(timer);
+          channel.removeEventListener("open", opened);
+          channel.removeEventListener("close", disconnected);
+          channel.removeEventListener("error", disconnected);
+          signal?.removeEventListener("abort", cancelled);
+          error ? reject(error) : resolve();
+        };
+        const opened = () => finish();
+        const disconnected = () => finish(signal?.aborted ? signal.reason : failure ?? new Error("Transcription data channel closed before opening."));
+        const cancelled = () => finish(signal?.reason ?? new Error("Transcription startup cancelled."));
+        channel.addEventListener("open", opened);
+        channel.addEventListener("close", disconnected);
+        channel.addEventListener("error", disconnected);
+        signal?.addEventListener("abort", cancelled, { once: true });
+        if (signal?.aborted) cancelled();
+        else if (closed || failure || channel.readyState === "closed") disconnected();
+      });
+    }
+    if (failure) throw failure;
+  } catch (error) {
+    cleanup();
+    throw error;
   }
 
-  const stop = async () => {
-    try {
+  const stop = (): Promise<void> => {
+    if (stopPromise) return stopPromise;
+    stopping = true;
+    stopCapture();
+    stopPromise = (async () => {
       try {
-        dc.close();
-      } catch {
-        // ignore
-      }
-
-      try {
-        pc.getSenders().forEach((s) => s.track?.stop());
-      } catch {
-        // ignore
-      }
-
-      try {
-        pc.close();
-      } catch {
-        // ignore
-      }
-
-      try {
-        stream.getTracks().forEach((t) => t.stop());
-      } catch {
-        // ignore
-      }
-    } catch (e) {
-      events?.onError?.(`Failed stopping realtime session: ${describeError(e)}`, e);
-    }
+        if (closed || signal?.aborted || failure) return;
+        // Let already-sent RTP arrive before sending the reliable commit command.
+        await new Promise<void>(resolve => setTimeout(resolve, AUDIO_DRAIN_MS));
+        if (closed || signal?.aborted) return;
+        if (!failure && (uncommittedSpeech || manualTurns)) commitAudio();
+        if (pending.size || awaitingCommit) {
+          await new Promise<void>((resolve, reject) => {
+            const timer = setTimeout(() => finish(new Error("Timed out waiting for the final OpenAI transcription. Confirmed text has been retained.")), FINALIZATION_TIMEOUT_MS);
+            const finish = (error?: Error) => { clearTimeout(timer); notify = undefined; error ? reject(error) : resolve(); };
+            notify = () => {
+              if (signal?.aborted) finish();
+              else if (failure) finish(failure);
+              else if (!pending.size && !awaitingCommit) finish();
+            };
+            notify();
+          });
+        }
+        if (failure) throw failure;
+      } finally { cleanup(); }
+    })();
+    return stopPromise;
   };
-
-  return { pc, dc, stream, stop };
+  return { pc, dc: dc!, stream: stream!, stop, commitAudio };
 }
-

@@ -1,6 +1,6 @@
 import type { RealtimeResponse } from "aihappey-ai";
 import { startOpenAiRealtimeWebrtcSession } from "./openaiRealtimeWebrtc";
-import type { OpenAiRealtimeWebrtcEvents, OpenAiRealtimeWebrtcSession } from "./openaiRealtimeWebrtc";
+import type { OpenAiRealtimeWebrtcEvents } from "./openaiRealtimeWebrtc";
 import { startElevenLabsRealtimeWsSession } from "./startElevenLabsRealtimeWsSession";
 import { startDeepgramRealtimeWsSession } from "./startDeepgramRealtimeWsSession";
 import { startGladiaRealtimeWsSession } from "./startGladiaRealtimeWsSession";
@@ -47,16 +47,12 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
       modelId: selectedModel, config: providerRealtimeMetadata?.mistral ?? {}, events });
     return { kind: "ws", stop: session.stop };
   }
-  // Today only OpenAI is implemented.
-  // Adding other providers later should happen here (or via a provider registry).
   if (providerId === "openai") {
     const session = await startOpenAiRealtimeWebrtcSession({ getEphemeralToken, events, ...capture });
     return {
       kind: "webrtc",
       stop: session.stop,
-      commitAudio: () => {
-        if (session.dc.readyState === "open") session.dc.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
-      },
+      commitAudio: session.commitAudio,
     };
   }
 
