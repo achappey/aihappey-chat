@@ -23,6 +23,7 @@ import { ModelsPage } from "../features/models/ModelsPage";
 import { ProvidersPage } from "../features/providers/ProvidersPage";
 import { MeshPage } from "../features/providers/MeshPage";
 import { UsagePage } from "../features/usage/UsagePage";
+import { BenchmarksPage } from "../features/benchmarks/BenchmarksPage";
 import { TranscriptionsPage } from "../features/transcriptions/TranscriptionsPage";
 import { SpeechPage } from "../features/speech/SpeechPage";
 import { JobsPage } from "../features/jobs/JobsPage";
@@ -135,6 +136,7 @@ export const CoreRoot = ({
             { path: "providers", element: <ProvidersPage /> },
             { path: "mesh", element: <MeshPage /> },
             { path: "usage", element: <UsagePage /> },
+            { path: "benchmarks", element: <BenchmarksPage /> },
             { path: "tools", element: <ToolsPage /> },
             { path: "arena", element: <ChatArenaPage /> },
             { path: "agents", element: <AgentsPage /> },

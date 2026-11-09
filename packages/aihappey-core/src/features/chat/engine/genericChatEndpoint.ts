@@ -2570,6 +2570,9 @@ const createUiMessageChunkStream = ({
       return;
     }
 
+    if (isChatCompletionsEndpoint(endpoint) && (parsed.error || eventName === "error")) {
+      throw new Error(parsed.error?.message ?? parsed.message ?? "Chat Completions request failed.");
+    }
     rememberMetadata(parsed);
     if (endpoint === "/v1/messages") {
       handleMessagesPayload(parsed, controller, eventName);

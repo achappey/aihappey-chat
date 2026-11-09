@@ -255,6 +255,12 @@ export const ConversationSidebar = ({
           href: "/usage",
           icon: "databaseGear",
         },
+        {
+          key: "benchmarks",
+          label: t("ai.benchmarks.title"),
+          href: "/benchmarks",
+          icon: "chart",
+        },
       ],
     },
     {
@@ -403,6 +409,8 @@ export const ConversationSidebar = ({
               ? "mesh"
               : location.pathname === "/usage"
                 ? "usage"
+                : location.pathname === "/benchmarks"
+                  ? "benchmarks"
                 : location.pathname === "/tools"
                   ? "tools"
                   : location.pathname === "/files"
@@ -463,6 +471,8 @@ export const ConversationSidebar = ({
       await navigate("/mesh");
     } else if (id === "usage") {
       await navigate("/usage");
+    } else if (id === "benchmarks") {
+      await navigate("/benchmarks");
     } else if (id === "tools") {
       await navigate("/tools");
     } else if (id === "files") {

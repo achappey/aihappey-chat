@@ -13,54 +13,18 @@ import {
 } from "aihappey-state";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
-  AbliterationChatConfigForm,
-  AkumiChatConfigForm,
-  AnthropicChatConfigForm,
-  ApertisChatConfigForm,
-  BasetenChatConfigForm,
-  BlackboxChatConfigForm,
-  BrowserUseChatConfigForm,
-  BraveChatConfigForm,
-  CerebrasChatConfigForm,
-  CohereChatConfigForm, GroqChatConfigForm,
-  CortecsChatConfigForm,
-  DeepSeekChatConfigForm,
-  DepazaChatConfigForm,
-  InworldChatConfigForm,
-  InterfazeChatConfigForm,
-  JinaChatConfigForm,
-  LinkupChatConfigForm,
-  MaritacaAIChatConfigForm,
-  MireyeChatConfigForm,
-  CopilotChatConfigForm,
-  MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
-  NeuralwattChatConfigForm,
-  OpenHandsChatConfigForm,
-  OpenRouterChatConfigForm,
-  PerplexityChatConfigForm,
-  PoolsideChatConfigForm,
-  PollinationsChatConfigForm,
-  SambanovaChatConfigForm,
-  TemboChatConfigForm,
-  TinyFishChatConfigForm,
-  UpstageChatConfigForm,
-  SettingsActionButtons, TogetherChatConfigForm,
+  SettingsActionButtons,
   ProviderSettingsTabs,
   RealtimeProviderConfigForm,
   hasRealtimeProviderConfig,
   normalizeRealtimeSettingsProviderKey,
-  useTheme, XAIChatConfigForm,
-  RequestyChatConfigForm,
-  VeniceChatConfigForm,
-  WebCrawlerAPIChatConfigForm,
-  XiaomiMIMOChatConfigForm,
-  ZaiChatConfigForm,
+  useTheme,
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
 import { ToolConfigurationTab, type ToolRequestConfig } from "./ToolConfigurationTab";
 import { ChatSkillsEditor } from "./ChatSkillsEditor";
-import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
+import { renderProviderChatForm } from "./ProviderChatForm";
 import {
   buildOpenAISkillOptions,
   createOpenAIShellSkillResolver,
@@ -389,103 +353,14 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         />
       ) : null;
     }
-    switch (providerKey) {
-      case "abliteration":
-        return <AbliterationChatConfigForm config={draft.providerMetadata.abliteration ?? {}} updateConfig={providerConfigUpdaters.abliteration} />;
-      case "akumi":
-        return <AkumiChatConfigForm config={draft.providerMetadata.akumi ?? {}} updateConfig={providerConfigUpdaters.akumi} />;
-      case "anthropic":
-        return <AnthropicChatConfigForm config={draft.providerMetadata.anthropic ?? {}} headers={draft.providerHeaders.anthropic ?? {}} updateConfig={providerConfigUpdaters.anthropic} updateHeaders={providerHeaderUpdaters.anthropic} />;
-      case "apertis":
-        return <ApertisChatConfigForm config={draft.providerMetadata.apertis ?? {}} updateConfig={providerConfigUpdaters.apertis} />;
-      case "blackbox":
-        return <BlackboxChatConfigForm config={draft.providerMetadata.blackbox ?? {}} updateConfig={providerConfigUpdaters.blackbox} />;
-      case "cohere":
-        return <CohereChatConfigForm config={draft.providerMetadata.cohere ?? {}} updateConfig={providerConfigUpdaters.cohere} />;
-      case "cortecs":
-        return <CortecsChatConfigForm config={draft.providerMetadata.cortecs ?? {}} updateConfig={providerConfigUpdaters.cortecs} />;
-      case "depaza":
-        return <DepazaChatConfigForm config={draft.providerMetadata.depaza ?? {}} updateConfig={providerConfigUpdaters.depaza} />;
-      case "browseruse":
-        return <BrowserUseChatConfigForm config={draft.providerMetadata.browseruse ?? {}} updateConfig={providerConfigUpdaters.browseruse} />;
-      case "brave":
-        return <BraveChatConfigForm config={draft.providerMetadata.brave ?? {}} updateConfig={providerConfigUpdaters.brave} />;
-      case "baseten":
-        return <BasetenChatConfigForm config={draft.providerMetadata.baseten ?? {}} headers={draft.providerHeaders.baseten ?? {}} updateConfig={providerConfigUpdaters.baseten} updateHeaders={providerHeaderUpdaters.baseten} />;
-      case "cerebras":
-        return <CerebrasChatConfigForm config={draft.providerMetadata.cerebras ?? {}} updateConfig={providerConfigUpdaters.cerebras} />;
-      case "deepseek":
-        return <DeepSeekChatConfigForm config={draft.providerMetadata.deepseek ?? {}} updateConfig={providerConfigUpdaters.deepseek} />;
-      case "google":
-        return <GoogleChatConfig google={draft.providerMetadata.google ?? {}} updateGoogle={providerConfigUpdaters.google} />;
-      case "groq":
-        return <GroqChatConfigForm config={draft.providerMetadata.groq ?? {}} updateConfig={providerConfigUpdaters.groq} />;
-      case "jina":
-        return <JinaChatConfigForm config={draft.providerMetadata.jina ?? {}} updateConfig={providerConfigUpdaters.jina} />;
-      case "inworld":
-        return <InworldChatConfigForm config={draft.providerMetadata.inworld ?? {}} updateConfig={providerConfigUpdaters.inworld} />;
-      case "interfaze":
-        return <InterfazeChatConfigForm config={draft.providerMetadata.interfaze ?? {}} headers={draft.providerHeaders.interfaze ?? {}} updateConfig={providerConfigUpdaters.interfaze} updateHeaders={providerHeaderUpdaters.interfaze} />;
-      case "mistral":
-        return <MistralChatConfigForm config={draft.providerMetadata.mistral ?? {}} updateConfig={providerConfigUpdaters.mistral} />;
-      case "maritacaai":
-        return <MaritacaAIChatConfigForm config={draft.providerMetadata.maritacaai ?? {}} updateConfig={providerConfigUpdaters.maritacaai} />;
-      case "mireye":
-        return <MireyeChatConfigForm config={draft.providerMetadata.mireye ?? {}} updateConfig={providerConfigUpdaters.mireye} />;
-      case "neuralwatt":
-        return <NeuralwattChatConfigForm config={draft.providerMetadata.neuralwatt ?? {}} updateConfig={providerConfigUpdaters.neuralwatt} />;
-      case "copilot":
-        return <CopilotChatConfigForm config={draft.providerMetadata.copilot ?? {}} updateConfig={providerConfigUpdaters.copilot} />;
-      case "ninjachat":
-        return <NinjaChatChatConfigForm config={draft.providerMetadata.ninjachat ?? {}} updateConfig={providerConfigUpdaters.ninjachat} />;
-      case "openai":
-        return (
-          <OpenAIChatConfigForm
-            config={draft.providerMetadata.openai ?? {}}
-            headers={draft.providerHeaders.openai ?? {}}
-            openAISkillOptions={openAISkillOptions}
-            resolveOpenAIShellSkill={resolveOpenAIShellSkill}
-            updateConfig={providerConfigUpdaters.openai}
-            updateHeaders={providerHeaderUpdaters.openai}
-          />
-        );
-      case "openhands":
-        return <OpenHandsChatConfigForm config={draft.providerMetadata.openhands ?? {}} updateConfig={providerConfigUpdaters.openhands} />;
-      case "openrouter":
-        return <OpenRouterChatConfigForm config={draft.providerMetadata.openrouter ?? {}} headers={draft.providerHeaders.openrouter ?? {}} appTitle={chatConfig?.appName} updateConfig={providerConfigUpdaters.openrouter} updateHeaders={providerHeaderUpdaters.openrouter} />;
-      case "requesty":
-        return <RequestyChatConfigForm config={draft.providerMetadata.requesty ?? {}} headers={draft.providerHeaders.requesty ?? {}} appTitle={chatConfig?.appName} updateConfig={providerConfigUpdaters.requesty} updateHeaders={providerHeaderUpdaters.requesty} />;
-      case "pollinations":
-        return <PollinationsChatConfigForm config={draft.providerMetadata.pollinations ?? {}} updateConfig={providerConfigUpdaters.pollinations} />;
-      case "perplexity":
-        return <PerplexityChatConfigForm config={draft.providerMetadata.perplexity ?? {}} models={models} updateConfig={providerConfigUpdaters.perplexity} />;
-      case "poolside":
-        return <PoolsideChatConfigForm config={draft.providerMetadata.poolside ?? {}} updateConfig={providerConfigUpdaters.poolside} />;
-      case "together":
-        return <TogetherChatConfigForm config={draft.providerMetadata.together ?? {}} updateConfig={providerConfigUpdaters.together} />;
-      case "sambanova":
-        return <SambanovaChatConfigForm config={draft.providerMetadata.sambanova ?? {}} updateConfig={providerConfigUpdaters.sambanova} />;
-      case "tembo":
-        return <TemboChatConfigForm config={draft.providerMetadata.tembo ?? {}} updateConfig={providerConfigUpdaters.tembo} />;
-      case "tinyfish":
-        return <TinyFishChatConfigForm config={draft.providerMetadata.tinyfish ?? {}} updateConfig={providerConfigUpdaters.tinyfish} />;
-      case "upstage":
-        return <UpstageChatConfigForm config={draft.providerMetadata.upstage ?? {}} updateConfig={providerConfigUpdaters.upstage} />;
-      case "venice":
-        return <VeniceChatConfigForm config={draft.providerMetadata.venice ?? {}} updateConfig={providerConfigUpdaters.venice} />;
-      case "linkup":
-        return <LinkupChatConfigForm config={draft.providerMetadata.linkup ?? {}} updateConfig={providerConfigUpdaters.linkup} />;
-      case "webcrawlerapi":
-        return <WebCrawlerAPIChatConfigForm config={draft.providerMetadata.webcrawlerapi ?? {}} updateConfig={providerConfigUpdaters.webcrawlerapi} />;
-      case "spacexai":
-        return <XAIChatConfigForm config={draft.providerMetadata.spacexai ?? {}} updateConfig={providerConfigUpdaters.spacexai} />;
-      case "xiaomimimo":
-        return <XiaomiMIMOChatConfigForm config={draft.providerMetadata.xiaomimimo ?? {}} updateConfig={providerConfigUpdaters.xiaomimimo} />;
-      case "zai":
-        return <ZaiChatConfigForm config={draft.providerMetadata.zai ?? {}} updateConfig={providerConfigUpdaters.zai} />;
-      default:
-        return null;
-    }
+    return renderProviderChatForm({
+      providerKey,
+      config: draft.providerMetadata[providerKey] ?? {},
+      headers: draft.providerHeaders[providerKey] ?? {},
+      updateConfig: providerConfigUpdaters[providerKey as keyof typeof providerConfigUpdaters],
+      updateHeaders: providerHeaderUpdaters[providerKey as keyof typeof providerHeaderUpdaters],
+      models: models ?? [], appTitle: chatConfig?.appName, openAISkillOptions, resolveOpenAIShellSkill,
+    });
   }, [
     isRealtime,
     draft.providerRealtimeConversationMetadata,
