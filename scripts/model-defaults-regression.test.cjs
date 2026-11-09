@@ -3,6 +3,8 @@ const { test } = require("node:test");
 const fs = require("node:fs");
 const ts = require("typescript");
 const { renderer: createRenderer, nodes } = require("./react-test-renderer.cjs");
+const { createStore } = require("zustand/vanilla");
+const { persist, createJSONStorage } = require("zustand/middleware");
 
 function load(filename, mocks = {}) {
   const code = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
@@ -29,6 +31,58 @@ const options = load("packages/aihappey-state/src/persist.ts", {
   "./slices/defaultProviderTranscriptionMetadata": { normalizeProviderTranscriptionMetadata: value => value },
   "./slices/providerMetadataAliases": { normalizeSpaceXAiProviderMetadata: value => value },
 }).withPersist(() => ({}));
+
+function createPersistedUiStore(entries = new Map()) {
+  return createStore(persist(ui.createUiSlice, {
+    ...options,
+    storage: createJSONStorage(() => ({
+      getItem: key => entries.get(key) ?? null,
+      setItem: (key, value) => entries.set(key, value),
+      removeItem: key => entries.delete(key),
+    })),
+  }));
+}
+
+function transcriptionSplitSettings(state) {
+  return {
+    transcriptionFileSplitEnabled: state.transcriptionFileSplitEnabled,
+    transcriptionFileSplitOverlapSeconds: state.transcriptionFileSplitOverlapSeconds,
+    transcriptionFileSplitMaxSizeMb: state.transcriptionFileSplitMaxSizeMb,
+  };
+}
+
+test("new users default to transcription splitting with 5-second overlap and 15 MB chunks", () => {
+  const entries = new Map();
+  const store = createPersistedUiStore(entries);
+  assert.equal(store.persist.hasHydrated(), true);
+  const expected = {
+    transcriptionFileSplitEnabled: true,
+    transcriptionFileSplitOverlapSeconds: 5,
+    transcriptionFileSplitMaxSizeMb: 15,
+  };
+  assert.deepEqual(transcriptionSplitSettings(store.getState()), expected);
+  store.getState().setTranscriptionFileSplitEnabled(true);
+  assert.deepEqual(transcriptionSplitSettings(createPersistedUiStore(entries).getState()), expected);
+});
+
+for (const version of [38, options.version]) {
+  for (const [enabled, overlap, maxSize] of [[false, 5, 25], [true, 5, 15], [false, 0, 42], [true, 12, 7]]) {
+    test(`saved transcription splitting survives hydration and reload: v${version}, ${enabled}, ${overlap}s, ${maxSize} MB`, () => {
+      const saved = {
+        transcriptionFileSplitEnabled: enabled,
+        transcriptionFileSplitOverlapSeconds: overlap,
+        transcriptionFileSplitMaxSizeMb: maxSize,
+      };
+      const entries = new Map([[options.name, JSON.stringify({ state: saved, version })]]);
+      const store = createPersistedUiStore(entries);
+      assert.equal(store.persist.hasHydrated(), true);
+      assert.deepEqual(transcriptionSplitSettings(store.getState()), saved);
+      store.getState().setTranscriptionFileSplitEnabled(enabled);
+      assert.deepEqual(transcriptionSplitSettings(JSON.parse(entries.get(options.name)).state), saved);
+      assert.deepEqual(transcriptionSplitSettings(createPersistedUiStore(entries).getState()), saved);
+    });
+  }
+}
 
 test("migration wraps the four legacy IDs, preserves array order/empty/unset, and leaves scalar types alone", () => {
   const saved = { userPreferredModel: " p/old ", userPreferredImageModel: [],
