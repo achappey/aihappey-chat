@@ -1,9 +1,11 @@
-import { store as appStore, useAppStore } from "aihappey-state";
+import { store as appStore, useAppStore, MODEL_PREFERENCE_FIELDS, normalizeModelIds, type DefaultModelsByType } from "aihappey-state";
 import { useEffect, useState } from "react";
 
-export function useDefaultModel(authenticated: boolean) {
+export function useDefaultModel(authenticated: boolean, defaults?: DefaultModelsByType) {
   const userPreferredModel = useAppStore((s) => s.userPreferredModel);
-  const setUserPreferredModel = useAppStore((s) => s.setUserPreferredModel);
+  const image = useAppStore((s) => s.userPreferredImageModel);
+  const video = useAppStore((s) => s.userPreferredVideoModel);
+  const speech = useAppStore((s) => s.userPreferredSpeechModel);
   const [storeHydrated, setStoreHydrated] = useState(() =>
     (appStore as any).persist?.hasHydrated?.() ?? true,
   );
@@ -20,9 +22,15 @@ export function useDefaultModel(authenticated: boolean) {
 
   useEffect(() => {
     if (!storeHydrated) return;
-    if (userPreferredModel) return;
-
-    const defaultModel = authenticated ? "openai/gpt-6-luna" : "pollinations/openai"
-    setUserPreferredModel(defaultModel)
-  }, [authenticated, setUserPreferredModel, storeHydrated, userPreferredModel]);
+    const current = appStore.getState();
+    const patch: Partial<typeof current> = {};
+    for (const type of Object.keys(MODEL_PREFERENCE_FIELDS) as (keyof DefaultModelsByType)[]) {
+      const field = MODEL_PREFERENCE_FIELDS[type];
+      if (current[field] !== undefined) continue;
+      const ids = defaults?.[type] ?? (type === "language"
+        ? [authenticated ? "openai/gpt-6-luna" : "pollinations/openai"] : undefined);
+      if (ids !== undefined) patch[field] = normalizeModelIds(ids);
+    }
+    if (Object.keys(patch).length) appStore.setState(patch);
+  }, [authenticated, defaults, storeHydrated, userPreferredModel, image, video, speech]);
 }

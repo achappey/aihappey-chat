@@ -66,7 +66,14 @@ export const AiDefaultSettings: React.FC = () => {
   // If the user has not yet chosen a preferred model, we display the currently
   // selected model as a reasonable default. Only userPreferredModel is updated
   // via this settings panel.
-  const value = userPreferredModel ?? selectedModel ?? "";
+  const value = userPreferredModel ?? (selectedModel ? [selectedModel] : []);
+  const defaultModels = (type: string, ids: string[], setIds: (ids: string[]) => void) => (
+    <ModelSelect models={models ?? []} modelTypes={[type]} value={ids[0] ?? ""}
+      values={ids} multiselect label={t("settingsModal.defaultModels", "Default models")}
+      onValuesChange={setIds}
+      onChange={id => setIds(ids.includes(id) ? ids.filter(value => value !== id) : [...ids, id])}
+      autoSelectFallback={false} />
+  );
 
   const formStyle: React.CSSProperties = {
     display: "flex",
@@ -86,14 +93,7 @@ export const AiDefaultSettings: React.FC = () => {
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
         <theme.Tab eventKey="language" icon={getModelTypeIcon("language")} title={t(getModelTypeLabelKey("language"))}>
           <div style={formStyle}>
-            <ModelSelect
-              models={models ?? []}
-              modelTypes={["language"]}
-              value={value}
-              label={t("settingsModal.defaultModel")}
-              onChange={setUserPreferredModel}
-              autoSelectFallback={false}
-            />
+            {defaultModels("language", value, setUserPreferredModel)}
           </div>
         </theme.Tab>
 
@@ -112,14 +112,7 @@ export const AiDefaultSettings: React.FC = () => {
 
         <theme.Tab eventKey="image" icon={getModelTypeIcon("image")} title={t(getModelTypeLabelKey("image"))}>
           <div style={formStyle}>
-            <ModelSelect
-              models={models ?? []}
-              modelTypes={["image"]}
-              value={userPreferredImageModel ?? ""}
-              label={t("settingsModal.defaultModel")}
-              onChange={setUserPreferredImageModel}
-              autoSelectFallback={false}
-            />
+            {defaultModels("image", userPreferredImageModel ?? [], setUserPreferredImageModel)}
 
             <Switch
               id={"chatWithImageModels"}
@@ -198,14 +191,7 @@ export const AiDefaultSettings: React.FC = () => {
 
         <theme.Tab eventKey="speech" icon={getModelTypeIcon("speech")} title={t(getModelTypeLabelKey("speech"))}>
           <div style={formStyle}>
-            <ModelSelect
-              models={models ?? []}
-              modelTypes={["speech"]}
-              value={userPreferredSpeechModel ?? ""}
-              label={t("settingsModal.defaultModel")}
-              onChange={setUserPreferredSpeechModel}
-              autoSelectFallback={false}
-            />
+            {defaultModels("speech", userPreferredSpeechModel ?? [], setUserPreferredSpeechModel)}
 
             <Switch
               id={"chatWithSpeechModels"}
@@ -249,14 +235,7 @@ export const AiDefaultSettings: React.FC = () => {
 
         <theme.Tab eventKey="video" icon={getModelTypeIcon("video")} title={t(getModelTypeLabelKey("video"))}>
           <div style={formStyle}>
-            <ModelSelect
-              models={models ?? []}
-              modelTypes={["video"]}
-              value={userPreferredVideoModel ?? ""}
-              label={t("settingsModal.defaultModel")}
-              onChange={setUserPreferredVideoModel}
-              autoSelectFallback={false}
-            />
+            {defaultModels("video", userPreferredVideoModel ?? [], setUserPreferredVideoModel)}
 
             <Switch
               id={"chatWithVideoModels"}

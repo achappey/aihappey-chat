@@ -78,24 +78,24 @@ export const localSettingsSetTool: Tool = {
         description: "AI temperature.",
       },
       userPreferredModel: {
-        type: "string",
-        description: "Default language model id.",
+        type: "array", items: { type: "string" },
+        description: "Ordered default language model ids.",
       },
       userPreferredImageModel: {
-        type: "string",
-        description: "Default image model id.",
+        type: "array", items: { type: "string" },
+        description: "Ordered default image model ids.",
       },
       userPreferredAudioModel: {
         type: "string",
         description: "Default realtime audio model id.",
       },
       userPreferredVideoModel: {
-        type: "string",
-        description: "Default video model id.",
+        type: "array", items: { type: "string" },
+        description: "Ordered default video model ids.",
       },
       userPreferredSpeechModel: {
-        type: "string",
-        description: "Default speech model id.",
+        type: "array", items: { type: "string" },
+        description: "Ordered default speech model ids.",
       },
       userPreferredTranscriptionModel: {
         type: "string",
@@ -380,11 +380,20 @@ export function useLocalSettingsRuntime() {
               }
             };
 
-            setPreferredModel(input.userPreferredModel, setUserPreferredModel);
-            setPreferredModel(input.userPreferredImageModel, setUserPreferredImageModel);
+            const setPreferredModels = (value: unknown, setter: (models: string[]) => void) => {
+              if (value === undefined) return;
+              if (value === null) { setter([]); return; }
+              if (typeof value === "string") { setter([value]); return; } // legacy tool calls
+              if (!Array.isArray(value) || value.some(id => typeof id !== "string"))
+                throw new Error("Default models must be an array of model IDs.");
+              setter(value);
+            };
+
+            setPreferredModels(input.userPreferredModel, setUserPreferredModel);
+            setPreferredModels(input.userPreferredImageModel, setUserPreferredImageModel);
             setPreferredModel(input.userPreferredAudioModel, setUserPreferredAudioModel);
-            setPreferredModel(input.userPreferredVideoModel, setUserPreferredVideoModel);
-            setPreferredModel(input.userPreferredSpeechModel, setUserPreferredSpeechModel);
+            setPreferredModels(input.userPreferredVideoModel, setUserPreferredVideoModel);
+            setPreferredModels(input.userPreferredSpeechModel, setUserPreferredSpeechModel);
             setPreferredModel(input.userPreferredTranscriptionModel, setUserPreferredTranscriptionModel);
             setPreferredModel(input.userPreferredRerankingModel, setUserPreferredRerankingModel);
 

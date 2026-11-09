@@ -5,6 +5,7 @@ import { listModelsWithSplitProviderHeaders, mergeCredentialHeaders, mergeModelR
 import type { ModelOption } from "aihappey-types";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { localModelStore, modelCacheScope, type ModelCatalogSnapshot } from "aihappey-models";
+import { favoriteRouterModel } from "../chat/engine/favoriteRouter";
 
 const equivalentModelIds = (model: ModelOption) => [
   model.id,
@@ -56,12 +57,14 @@ export const useModels = (
   const setSelectedModel = useAppStore(a => a.setSelectedModel)
   const userPreferredModel = useAppStore(a => a.userPreferredModel)
   const selectedModel = useAppStore(a => a.selectedModel)
+  const routingDecisionModel = useAppStore(a => favoriteRouterModel(a, "model"));
+  const defaultSelectionRef = useRef<string | undefined>(undefined);
   const [searchParams] = useSearchParams();
   const lastSelectionRef = useRef<{ selectedModel?: string; models?: ModelOption[] }>({});
   const selectionRef = useRef<{
     model?: string | null;
     selectedModel?: string;
-    userPreferredModel?: string;
+    userPreferredModel?: string[];
   }>({});
   const providers = useProviderRegistry();
   const [storeHydrated, setStoreHydrated] = useState(() =>
@@ -99,7 +102,6 @@ export const useModels = (
     const publish = (loadedModels: ModelOption[]) => {
       if (cancelled) return;
 
-      const background = published;
       published = true;
       setModels(loadedModels);
 
@@ -108,11 +110,18 @@ export const useModels = (
       if (!selectionRef.current.model && state.selectedChatModelIds !== undefined) return;
 
       const latestUrlModel = selectionRef.current.model;
-      const preferredModel = latestUrlModel ?? (background
-        ? state.selectedModel ?? state.userPreferredModel
-        : state.userPreferredModel ?? state.selectedModel);
+      // Preferences are durable lists; routing only controls the active picker selection.
+      const defaults = state.userPreferredModel ?? [];
+      const preferredModel = latestUrlModel ?? state.selectedModel ?? defaults[0];
+      const fromDefaults = !latestUrlModel && (!state.selectedModel || state.selectedModel === defaultSelectionRef.current);
+      if (fromDefaults && favoriteRouterModel(state, "model")) {
+        const ids = defaults.map(id => resolveSelectableModelId(loadedModels, id))
+          .filter((id): id is string => !!id && loadedModels.some(m => m.id === id && m.type === "language"));
+        if (ids.length) { state.setSelectedChatModelIds(ids); return; }
+      }
       const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel);
       if (resolvedPreferredModel) {
+        if (fromDefaults) defaultSelectionRef.current = resolvedPreferredModel;
         setSelectedModel(resolvedPreferredModel);
         return;
       }
@@ -169,4 +178,15 @@ export const useModels = (
 
     setSelectedModel(resolveSelectableModelId(models ?? [], model) ?? model);
   }, [models, modelsLoaded, model, setSelectedModel]);
+
+  // The configured decision model may arrive after a cached catalog. Expand only a
+  // default-owned selection, never an explicit URL/user/conversation candidate set.
+  useEffect(() => {
+    if (!modelsLoaded || !routingDecisionModel || model) return;
+    const state = appStore.getState();
+    if (state.selectedChatModelIds !== undefined || state.selectedModel !== defaultSelectionRef.current) return;
+    const ids = (state.userPreferredModel ?? []).map(id => resolveSelectableModelId(models ?? [], id))
+      .filter((id): id is string => !!id && models?.some(m => m.id === id && m.type === "language") === true);
+    if (ids.length) state.setSelectedChatModelIds(ids);
+  }, [models, modelsLoaded, routingDecisionModel, model, userPreferredModel, selectedModel]);
 };

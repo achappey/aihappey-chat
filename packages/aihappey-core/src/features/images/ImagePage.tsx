@@ -49,7 +49,7 @@ export const ImagePage = () => {
   const getAccessToken = config?.getAccessToken;
   const queryModelId = useQueryModelId(models ?? [], "image");
   const routing = usePrimitiveModelSelection("image",
-    queryModelId ??
+    (queryModelId ? [queryModelId] : undefined) ??
     userPreferredImageModel ??
     (getAccessToken ?
       "openai/chatgpt-image-latest" : "pollinations/flux"));

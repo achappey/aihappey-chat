@@ -42,7 +42,7 @@ type UseMessageSpeechPlaybackOptions = {
 export const useMessageSpeechPlayback = ({ onError }: UseMessageSpeechPlaybackOptions) => {
   const { config } = useChatContext();
   const customHeaders = useAppStore((state) => state.customHeaders);
-  const model = useAppStore((state) => state.userPreferredSpeechModel);
+  const model = useAppStore((state) => state.userPreferredSpeechModel?.[0]);
   const providerSpeechMetadata = useAppStore((state) => state.providerSpeechMetadata);
   const voice = useAppStore((state) => state.voice);
   const outputFormat = useAppStore((state) => state.speechOutputFormat);

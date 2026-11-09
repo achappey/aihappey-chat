@@ -4,7 +4,7 @@ import { useMemo, useRef } from "react";
 import { ChatContext } from "./ChatContext";
 import type { ReactNode, FC } from "react";
 import { defaultEndpoints } from "aihappey-ai";
-import type { ChatEndpointId } from "aihappey-state";
+import type { ChatEndpointId, DefaultModelsByType } from "aihappey-state";
 import type { PrivacyPolicyConfig } from "../../privacy/privacyPolicy";
 
 export interface AiChatConfig {
@@ -30,6 +30,8 @@ export interface ChatConfig extends AiChatConfig {
   privacyPolicy?: PrivacyPolicyConfig;
   defaultChatEndpoint?: ChatEndpointId;
   gatewayEnabled?: boolean;
+  /** Seeds unset model preferences only. Saved lists, including empty lists, win. */
+  defaultModelsByType?: DefaultModelsByType;
   defaultProvidersByType?: Partial<{
    language: string[];
    image: string[];

@@ -36,7 +36,7 @@ export const StreamingSpeechPage = () => {
   const favoriteModelsByType = useAppStore((state: any) => state.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((state: any) => state.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const files = useFiles();
-  const [selectedModel, setSelectedModel] = useState(preferredModel ?? (config.getAccessToken ? "openai/gpt-4o-mini-tts" : ""));
+  const [selectedModel, setSelectedModel] = useState(preferredModel?.[0] ?? (config.getAccessToken ? "openai/gpt-4o-mini-tts" : ""));
   const [text, setText] = useState("");
   const [settings, setSettings] = useState<Settings>({ voice: "", responseFormat: "mp3", instructions: "", speed: "1" });
   const [settingsOpen, setSettingsOpen] = useState(false);

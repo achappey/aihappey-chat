@@ -135,7 +135,7 @@ export const CoreShell: React.FC<Props> = ({
 
   useChatRoute(effectiveChatConfig, true);
 
-  useDefaultModel(chatConfig?.getAccessToken != undefined)
+  useDefaultModel(chatConfig?.getAccessToken != undefined, chatConfig?.defaultModelsByType)
   useDefaultProviders(chatConfig?.defaultProvidersByType)
 
   useEffect(() => {

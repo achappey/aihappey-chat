@@ -51,7 +51,7 @@ export const SpeechPage = () => {
   const userPreferredSpeechModel = useAppStore((a) => a.userPreferredSpeechModel);
   const getAccessToken = config?.getAccessToken;
   const queryModelId = useQueryModelId(models ?? [], "speech");
-  const routing = usePrimitiveModelSelection("speech", queryModelId ?? userPreferredSpeechModel ?? (getAccessToken ?
+  const routing = usePrimitiveModelSelection("speech", (queryModelId ? [queryModelId] : undefined) ?? userPreferredSpeechModel ?? (getAccessToken ?
     "openai/gpt-4o-mini-tts" : ""));
   const { selectedModel, setSelectedModel } = routing;
   const selectedModelOption = models?.find((model) => model.id === selectedModel);

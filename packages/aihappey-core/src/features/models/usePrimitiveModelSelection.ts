@@ -4,23 +4,27 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { decideFavorite, favoriteRouterModel } from "../chat/engine/favoriteRouter";
 
 /** Page-local candidate selection. A decision never replaces the user's candidate set. */
-export function usePrimitiveModelSelection(type: "image" | "video" | "speech", initialModel: string) {
+export function usePrimitiveModelSelection(type: "image" | "video" | "speech", initialModel: string | string[]) {
   const { config } = useChatContext();
   const models = useAppStore(s => s.models);
   const loaded = useAppStore(s => s.modelsLoaded);
   const decisionModel = useAppStore(s => favoriteRouterModel(s, "model"));
-  const [ids, setIds] = useState<string[]>(() => initialModel ? [initialModel] : []);
+  const defaults = Array.isArray(initialModel) ? initialModel : initialModel ? [initialModel] : [];
+  const defaultsKey = JSON.stringify(defaults);
+  const explicitSelection = useRef(false);
+  const [ids, setIds] = useState<string[]>(() => defaults);
   const [processing, setProcessing] = useState(false);
   const active = useRef<AbortController | undefined>(undefined);
   const current = useRef({ ids, config });
   current.current = { ids, config };
-  const multiselect = !!decisionModel && config.gatewayEnabled !== false;
+  const multiselect = loaded && !!decisionModel && config.gatewayEnabled !== false;
 
   useEffect(() => {
     if (!loaded) return;
     setIds(previous => {
-      let next = previous.filter(id => models?.some(m => m.id === id && m.type === type));
-      if (!multiselect) next = next.slice(0, 1);
+      const candidates = explicitSelection.current ? previous : defaults;
+      let next = (multiselect ? candidates : candidates.slice(0, 1))
+        .filter(id => models?.some(m => m.id === id && m.type === type));
       if (!next.length) {
         const fallback = (models ?? []).filter(m => m.type === type)
           .sort((a, b) => (b.created ?? 0) - (a.created ?? 0))[0];
@@ -28,11 +32,16 @@ export function usePrimitiveModelSelection(type: "image" | "video" | "speech", i
       }
       return next.join("\0") === previous.join("\0") ? previous : next;
     });
-  }, [loaded, models, type, multiselect]);
+  }, [loaded, models, type, multiselect, defaultsKey]);
 
   useEffect(() => () => { active.current?.abort(); }, []);
-  const setSelectedModel = useCallback((id: string) => setIds(id ? [id] : []), []);
+  const setSelectedModel = useCallback((id: string) => {
+    explicitSelection.current = true;
+    setIds(id ? [id] : []);
+  }, []);
+  const setSelectedIds = (values: string[]) => { explicitSelection.current = true; setIds(values); };
   const onChange = (id: string) => {
+    explicitSelection.current = true;
     if (!multiselect) return setSelectedModel(id);
     setIds(previous => previous.includes(id)
       ? previous.length > 1 ? previous.filter(value => value !== id) : previous
@@ -75,7 +84,7 @@ export function usePrimitiveModelSelection(type: "image" | "video" | "speech", i
   return {
     selectedModel: ids[0] ?? "", setSelectedModel, processing, run, isRunning: () => !!active.current,
     selectionProps: {
-      values: ids, multiselect, onChange, onValuesChange: setIds,
+      values: ids, multiselect, onChange, onValuesChange: setSelectedIds,
       allowFavoriteRouter: true, disabled: processing,
     },
     singleModelSelected: ids.length === 1,

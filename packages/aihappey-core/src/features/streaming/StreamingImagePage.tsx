@@ -36,7 +36,7 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
   const favoriteModelsByType = useAppStore((state: any) => state.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((state: any) => state.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const files = useFiles();
-  const [selectedModel, setSelectedModel] = useState(preferredModel ?? (config.getAccessToken ? "openai/gpt-image-1" : ""));
+  const [selectedModel, setSelectedModel] = useState(preferredModel?.[0] ?? (config.getAccessToken ? "openai/gpt-image-1" : ""));
   const [prompt, setPrompt] = useState("");
   const [inputImages, setInputImages] = useState<File[]>([]);
   const [settings, setSettings] = useState<StreamingImageSettings>(initialStreamingImageSettings);

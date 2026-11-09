@@ -96,7 +96,7 @@ export const VideoPage = () => {
   const getAccessToken = config?.getAccessToken;
   const queryModelId = useQueryModelId(models ?? [], "video");
   const routing = usePrimitiveModelSelection("video",
-    queryModelId ??
+    (queryModelId ? [queryModelId] : undefined) ??
     userPreferredVideoModel ??
     (getAccessToken ? "openai/sora-2" : "")
   );

@@ -1332,6 +1332,7 @@
         "tabTheme": "Thema",
         "agentImport": "Agents",
         "defaultModel": "Standaard model",
+        "defaultModels": "Standaardmodellen",
         "agentImportHint": "Importeer bronnen als Agents.",
         "conversationImport": "Conversaties",
         "conversationImportHint": "Importeer bronnen als chat conversaties.",
