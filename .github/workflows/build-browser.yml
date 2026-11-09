@@ -5,7 +5,11 @@ on:
         branches: [main]
 
 permissions:
-    contents: read
+    contents: write
+
+concurrency:
+  group: browser-latest-build
+  cancel-in-progress: false
 
 jobs:
     build:
@@ -47,3 +51,28 @@ jobs:
                   name: localhappey
                   path: release/localhappey/
                   if-no-files-found: error
+
+            - name: Create release ZIPs
+              run: |
+                for sample in chathappey localhappey; do
+                  (
+                    cd "release/$sample"
+                    zip -qr "../$sample.zip" public
+                  )
+                done
+
+            - name: Publish latest build
+              env:
+                GH_TOKEN: ${{ github.token }}
+              run: |
+                if gh release view latest >/dev/null 2>&1; then
+                  gh release delete latest --yes --cleanup-tag
+                fi
+
+                gh release create latest \
+                  release/chathappey.zip \
+                  release/localhappey.zip \
+                  --title "Latest build" \
+                  --notes "Build from commit ${GITHUB_SHA}" \
+                  --target "$GITHUB_SHA" \
+                  --latest
