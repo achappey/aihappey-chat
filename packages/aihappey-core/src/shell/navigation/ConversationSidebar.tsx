@@ -9,6 +9,7 @@ import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useIsDesktop } from "../responsive/useIsDesktop";
 import { useChatContext } from "../../features/chat/context/ChatContext";
+import { useCloudStorageAvailable } from "../connectors/CloudStorageAvailability";
 
 export const ConversationSidebar = ({
   onSearch,
@@ -25,6 +26,7 @@ export const ConversationSidebar = ({
   const { t } = useTranslation();
   const { Navigation } = useTheme();
   const { config } = useChatContext();
+  const cloudStorageAvailable = useCloudStorageAvailable();
   const conversationStorage = useAppStore((a) => a.conversationStorage);
   const remoteStorageConnected = useAppStore((a) => a.remoteStorageConnected);
   const setConversationStorage = useAppStore((a) => a.setConversationStorage);
@@ -615,7 +617,7 @@ export const ConversationSidebar = ({
         onRename={conversations.rename}
         onToggleNavigationItemHidden={toggleHiddenNavigationItem}
         onStorageSwitch={
-          remoteStorageConnected
+          cloudStorageAvailable && remoteStorageConnected
             ? (config) => setConversationStorage(config)
             : undefined
         }

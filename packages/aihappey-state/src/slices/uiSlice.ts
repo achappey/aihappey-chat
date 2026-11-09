@@ -796,7 +796,7 @@ export const createUiSlice: StateCreator<
     set(() => ({
       conversationStorage: kind,
     })),
-  remoteStorageConnected: false,
+  remoteStorageConnected: true,
   setRemoteStorageConnected: (connected: boolean) =>
     set(() => ({
       remoteStorageConnected: connected,

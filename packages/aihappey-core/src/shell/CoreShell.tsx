@@ -54,8 +54,10 @@ import type { Agent } from "aihappey-types";
 import { ApiKeyUnlockHost } from "../features/provider-credentials/ApiKeyUnlockHost";
 import { AgentPluginRuntimeBinding } from "../runtime/plugins/AgentPluginRuntimeBinding";
 import { VectorStoresProvider } from "aihappey-embeddings";
+import { CloudStorageAvailabilityContext, isCloudStorageAvailable } from "./connectors/CloudStorageAvailability";
 
 const EMPTY_SKILL_NAMES: string[] = [];
+const EMPTY_SCOPES: string[] = [];
 
 type Props = {
   chatConfig: ChatConfig;
@@ -73,7 +75,8 @@ export const CoreShell: React.FC<Props> = ({
   pluginConfig,
 }) => {
   const remoteStorageConnected = useRemoteStorageConnected();
-  const [, token, error, refresh] = useAccessToken(conversationScopes ?? []);
+  const cloudStorageAvailable = isCloudStorageAvailable(apiUrl, conversationScopes);
+  const [, , , refresh] = useAccessToken(conversationScopes ?? EMPTY_SCOPES);
   const [, , , refreshAgentToken] = useAccessToken(agentScopes ?? []);
   const getAgentAccessToken = useCallback(async () => (await refreshAgentToken()) ?? "", [refreshAgentToken]);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
@@ -322,12 +325,10 @@ export const CoreShell: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (remoteStorageConnected) {
-      refresh().finally(() => console.log(token));
+    if (cloudStorageAvailable && remoteStorageConnected) {
+      void refresh();
     }
-    // Only run on mount and when remoteStorageConnected changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [remoteStorageConnected]);
+  }, [cloudStorageAvailable, remoteStorageConnected, refresh]);
 
   useEffect(() => {
     const items: string[] = []
@@ -337,12 +338,16 @@ export const CoreShell: React.FC<Props> = ({
     setSafeHosts(items);
   }, [effectiveChatConfig, setSafeHosts]);
 
-  const ui = effectiveChatConfig ? (
-    <ChatProvider config={effectiveChatConfig}>
-      <Outlet />
-    </ChatProvider>
-  ) : (
-    <Outlet />
+  const ui = (
+    <CloudStorageAvailabilityContext.Provider value={cloudStorageAvailable}>
+      {effectiveChatConfig ? (
+        <ChatProvider config={effectiveChatConfig}>
+          <Outlet />
+        </ChatProvider>
+      ) : (
+        <Outlet />
+      )}
+    </CloudStorageAvailabilityContext.Provider>
   );
 
   const inferenceApi = effectiveGatewayEnabled

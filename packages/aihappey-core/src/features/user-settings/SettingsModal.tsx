@@ -13,6 +13,7 @@ import { useMultiTheme } from "aihappey-components";
 import { SideInferenceAgentsTab } from "../chat-settings/SideInferenceAgentsTab";
 import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
 import { ExportSettings } from "./export/ExportSettings";
+import { useCloudStorageAvailable } from "../../shell/connectors/CloudStorageAvailability";
 
 export interface SettingsModalProps {
   open: boolean;
@@ -28,6 +29,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const { t } = useTranslation(); // Uncomment when i18n is ready
   const [activeTab, setActiveTab] = useState("general");
   const multiTheme = useMultiTheme();
+  const cloudStorageAvailable = useCloudStorageAvailable();
   const remoteStorageConnected = useAppStore((s) => s.remoteStorageConnected);
   const enableUserLocation = useAppStore((s) => s.enableUserLocation);
   const setEnableUserLocation = useAppStore((s) => s.setEnableUserLocation);
@@ -285,21 +287,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               title={t("settingsModal.tabConnectors")}
             >
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                {cloudStorageAvailable && <Switch
+                  id="remote-storage-toggle"
+                  checked={remoteStorageConnected}
+                  label={t("settingsModal.remoteStorage")}
+                  onChange={setRemoteStorageConnected}
+                />}
+
                 <Switch
                   id="location-toggle"
                   checked={enableUserLocation}
                   label={t("settingsModal.userLocation")}
                   onChange={setEnableUserLocation}
                 />
-
-                {chat.config.getAccessToken && <Switch
-                  id="remote-storage-toggle"
-                  checked={remoteStorageConnected}
-                  label={t("settingsModal.remoteStorage")}
-                  onChange={() =>
-                    setRemoteStorageConnected(!remoteStorageConnected)
-                  }
-                />}
               </div>
             </theme.Tab>
             <theme.Tab
