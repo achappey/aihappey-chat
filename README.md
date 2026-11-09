@@ -9,16 +9,32 @@ Connect compatible AI APIs, agent runtimes and MCP servers directly from the cli
 The chat client supports:
 
 - **Streaming chat** with rich incremental message rendering
-- **Provider and model switching** across compatible API surfaces
-- **Agents and workflows** through connected agent runtimes
+- **Provider and model switching** across Gateway and direct provider APIs
+- **Multi-protocol routing** through API Chat, Responses, Messages, Chat Completions and Direct APIs
+- **Model discovery** with cached catalogs, background refresh, favorites, filters and configurable default preferences
+- **Provider settings** with model-specific options and native metadata passthrough
+- **Agents and workflows** through connected agent runtimes with multi-agent orchestration
+- **Realtime agents** with bidirectional audio, interruptions, streaming playback and tool execution
+- **Decisions** with intelligent multi-model and agent routing based on user input and configurable decision models
 - **Agent Plugins** combining Skills, MCP servers and supporting resources
 - **MCP** tools, resources, prompts, elicitation and tasks
+- **Tool execution** with parallel tool calls, human-in-the-loop approvals and execution activity
+- **Server-side tools** with provider-native web search, code execution, MCP and other supported capabilities
 - **Skills** with reusable instructions and supporting files
 - **Search** with client-side full-text, vector and hybrid search
-- **Files** with attachments, document content and rich file handling
+- **Files** with attachments, document content, PDF extraction and rich file handling
+- **Conversation history** with local persistence, search and configurable chat preferences
 - **Streaming UI** with interactive apps, cards and structured response rendering
+- **Speech** with generation, streaming playback and realtime transcription
+- **Transcriptions** with configurable file splitting, overlap handling and merged results
+- **Images and video** with generation, provider-specific options and asynchronous jobs
+- **Benchmarks** with multi-model comparisons, configurable routing and repeatable test runs
+- **Usage analytics** with interactive charts, token consumption and cost tracking
+- **Performance metrics** including time to first token (TTFT) and tokens per second (TPS)
+- **Authentication** with header-based/BYOK and Microsoft Entra support
 - **Multi-theme UI** with interchangeable Shadcn, Fluent, Bootstrap, Mantine, Material and Chakra implementations
-- **Model capabilities** including speech, transcription, embeddings, reranking, images, video and other supported modalities
+- **Localization** with support for 15+ languages
+- **Model capabilities** including speech, transcription, embeddings, reranking, images, video, decision and other supported modalities
 
 Documentation: https://docs.aihappey.com/chat  
 App: https://chat.aihappey.com
