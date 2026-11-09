@@ -376,7 +376,10 @@ function chatSettingsHarness(overrides = {}, defaults = { openai: [{ id: "image"
         "aihappey-state": { useAppStore: store, defaultProviderFileMetadata: defaults, defaultProviderMetadata: {}, defaultProviderHeaders: {}, defaultProviderRealtimeConversationMetadata: realtimeDefaults },
         "aihappey-types": load("packages/aihappey-types/src/modelIdentity.ts"),
         "./GeneralTab": local, "./ToolsTab": local, "./ToolConfigurationTab": local, "./ChatSkillsEditor": local, "./ChatPluginsEditor": local,
-        "../provider-config/google/GoogleChatConfig": local,
+        "./ProviderChatForm": load("packages/aihappey-core/src/features/chat-settings/ProviderChatForm.tsx", {
+            react: React, "aihappey-components": chatComponents,
+            "../provider-config/google/GoogleChatConfig": local,
+        }),
         "../provider-config/openai/openAISkillOptions": { buildOpenAISkillOptions: () => [], createOpenAIShellSkillResolver: () => undefined },
         "aihappey-skills": { useSkills: () => ({ items: [] }) }, "aihappey-plugins": { usePlugins: () => ({ items: [] }) },
         "../chat/context/ChatContext": { useChatContext: () => ({ config: { baseUrl: "", endpoints: { skills: "/skills" } } }) },

@@ -316,6 +316,7 @@ test('real SDK client-tool continuation uses new request timings, not tool execu
 
 test('failed or incomplete streams do not manufacture successful throughput; HTTP failures pass through', async () => {
   for (const [endpoint, events] of [
+    ['/v1/chat/completions', [[3000, textEvent('Answer')], [8000, { error: { message: 'Failure' }, usage: { completion_tokens: 100 } }]]],
     ['/v1/responses', [[3000, { type: 'response.output_text.delta', delta: 'Answer' }], [8000, { type: 'response.failed', response: { usage: { output_tokens: 100 } } }]]],
     ['/v1/messages', [[3000, { type: 'message_start', message: { usage: { output_tokens: 100 } } }], [8000, { type: 'error', error: { message: 'Failure' } }]]],
     ['/v1/conversations', [[3000, { type: 'message.output.delta', content: 'Answer' }], [8000, { type: 'conversation.response.error', message: 'Failure', usage: { output_tokens: 100 } }]]],
