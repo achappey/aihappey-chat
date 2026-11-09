@@ -513,6 +513,7 @@
         "showTokens": "Token pro Nachricht anzeigen",
         "showMetrics": "Metriken anzeigen",
         "showProviderLogo": "Anbieterlogo anzeigen",
+        "showContextSize": "Kontextgröße anzeigen",
         "dictate": "Diktieren",
         "debug": "Debug",
         "toolOutputContent": "Ausgabetypen der Werkzeuge",

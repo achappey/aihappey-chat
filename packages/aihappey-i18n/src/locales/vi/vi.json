@@ -519,6 +519,7 @@
         "showTokens": "Hiển thị token cho mỗi tin nhắn",
         "showMetrics": "Hiển thị chỉ số",
         "showProviderLogo": "Hiển thị logo nhà cung cấp",
+        "showContextSize": "Hiển thị kích thước ngữ cảnh",
         "dictate": "Đọc chính tả",
         "debug": "Gỡ lỗi",
         "toolOutputContent": "Loại nội dung đầu ra của công cụ",

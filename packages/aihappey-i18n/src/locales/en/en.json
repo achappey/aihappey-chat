@@ -1415,6 +1415,7 @@
         "showTokens": "Show tokens per message",
         "showMetrics": "Show metrics",
         "showProviderLogo": "Show provider logo",
+        "showContextSize": "Show context size",
         "dictate": "Dictate",
         "debug": "Debug",
         "toolOutputContent": "Tool output types",

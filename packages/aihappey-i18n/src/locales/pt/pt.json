@@ -492,6 +492,7 @@
         "showTokens": "Mostrar tokens por mensagem",
         "showMetrics": "Mostrar métricas",
         "showProviderLogo": "Mostrar logótipo do fornecedor",
+        "showContextSize": "Mostrar tamanho do contexto",
         "dictate": "Ditado",
         "debug": "Depuração",
         "toolOutputContent": "Tipos de resultado das ferramentas",

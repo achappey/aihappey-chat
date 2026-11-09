@@ -785,6 +785,7 @@
     "gatewayEnabled": "Aktivera gateway",
     "showMetrics": "Visa mätvärden",
     "showProviderLogo": "Visa leverantörslogotyp",
+    "showContextSize": "Visa kontextstorlek",
     "dictate": "Diktera",
     "debug": "Felsökning",
     "toolOutputContent": "Verktygsutdatatyper",

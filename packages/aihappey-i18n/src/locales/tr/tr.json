@@ -505,6 +505,7 @@
         "showTokens": "Her mesajın token sayısını göster",
         "showMetrics": "Metrikleri göster",
         "showProviderLogo": "Sağlayıcı logosunu göster",
+        "showContextSize": "Bağlam boyutunu göster",
         "dictate": "Dikte",
         "debug": "Hata ayıklama",
         "toolOutputContent": "Araç çıktı türleri",

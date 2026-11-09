@@ -497,6 +497,7 @@
         "showTokens": "Pokaż liczbę tokenów przy każdej wiadomości",
         "showMetrics": "Pokaż statystyki",
         "showProviderLogo": "Pokaż logo dostawcy",
+        "showContextSize": "Pokaż rozmiar kontekstu",
         "dictate": "Dyktowanie",
         "debug": "Debugowanie",
         "toolOutputContent": "Typy danych wyjściowych narzędzi",

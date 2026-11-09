@@ -1297,6 +1297,7 @@
         "showTokens": "Vis tokens pr. besked",
         "showMetrics": "Vis målinger",
         "showProviderLogo": "Vis udbyderlogo",
+        "showContextSize": "Vis kontekststørrelse",
         "dictate": "Dikter",
         "debug": "Fejlsøgning",
         "toolOutputContent": "Værktøjsoutputtyper",

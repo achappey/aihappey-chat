@@ -833,6 +833,7 @@
         "officialExtensions": "Viralliset",
         "showMetrics": "Näytä mittarit",
         "showProviderLogo": "Näytä palveluntarjoajan logo",
+        "showContextSize": "Näytä kontekstin koko",
         "tabEndpoints": "Rajapinnat",
         "tabExport": "Vienti",
         "toolOutputContent": "Työkalujen tulostetyypit",

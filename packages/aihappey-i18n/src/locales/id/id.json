@@ -504,6 +504,7 @@
         "showTokens": "Tampilkan token per pesan",
         "showMetrics": "Tampilkan metrik",
         "showProviderLogo": "Tampilkan logo penyedia",
+        "showContextSize": "Tampilkan ukuran konteks",
         "dictate": "Dikte",
         "debug": "Debug",
         "toolOutputContent": "Jenis output alat",

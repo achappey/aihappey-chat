@@ -487,6 +487,7 @@
         "showTokens": "Tokenek megjelenítése üzenetenként",
         "showMetrics": "Metrikák megjelenítése",
         "showProviderLogo": "Szolgáltató logójának megjelenítése",
+        "showContextSize": "Kontextusméret megjelenítése",
         "dictate": "Diktálás",
         "debug": "Hibakeresés",
         "toolOutputContent": "Eszközkimenet típusai",

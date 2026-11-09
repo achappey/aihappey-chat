@@ -557,6 +557,7 @@
         "sendRawAttachments": "Invia gli allegati originali",
         "showMetrics": "Mostra metriche",
         "showProviderLogo": "Mostra il logo del provider",
+        "showContextSize": "Mostra dimensione del contesto",
         "showTemperature": "Mostra la temperatura",
         "showTokens": "Mostra i token per messaggio",
         "tabApps": "App",

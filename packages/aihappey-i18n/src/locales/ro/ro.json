@@ -509,6 +509,7 @@
     "showTokens": "Afișează tokenii pentru fiecare mesaj",
     "showMetrics": "Afișează indicatorii",
     "showProviderLogo": "Afișează sigla furnizorului",
+    "showContextSize": "Afișează dimensiunea contextului",
     "dictate": "Dictare",
     "debug": "Depanare",
     "toolOutputContent": "Tipuri de rezultate ale instrumentelor",

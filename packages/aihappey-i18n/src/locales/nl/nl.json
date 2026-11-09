@@ -1325,6 +1325,7 @@
         "showTokens": "Toon tokens per bericht",
         "showMetrics": "Toon metingen",
         "showProviderLogo": "Toon providerlogo",
+        "showContextSize": "Toon contextgrootte",
         "dictate": "Dicteren",
         "toolOutputContent": "Types tooluitvoer",
         "links": "Links",

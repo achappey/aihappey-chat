@@ -833,6 +833,7 @@
         "officialExtensions": "Offisielle",
         "showMetrics": "Vis målinger",
         "showProviderLogo": "Vis leverandørlogo",
+        "showContextSize": "Vis kontekststørrelse",
         "tabEndpoints": "Endepunkter",
         "tabExport": "Eksport",
         "toolOutputContent": "Innholdstyper for verktøyutdata",

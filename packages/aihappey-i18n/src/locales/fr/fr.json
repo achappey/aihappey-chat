@@ -493,6 +493,7 @@
         "showTokens": "Afficher les tokens par message",
         "showMetrics": "Afficher les métriques",
         "showProviderLogo": "Afficher le logo du fournisseur",
+        "showContextSize": "Afficher la taille du contexte",
         "dictate": "Dicter",
         "debug": "Débogage",
         "toolOutputContent": "Types de sortie des outils",
