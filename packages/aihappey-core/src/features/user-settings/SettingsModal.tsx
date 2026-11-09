@@ -48,6 +48,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const showMessageTokens = useAppStore((s) => s.showMessageTokens);
   const showMessageMetrics = useAppStore((s) => s.showMessageMetrics);
   const disableProviderLogo = useAppStore((s) => s.disableProviderLogo);
+  const showContextSize = useAppStore((s) => s.showContextSize);
+  const setShowContextSize = useAppStore((s) => s.setShowContextSize);
   const chatDictationEnabled = useAppStore((s) => s.chatDictationEnabled);
   const apiDebugEnabled = useAppStore((s) => s.apiDebugEnabled);
   const setApiDebugEnabled = useAppStore((s) => s.setApiDebugEnabled);
@@ -191,10 +193,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
 
                 <Switch
-                  id="chat-dictation-toggle"
-                  checked={chatDictationEnabled}
-                  label={t("settingsModal.dictate")}
-                  onChange={setChatDictationEnabled}
+                  id="context-size-toggle"
+                  checked={showContextSize}
+                  label={t("settingsModal.showContextSize")}
+                  onChange={setShowContextSize}
                 />
 
                 <Switch
@@ -202,6 +204,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   checked={!!showMessageMetrics}
                   label={t("settingsModal.showMetrics")}
                   onChange={setShowMessageMetrics}
+                />
+
+                <Switch
+                  id="chat-dictation-toggle"
+                  checked={chatDictationEnabled}
+                  label={t("settingsModal.dictate")}
+                  onChange={setChatDictationEnabled}
                 />
 
                 <Switch

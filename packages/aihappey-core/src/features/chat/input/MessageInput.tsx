@@ -45,6 +45,7 @@ export const MessageInput = (props: MessageInputProps) => {
   const approveAll = useAppStore((s) => s.approveAll);
   const selectedModel = useAppStore((s) => s.selectedModel);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
+  const showContextSize = useAppStore((s) => s.showContextSize);
   const models = useAppStore((s) => s.models);
   const chatMode = useAppStore((s) => s.chatMode);
   const activePlugins = useAppStore((s) => s.activePlugins);
@@ -217,7 +218,7 @@ export const MessageInput = (props: MessageInputProps) => {
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
       {(attachmentsElement || serverElements || contextToolElements || approveAll || props.conversationCost !== undefined
-        || (currentModel?.context_window && props.tokenUsage)
+        || (showContextSize && currentModel?.context_window && props.tokenUsage)
       ) ? (
         <div style={styles.metaRow}>
           <div style={styles.metaLeft}>
@@ -228,9 +229,9 @@ export const MessageInput = (props: MessageInputProps) => {
 
           <div style={styles.metaRight}>
             {inputMenu.resourceLoading && <Spinner />}
-            <ContextProgressBar tokenUsage={props.tokenUsage}
+            {showContextSize && <ContextProgressBar tokenUsage={props.tokenUsage}
               max_output_tokens={maxOutputTokens ?? currentModel?.max_tokens}
-              context_window={currentModel?.context_window} />
+              context_window={currentModel?.context_window} />}
             <CostBadge cost={props.conversationCost} size="small" />
             {approveAll && <BrrrBadge size="small" />}
           </div>

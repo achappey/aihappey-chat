@@ -44,6 +44,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
   const providerHeaders = useAppStore((s) => s.providerHeaders);
   const setProviderHeaders = useAppStore((s) => s.setProviderHeaders);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
+  const showContextSize = useAppStore((s) => s.showContextSize);
   const models = useAppStore((s) => s.models);
   const resources = useSelectedResources(mcpResourceRuntime);
   const fileAttachments = useFileAttachments(fileAttachmentRuntime);
@@ -113,7 +114,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
 
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
-      {!props.audioOnly && (attachmentsElement || serverElements || approveAll || (currentModel?.context_window && props.tokenUsage)) ? (
+      {!props.audioOnly && (attachmentsElement || serverElements || approveAll || (showContextSize && currentModel?.context_window && props.tokenUsage)) ? (
         <div style={styles.metaRow}>
           <div style={styles.metaLeft}>
             {attachmentsElement}
@@ -122,9 +123,9 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
 
           <div style={styles.metaRight}>
             {inputMenu.resourceLoading && <Spinner />}
-            <ContextProgressBar tokenUsage={props.tokenUsage}
+            {showContextSize && <ContextProgressBar tokenUsage={props.tokenUsage}
               max_output_tokens={maxOutputTokens ?? currentModel?.max_tokens}
-              context_window={currentModel?.context_window} />
+              context_window={currentModel?.context_window} />}
             {approveAll && <BrrrBadge size="small" />}
           </div>
         </div>
