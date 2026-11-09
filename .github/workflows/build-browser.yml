@@ -1,0 +1,49 @@
+name: Build Browser Clients
+
+on:
+    push:
+        branches: [main]
+
+permissions:
+    contents: read
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build all workspaces once
+              run: npm run build
+
+            - name: Prepare artifacts
+              run: |
+                  for sample in chathappey localhappey; do
+                    test -s "samples/$sample/public/bundle.js"
+                    test -f "samples/$sample/public/index.html"
+                    mkdir -p "release/$sample"
+                    cp -a "samples/$sample/public" "release/$sample/public"
+                  done
+
+            - name: Upload chathappey
+              uses: actions/upload-artifact@v4
+              with:
+                  name: chathappey
+                  path: release/chathappey/
+                  if-no-files-found: error
+
+            - name: Upload localhappey
+              uses: actions/upload-artifact@v4
+              with:
+                  name: localhappey
+                  path: release/localhappey/
+                  if-no-files-found: error
