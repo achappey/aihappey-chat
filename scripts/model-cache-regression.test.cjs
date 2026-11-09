@@ -48,17 +48,20 @@ test("partial discovery refresh replaces successful sources, preserves failed on
   assert.equal(sources["direct:p"], undefined);
 });
 
-function harness(saved, network = deferred()) {
+function harness(saved, network = deferred(), query = "") {
   const render = renderer(), writes = [], requests = [];
   const auth = load(authFile);
   const state = { models: [], modelsLoaded: false, modelsRefreshVersion: 0, customHeaders: {},
-    selectedModel: "p/preferred", userPreferredModel: "p/preferred",
+    selectedModel: "p/preferred", userPreferredModel: ["p/preferred"],
     setModels: models => { state.models = models; state.modelsLoaded = true; },
     setModelsLoadingProgress: progress => { state.modelsLoadingProgress = progress; },
     setSelectedModel: value => { state.selectedModel = value; },
+    setSelectedChatModelIds: ids => { state.selectedChatModelIds = ids; state.selectedModel = ids[0]; },
   };
   const mocks = { react: render.react, "aihappey-state": { store: { getState: () => state }, useAppStore: selector => selector(state) },
-    "react-router": { useSearchParams: () => [new URLSearchParams()] },
+    "../chat/engine/favoriteRouter": { favoriteRouterModel: state => state.routingEnabled
+      && state.models.some(model => model.type === "decision") ? "p/decision" : undefined },
+    "react-router": { useSearchParams: () => [new URLSearchParams(query)] },
     "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => providers },
     "../provider-credentials/providerAuthHeaders": { ...auth, listModelsWithSplitProviderHeaders: options => { requests.push(options); return network.promise; } },
     "aihappey-models": { ...catalog, modelCacheScope: async context => context.headers["x-context"] ?? "scope",
@@ -106,4 +109,48 @@ test("obsolete refreshes cannot publish or persist across context changes or unm
   h.render(); await flush(); h.unmount();
   h.network.resolve({ data: [{ id: "late", type: "language" }] }); await flush();
   assert.equal(h.state.models[0].id, "old"); assert.equal(h.writes.length, 0);
+});
+
+test("language defaults initialize multiple candidates only after decision-model discovery without changing saved lists", async () => {
+  for (const routingEnabled of [false, true]) {
+    const first = { id: "p/first", type: "language" }, second = { id: "p/second", type: "language" };
+    const h = harness(snapshot(first, second));
+    h.state.selectedModel = undefined;
+    h.state.userPreferredModel = [second.id, first.id];
+    h.state.routingEnabled = routingEnabled;
+    h.render(); await flush(); h.render();
+    assert.equal(h.state.selectedModel, second.id);
+    assert.equal(h.state.selectedChatModelIds, undefined);
+    h.network.resolve({ data: [first, second, { id: "p/decision", type: "decision" }] });
+    await flush(); h.render();
+    assert.deepEqual(h.state.selectedChatModelIds, routingEnabled ? [second.id, first.id] : undefined);
+    assert.deepEqual(h.state.userPreferredModel, [second.id, first.id]);
+  }
+});
+
+test("discovery preserves explicit URL and current session choices instead of applying model lists", async () => {
+  for (const query of ["", "model=p/explicit"]) {
+    const first = { id: "p/first", type: "language" }, explicit = { id: "p/explicit", type: "language" };
+    const h = harness(snapshot(first, explicit, { id: "p/decision", type: "decision" }), undefined, query);
+    h.state.selectedModel = query ? undefined : explicit.id;
+    h.state.userPreferredModel = [first.id, explicit.id]; h.state.routingEnabled = true;
+    h.render(); await flush(); h.render();
+    assert.equal(h.state.selectedModel, explicit.id);
+    assert.equal(h.state.selectedChatModelIds, undefined);
+    h.unmount();
+  }
+});
+
+test("unavailable defaults are filtered for routing; manual mode keeps the existing newest-language fallback", async () => {
+  for (const routingEnabled of [false, true]) {
+    const second = { id: "p/second", type: "language", created: 1 };
+    const newest = { id: "p/newest", type: "language", created: 10 };
+    const h = harness(snapshot(second, newest, { id: "p/decision", type: "decision" }));
+    h.state.selectedModel = undefined;
+    h.state.userPreferredModel = ["p/missing", second.id]; h.state.routingEnabled = routingEnabled;
+    h.render(); await flush(); h.render();
+    assert.equal(h.state.selectedModel, routingEnabled ? second.id : newest.id);
+    assert.deepEqual(h.state.userPreferredModel, ["p/missing", second.id]);
+    h.unmount();
+  }
 });

@@ -195,6 +195,7 @@ test("refresh ignores old routing storage and persistence retains gateway enable
     let options;
     transpile("packages/aihappey-state/src/persist.ts", {
         "zustand/middleware": { persist: (creator, config) => { options = config; return creator; } },
+        "./slices/modelPreferences": require("./credential-test-loader.cjs").load("packages/aihappey-state/src/slices/modelPreferences.ts"),
         "./slices/chatSlice": { DEFAULT_CHAT_VERBOSITY: "medium", DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: {}, DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS: {} },
         "./slices/chatEndpoint": endpointState,
         "./slices/uiSlice": { normalizeCustomProviders: value => value },

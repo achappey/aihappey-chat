@@ -19,7 +19,7 @@ const validation = load("packages/aihappey-decisions/src/validation.ts");
 const decisionTypes = load("packages/aihappey-decisions/src/types.ts");
 const response = choice => ({ answers: { favorite: { type: "choice", choice } }, warnings: [] });
 
-function harness(type, decide = () => response("b/" + type), azure = false) {
+function harness(type, decide = () => response("b/" + type), azure = false, defaults = "a/" + type) {
     let state = {
         modelsLoaded: true, gatewayEnabled: true,
         models: [
@@ -67,7 +67,7 @@ function harness(type, decide = () => response("b/" + type), azure = false) {
     });
     function render() {
         let result;
-        do { dirty = false; index = 0; effects = []; result = usePrimitiveModelSelection(type, "a/" + type); effects.forEach(fn => fn()); } while (dirty);
+        do { dirty = false; index = 0; effects = []; result = usePrimitiveModelSelection(type, defaults); effects.forEach(fn => fn()); } while (dirty);
         return result;
     }
     return {
@@ -82,6 +82,23 @@ function harness(type, decide = () => response("b/" + type), azure = false) {
 }
 
 for (const type of ["image", "video", "speech"]) {
+    test(`${type} initializes ordered default candidates after discovery and never truncates preferences`, () => {
+        const defaults = Object.freeze(["b/" + type, "a/" + type]);
+        const h = harness(type, undefined, false, defaults);
+        h.update({ modelsLoaded: false });
+        assert.equal(h.render().selectionProps.multiselect, false);
+        h.update({ modelsLoaded: true });
+        assert.deepEqual(h.render().selectionProps.values, [...defaults]);
+        const agents = h.state.agents;
+        h.update({ agents: [] });
+        assert.deepEqual(h.render().selectionProps.values, [defaults[0]]);
+        assert.deepEqual(defaults, ["b/" + type, "a/" + type]);
+        h.update({ agents });
+        assert.deepEqual(h.render().selectionProps.values, [...defaults]);
+        h.render().selectionProps.onValuesChange(["a/" + type]);
+        h.update({ models: [...h.state.models] });
+        assert.deepEqual(h.render().selectionProps.values, ["a/" + type]);
+    });
     for (const azure of [false, true]) test(`${type} routes one prompt to one same-type winner with ${azure ? "Azure" : "header"} auth`, async () => {
         const h = harness(type, undefined, azure);
         assert.equal(h.render().selectionProps.multiselect, true);
@@ -153,6 +170,7 @@ test("model discovery forwards configured header-auth credentials and preserves 
     const state = { modelsLoaded: false, customHeaders: { "X-Tenant": "override" }, models: [],
         setModels: () => {}, resetModels: () => {}, setSelectedModel: () => {} };
     const { useModels } = load(base + "models/useModels.ts", {
+        "../chat/engine/favoriteRouter": { favoriteRouterModel: () => undefined },
         "aihappey-models": require("aihappey-models"),
         react: { useEffect: effect => effect(), useRef: value => ({ current: value }), useState: initial => [typeof initial === "function" ? initial() : initial, () => {}] },
         "aihappey-state": { store: { getState: () => state }, useAppStore: selector => selector(state) },

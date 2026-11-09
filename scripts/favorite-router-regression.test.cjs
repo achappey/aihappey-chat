@@ -776,7 +776,7 @@ test("empty, unavailable, and disabled-type explicit selections never dispatch a
 
 function stateHarness() {
     const { createChatSlice } = chatSlice;
-    const { createUiSlice } = load(slices + "uiSlice.ts", { "aihappey-mcp": {} });
+    const { createUiSlice } = load(slices + "uiSlice.ts", { "aihappey-mcp": {}, "./modelPreferences": load(slices + "modelPreferences.ts") });
     let state;
     const set = patch => Object.assign(state, typeof patch === "function" ? patch(state) : patch);
     state = { ...createChatSlice(set, () => state), ...createUiSlice(set, () => state) };
@@ -1116,7 +1116,7 @@ test("editing the inactive routing role or ignored agent configuration does not 
         h.state.agents.find(agent => agent.name === h.state.sideInferenceAgentNames[inactiveKey]).model.id = "missing-unrelated-model";
         h.state.sideInferenceAgentNames[inactiveKey] = "Missing unrelated selector";
         h.state.userPreferredDecisionModel = "missing-unrelated-preference";
-        h.state.userPreferredModel = "another-unrelated-preference";
+        h.state.userPreferredModel = ["another-unrelated-preference"];
         const activeAgent = h.state.agents.find(agent => agent.name === h.state.sideInferenceAgentNames[activeKey]);
         activeAgent.model.providerHeaders = { "x-unrelated": "ignored-value" };
         activeAgent.tools = [{ type: "ignored-tool" }];
@@ -1148,6 +1148,7 @@ test("routing selection defaults, partial updates and resets preserve other app-
 test("the persistence version bump fills both new selections for existing users without replacing custom roles", () => {
     const { withPersist } = load("packages/aihappey-state/src/persist.ts", {
         "zustand/middleware": { persist: (_, options) => options },
+        "./slices/modelPreferences": load(slices + "modelPreferences.ts"),
         "./slices/chatSlice": chatSlice,
         "./slices/chatEndpoint": chatEndpoint,
         "./slices/uiSlice": { normalizeCustomProviders: value => value ?? [] },
@@ -1265,7 +1266,7 @@ test("routing never executes unavailable, wrong-category or direct agent models 
             change(h, agent);
             // A valid preference is deliberately present, but must never rescue this request.
             h.state.userPreferredDecisionModel = "d/decide";
-            h.state.userPreferredModel = "a/model";
+            h.state.userPreferredModel = ["a/model"];
             assert.equal(h.helper.favoriteRouterModel(h.state, kind), undefined);
             await assert.rejects(h.send(), /available gateway decision model/);
             assert.equal(h.helper.calls.length, 0);

@@ -75,7 +75,8 @@ const debugPart = (data = "request") => ({ type: "data-aihappey-debug", id: "tra
 const statusPart = () => ({ type: "data-status", id: "progress", transient: true, data: { status: "working" } });
 
 test("API debug defaults off and only the preference belongs to persisted settings", () => {
-    const { createUiSlice } = load("packages/aihappey-state/src/slices/uiSlice.ts", { "aihappey-mcp": {} });
+    const { createUiSlice } = load("packages/aihappey-state/src/slices/uiSlice.ts", { "aihappey-mcp": {},
+        "./modelPreferences": require("./credential-test-loader.cjs").load("packages/aihappey-state/src/slices/modelPreferences.ts") });
     let state;
     state = createUiSlice(patch => Object.assign(state, typeof patch === "function" ? patch(state) : patch), () => state, {});
     assert.equal(state.apiDebugEnabled, false);

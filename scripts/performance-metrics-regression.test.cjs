@@ -88,10 +88,12 @@ const renderedCards = html => new Map(Array.from(html.matchAll(/<section data-me
     ([, id, content]) => [id, content]));
 
 test("the preference defaults off, toggles independently, and survives persistence and reload", () => {
-    const ui = load("packages/aihappey-state/src/slices/uiSlice.ts", { "aihappey-mcp": {} });
+    const preferences = load("packages/aihappey-state/src/slices/modelPreferences.ts");
+    const ui = load("packages/aihappey-state/src/slices/uiSlice.ts", { "aihappey-mcp": {}, "./modelPreferences": preferences });
     let options;
     const { withPersist } = load("packages/aihappey-state/src/persist.ts", {
         "zustand/middleware": { persist: (creator, value) => { options = value; return creator; } },
+        "./slices/modelPreferences": preferences,
         "./slices/chatSlice": {}, "./slices/chatEndpoint": {}, "./slices/uiSlice": ui,
         "./slices/apiKeyEncryption": {}, "./slices/providerHeaders": {},
         "./slices/defaultProviderTranscriptionMetadata": { normalizeProviderTranscriptionMetadata: value => value },

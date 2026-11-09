@@ -101,6 +101,7 @@ test("only client-executed MCP results are filtered; provider results, uploads, 
 
 const { withPersist } = load("packages/aihappey-state/src/persist.ts", {
     "zustand/middleware": { persist: (_, options) => options },
+    "./slices/modelPreferences": load("packages/aihappey-state/src/slices/modelPreferences.ts"),
     "./slices/chatSlice": chatSlice,
     "./slices/chatEndpoint": chatEndpoint,
     "./slices/uiSlice": { normalizeCustomProviders: value => value ?? {} },

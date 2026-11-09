@@ -161,6 +161,7 @@ test('realtime stores accept old xAI input but keep only canonical SpaceX AI set
 test('persisted xAI metadata migrates to SpaceX AI and is never serialized under the old key', () => {
   const { withPersist } = load('packages/aihappey-state/src/persist.ts', {
     'zustand/middleware': { persist: (_, options) => options },
+    './slices/modelPreferences': require('./credential-test-loader.cjs').load('packages/aihappey-state/src/slices/modelPreferences.ts'),
     './slices/chatSlice': { DEFAULT_CHAT_VERBOSITY: 'medium', DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: {}, DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS: {} },
     './slices/uiSlice': { normalizeCustomProviders: value => value ?? {} },
     './slices/apiKeyEncryption': { resolveApiKeyEncryptionStatus: () => 'unconfigured' },
