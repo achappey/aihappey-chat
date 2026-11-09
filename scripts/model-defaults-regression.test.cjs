@@ -43,6 +43,45 @@ function createPersistedUiStore(entries = new Map()) {
   }));
 }
 
+test("new users have Cloud enabled but keep conversation storage local, including after restart", () => {
+  const entries = new Map();
+  const store = createPersistedUiStore(entries);
+  assert.equal(store.persist.hasHydrated(), true);
+  assert.equal(store.getState().remoteStorageConnected, true);
+  assert.equal(store.getState().conversationStorage, "local");
+  store.getState().setRemoteStorageConnected(true);
+  const restarted = createPersistedUiStore(entries).getState();
+  assert.equal(restarted.remoteStorageConnected, true);
+  assert.equal(restarted.conversationStorage, "local");
+});
+
+for (const version of [38, options.version]) {
+  for (const remoteStorageConnected of [false, true]) {
+    for (const conversationStorage of ["local", "remote"]) {
+      test(`saved Cloud and storage preferences survive hydration and restart: v${version}, ${remoteStorageConnected}, ${conversationStorage}`, () => {
+        const saved = { remoteStorageConnected, conversationStorage };
+        const entries = new Map([[options.name, JSON.stringify({ state: saved, version })]]);
+        const store = createPersistedUiStore(entries);
+        assert.equal(store.getState().remoteStorageConnected, remoteStorageConnected);
+        assert.equal(store.getState().conversationStorage, conversationStorage);
+        store.getState().setRemoteStorageConnected(remoteStorageConnected);
+        const restarted = createPersistedUiStore(entries).getState();
+        assert.equal(restarted.remoteStorageConnected, remoteStorageConnected);
+        assert.equal(restarted.conversationStorage, conversationStorage);
+      });
+    }
+  }
+}
+
+test("a new user's explicit Cloud opt-out stays off after restart without selecting remote storage", () => {
+  const entries = new Map();
+  const store = createPersistedUiStore(entries);
+  store.getState().setRemoteStorageConnected(false);
+  const restarted = createPersistedUiStore(entries).getState();
+  assert.equal(restarted.remoteStorageConnected, false);
+  assert.equal(restarted.conversationStorage, "local");
+});
+
 function transcriptionSplitSettings(state) {
   return {
     transcriptionFileSplitEnabled: state.transcriptionFileSplitEnabled,

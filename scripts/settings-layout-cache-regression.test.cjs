@@ -63,10 +63,10 @@ test("agent tag editor lives exclusively in Details immediately after General", 
     assert.match(editor, /onRemove=/);
 });
 
-function settings(authenticated) {
+function settings(authenticated, cloudAvailable = authenticated, remoteStorageConnected = false) {
     const calls = [];
     const state = {
-        enableUserLocation: true, remoteStorageConnected: false, extractExif: false,
+        enableUserLocation: true, remoteStorageConnected, extractExif: false,
         convertAttachmentsToText: true, sendRawAttachments: false, maxAttachmentsSize: 2 * 1024 * 1024,
         toolOutputContentSettings: { text: true, links: true, images: false, audio: false, video: false, documents: false },
         setToolOutputContentSettings: value => calls.push(["tool-output", value]),
@@ -83,6 +83,7 @@ function settings(authenticated) {
         "aihappey-i18n": i18n,
         "aihappey-state": { CHAT_ENDPOINT_IDS: ["/api/chat"], useAppStore: selector => selector(state) },
         "../chat/context/ChatContext": { useChatContext: () => ({ config: authenticated ? { getAccessToken: () => "token" } : {} }) },
+        "../../shell/connectors/CloudStorageAvailability": { useCloudStorageAvailable: () => cloudAvailable },
     };
     for (const [module, name] of [
         ["./ModelContextSettings", "ModelContextSettings"], ["./GeneralSettings", "GeneralSettings"],
@@ -129,21 +130,35 @@ test("tool output settings place default-on Links between Text and Images with a
     assert.deepEqual(calls, [["tool-output", { links: false }], ["tool-output", { links: true }]]);
 });
 
-for (const authenticated of [false, true]) {
-    test(`connector toggles use separate rows and keep cloud visibility (authenticated=${authenticated})`, () => {
-        const { tree, calls } = settings(authenticated);
+for (const [authenticated, cloudAvailable] of [[false, false], [true, true], [true, false], [false, true]]) {
+    test(`connector switches show Cloud before Location only when available (authenticated=${authenticated}, cloud=${cloudAvailable})`, () => {
+        const { tree, calls } = settings(authenticated, cloudAvailable);
         const tab = nodes(tree, "Tab").find(tab => tab.props.eventKey === "connectors");
         const container = nodes(tab, "div")[0];
         assert.equal(container.props.style.display, "flex");
         assert.equal(container.props.style.flexDirection, "column");
         assert.ok(container.props.style.gap > 0);
         const switches = nodes(container, "Switch");
-        assert.deepEqual(switches.map(node => node.props.id), authenticated ? ["location-toggle", "remote-storage-toggle"] : ["location-toggle"]);
-        switches[0].props.onChange(false);
-        if (authenticated) switches[1].props.onChange();
-        assert.deepEqual(calls, authenticated ? [["location", false], ["cloud", true]] : [["location", false]]);
+        assert.deepEqual(switches.map(node => node.props.id), cloudAvailable ? ["remote-storage-toggle", "location-toggle"] : ["location-toggle"]);
+        if (cloudAvailable) {
+            assert.equal(switches[0].props.checked, false);
+            switches[0].props.onChange(true);
+        }
+        switches.at(-1).props.onChange(false);
+        assert.deepEqual(calls, cloudAvailable ? [["cloud", true], ["location", false]] : [["location", false]]);
     });
 }
+
+test("default-enabled Cloud stays a user-controlled switch without changing the location setting", () => {
+    const { tree, calls } = settings(true, true, true);
+    const tab = nodes(tree, "Tab").find(tab => tab.props.eventKey === "connectors");
+    const switches = nodes(tab, "Switch");
+    assert.equal(switches[0].props.checked, true);
+    switches[0].props.onChange(false);
+    switches[0].props.onChange(true);
+    assert.deepEqual(calls, [["cloud", false], ["cloud", true]]);
+    assert.equal(switches[1].props.checked, true);
+});
 
 const { OpenAIPromptCacheOptionsForm } = load("packages/aihappey-components/src/forms/providers/openai/cards/OpenAIPromptCacheOptionsForm.tsx", {
     "../../../../theme/ThemeContext": { useTheme: () => theme }, "aihappey-i18n": i18n,

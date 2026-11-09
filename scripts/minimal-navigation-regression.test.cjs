@@ -18,10 +18,13 @@ function load(filename, mocks) {
     return module.exports;
 }
 
-function harness(hiddenNavigationItemKeys) {
+function harness(hiddenNavigationItemKeys, cloudAvailable = false) {
     const calls = [];
     const state = {
         hiddenNavigationItemKeys,
+        conversationStorage: "local",
+        remoteStorageConnected: true,
+        setConversationStorage: kind => { state.conversationStorage = kind; calls.push(["storage", kind]); },
         selectConversation: id => calls.push(["select", id]),
         toggleSidebar: () => calls.push(["toggle"]),
         // Compact navigation must never change the user's visibility preferences.
@@ -45,6 +48,7 @@ function harness(hiddenNavigationItemKeys) {
         "react-dnd-html5-backend": { NativeTypes: { FILE: "file" } },
         "../responsive/useIsDesktop": { useIsDesktop: () => true },
         "../../features/chat/context/ChatContext": { useChatContext: () => ({ config: {} }) },
+        "../connectors/CloudStorageAvailability": { useCloudStorageAvailable: () => cloudAvailable },
     };
     const { MinimalNavBar } = load("packages/aihappey-core/src/shell/navigation/MinimalNavBar.tsx", mocks);
     const { ConversationSidebar } = load("packages/aihappey-core/src/shell/navigation/ConversationSidebar.tsx", mocks);
@@ -62,6 +66,22 @@ const firstCategory = h => {
     const items = h.expanded().items;
     return items.slice(0, items.findIndex(item => item.key === "divider"));
 };
+
+for (const available of [false, true]) {
+    test(`local/cloud storage selector requires the capability and Cloud preference (available=${available})`, () => {
+        const h = harness([], available);
+        assert.equal(typeof h.expanded().onStorageSwitch, available ? "function" : "undefined");
+        assert.equal(h.state.conversationStorage, "local");
+        assert.deepEqual(h.calls, []);
+        if (available) {
+            h.expanded().onStorageSwitch("remote");
+            assert.equal(h.state.conversationStorage, "remote");
+            assert.deepEqual(h.calls, [["storage", "remote"]]);
+        }
+        h.state.remoteStorageConnected = false;
+        assert.equal(h.expanded().onStorageSwitch, undefined);
+    });
+}
 
 test("playground is absent from navigation and routes without a redirect", () => {
     const flatten = items => items.flatMap(item => [item, ...flatten(item.children ?? [])]);
