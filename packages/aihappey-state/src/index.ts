@@ -64,6 +64,7 @@ export {
   defaultProviderRealtimeMetadata,
 } from "./slices/defaultProviderRealtimeMetadata";
 export * from "./slices/agentModelProviderMetadata";
+export * from "./slices/modelPreferences";
 export {
   DEFAULT_CHAT_VERBOSITY,
   DEFAULT_CHAT_TOOL_ANNOTATIONS,

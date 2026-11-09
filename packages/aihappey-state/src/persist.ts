@@ -22,6 +22,7 @@ import { resolveApiKeyEncryptionStatus } from "./slices/apiKeyEncryption";
 import { normalizeProviderHeaders, splitLegacyProviderHeadersFromMetadata } from "./slices/providerHeaders";
 import { normalizeProviderTranscriptionMetadata } from "./slices/defaultProviderTranscriptionMetadata";
 import { normalizeSpaceXAiProviderMetadata } from "./slices/providerMetadataAliases";
+import { MODEL_PREFERENCE_FIELDS, normalizeModelIds } from "./slices/modelPreferences";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
@@ -35,7 +36,7 @@ export const withPersist = (
 ) =>
     persist(creator, {
     name: "aihappey_store_v8",
-    version: 38,
+    version: 39,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -139,6 +140,13 @@ export const withPersist = (
       let safeState = isPlainRecord(persistedState)
         ? { ...(persistedState as Record<string, any>) }
         : {};
+
+      if (version < 39) {
+        for (const field of Object.values(MODEL_PREFERENCE_FIELDS)) {
+          if (safeState[field] != null) safeState[field] = normalizeModelIds(safeState[field]);
+          else delete safeState[field];
+        }
+      }
 
       safeState.providerTranscriptionMetadata = normalizeProviderTranscriptionMetadata(safeState.providerTranscriptionMetadata);
       for (const field of ["providerRealtimeMetadata", "providerRealtimeConversationMetadata"]) {

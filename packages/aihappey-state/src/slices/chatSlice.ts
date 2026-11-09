@@ -62,7 +62,7 @@ export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
 
 /** Deterministic manual fallback when automatic model selection is switched off. */
 export function singleChatModelId(state: Pick<ChatSlice, "models" | "selectedModel" | "selectedChatModelIds"> & {
-  userPreferredModel?: string;
+  userPreferredModel?: string[];
   chatWithImageModels?: boolean;
   chatWithVideoModels?: boolean;
   chatWithSpeechModels?: boolean;
@@ -75,7 +75,7 @@ export function singleChatModelId(state: Pick<ChatSlice, "models" | "selectedMod
   const exists = (id?: string) => !!id && models.some(model => model.id === id);
   return exists(state.selectedModel) ? state.selectedModel
     : state.selectedChatModelIds?.find(exists)
-      ?? (exists(state.userPreferredModel) ? state.userPreferredModel : undefined)
+      ?? state.userPreferredModel?.find(exists)
       ?? [...models].sort((a, b) => (b.created ?? 0) - (a.created ?? 0))[0]?.id;
 }
 

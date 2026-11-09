@@ -5,6 +5,7 @@ import {
 } from "aihappey-mcp";
 import type { StateCreator } from "zustand";
 import type { Provider } from "aihappey-types";
+import { normalizeModelIds } from "./modelPreferences";
 
 export type UiAttachment = {
   id: string;
@@ -314,17 +315,17 @@ export type UiSlice = {
   selectedThemeId?: string;
   setSelectedThemeId: (themeId: string) => void;
 
-  userPreferredModel?: string;
-  setUserPreferredModel: (model: string) => void;
+  userPreferredModel?: string[];
+  setUserPreferredModel: (models: string[]) => void;
 
-  userPreferredImageModel?: string;
-  setUserPreferredImageModel: (model: string) => void;
+  userPreferredImageModel?: string[];
+  setUserPreferredImageModel: (models: string[]) => void;
 
   userPreferredAudioModel?: string;
   setUserPreferredAudioModel: (model: string) => void;
 
-  userPreferredVideoModel?: string;
-  setUserPreferredVideoModel: (model: string) => void;
+  userPreferredVideoModel?: string[];
+  setUserPreferredVideoModel: (models: string[]) => void;
 
   userPreferredDecisionModel?: string;
   setUserPreferredDecisionModel: (model: string) => void;
@@ -338,8 +339,8 @@ export type UiSlice = {
   userPreferredTranscriptionModel?: string;
   setUserPreferredTranscriptionModel: (model: string) => void;
 
-  userPreferredSpeechModel?: string;
-  setUserPreferredSpeechModel: (model: string) => void;
+  userPreferredSpeechModel?: string[];
+  setUserPreferredSpeechModel: (models: string[]) => void;
 
   accountLocation?: any
   setAccountLocation: (location?: any) => void
@@ -497,14 +498,14 @@ export const createUiSlice: StateCreator<
   setUserPreferredModel: (model) =>
     set((state: any) => {
       return {
-        userPreferredModel: model
+        userPreferredModel: normalizeModelIds(model)
       }
     }),
 
   setUserPreferredImageModel: (model) =>
     set((state: any) => {
       return {
-        userPreferredImageModel: model
+        userPreferredImageModel: normalizeModelIds(model)
       }
     }),
 
@@ -518,7 +519,7 @@ export const createUiSlice: StateCreator<
   setUserPreferredVideoModel: (model) =>
     set((state: any) => {
       return {
-        userPreferredVideoModel: model
+        userPreferredVideoModel: normalizeModelIds(model)
       }
     }),
 
@@ -541,7 +542,7 @@ export const createUiSlice: StateCreator<
   setUserPreferredSpeechModel: (model) =>
     set((state: any) => {
       return {
-        userPreferredSpeechModel: model
+        userPreferredSpeechModel: normalizeModelIds(model)
       }
     }),
 
