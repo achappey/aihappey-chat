@@ -220,6 +220,7 @@ export type UiSlice = {
   showMessageTokens?: boolean
   showMessageMetrics: boolean
   disableProviderLogo?: boolean
+  showContextSize: boolean
   chatDictationEnabled: boolean
   apiDebugEnabled: boolean
   pinnedConversations?: string[]
@@ -231,6 +232,7 @@ export type UiSlice = {
   setShowMessageTokens: (value: boolean) => void;
   setShowMessageMetrics: (value: boolean) => void;
   setDisableProviderLogo: (value: boolean) => void;
+  setShowContextSize: (value: boolean) => void;
   setChatDictationEnabled: (value: boolean) => void;
   setApiDebugEnabled: (value: boolean) => void;
 
@@ -361,6 +363,7 @@ export const createUiSlice: StateCreator<
   extractExif: false,
   debugMode: false,
   showMessageMetrics: false,
+  showContextSize: true,
   chatDictationEnabled: true,
   apiDebugEnabled: false,
   elicitation: {},
@@ -429,6 +432,7 @@ export const createUiSlice: StateCreator<
     set((state: UiSlice) => ({
       disableProviderLogo: value
     })),
+  setShowContextSize: (value: boolean) => set({ showContextSize: value }),
   setChatDictationEnabled: (value: boolean) =>
     set(() => ({
       chatDictationEnabled: value
