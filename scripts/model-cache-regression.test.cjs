@@ -186,7 +186,7 @@ test("locked startup waits for decrypted headers and then applies saved or app-c
       h.state.apiKeyEncryptionStatus = "unlocked";
       h.render(); await flush(); h.render();
       assert.equal(h.requests.length, 1);
-      assert.equal(h.requests[0].customHeaders["X-P-Key"], "decrypted-key");
+      assert.equal(new Headers(h.requests[0].customHeaders).get("X-P-Key"), "decrypted-key");
       h.network.resolve({ data: [fallback, first, second, { id: "p/decision", type: "decision" }] });
       await flush(); h.render();
       assert.equal(h.state.selectedModel, second.id);
