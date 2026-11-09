@@ -836,7 +836,7 @@
         "showContextSize": "Εμφάνιση μεγέθους περιβάλλοντος",
         "tabEndpoints": "Τελικά σημεία",
         "tabExport": "Εξαγωγή",
-        "toolOutputContent": "Τύποι εξόδου εργαλείων",
+        "toolOutputContent": "Έξοδος εργαλείων",
         "links": "Σύνδεσμοι",
         "videoPollingIntervalSeconds": "Διάστημα ελέγχου κατάστασης εργασίας βίντεο"
     },

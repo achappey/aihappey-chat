@@ -836,7 +836,7 @@
         "showContextSize": "Näytä kontekstin koko",
         "tabEndpoints": "Rajapinnat",
         "tabExport": "Vienti",
-        "toolOutputContent": "Työkalujen tulostetyypit",
+        "toolOutputContent": "Työkalujen tuloste",
         "links": "Linkit",
         "videoPollingIntervalSeconds": "Videotehtävän kyselyväli"
     },

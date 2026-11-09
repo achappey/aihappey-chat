@@ -514,7 +514,7 @@
                           "showContextSize":  "Mostrar el tamaño del contexto",
                           "dictate":  "Dictar",
                           "debug":  "Depuración",
-                          "toolOutputContent":  "Tipos de resultado de herramientas",
+                          "toolOutputContent":  "Resultado de herramientas",
                           "links":  "Enlaces",
                           "documents":  "Documentos",
                           "convertAttachmentsToText":  "Convertir archivos adjuntos a texto",

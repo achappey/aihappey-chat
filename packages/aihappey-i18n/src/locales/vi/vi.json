@@ -522,7 +522,7 @@
         "showContextSize": "Hiển thị kích thước ngữ cảnh",
         "dictate": "Đọc chính tả",
         "debug": "Gỡ lỗi",
-        "toolOutputContent": "Loại nội dung đầu ra của công cụ",
+        "toolOutputContent": "Đầu ra của công cụ",
         "links": "Liên kết",
         "documents": "Tài liệu",
         "convertAttachmentsToText": "Chuyển tệp đính kèm thành văn bản",

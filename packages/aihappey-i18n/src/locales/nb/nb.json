@@ -836,7 +836,7 @@
         "showContextSize": "Vis kontekststørrelse",
         "tabEndpoints": "Endepunkter",
         "tabExport": "Eksport",
-        "toolOutputContent": "Innholdstyper for verktøyutdata",
+        "toolOutputContent": "Verktøyutdata",
         "links": "Lenker",
         "videoPollingIntervalSeconds": "Intervall for kontroll av videostatus"
     },

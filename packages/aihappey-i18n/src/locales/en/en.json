@@ -1418,7 +1418,7 @@
         "showContextSize": "Show context size",
         "dictate": "Dictate",
         "debug": "Debug",
-        "toolOutputContent": "Tool output types",
+        "toolOutputContent": "Tool output",
         "links": "Links",
         "documents": "Documents",
         "agentImport": "Agents",

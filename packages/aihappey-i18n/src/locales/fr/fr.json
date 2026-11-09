@@ -496,7 +496,7 @@
         "showContextSize": "Afficher la taille du contexte",
         "dictate": "Dicter",
         "debug": "Débogage",
-        "toolOutputContent": "Types de sortie des outils",
+        "toolOutputContent": "Sortie des outils",
         "links": "Liens",
         "documents": "Documents",
         "convertAttachmentsToText": "Convertir les pièces jointes en texte",

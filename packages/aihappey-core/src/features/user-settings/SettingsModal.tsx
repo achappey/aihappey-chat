@@ -177,50 +177,53 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               title={t("chat")}
             >
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                <Switch
-                  id="tokens-toggle"
-                  checked={!!showMessageTokens}
-                  label={t("settingsModal.showTokens")}
-                  onChange={setShowMessageTokens}
-                />
+                <Card size="small" title={t("input")}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <Switch
+                      id="chat-dictation-toggle"
+                      checked={chatDictationEnabled}
+                      label={t("settingsModal.dictate")}
+                      onChange={setChatDictationEnabled}
+                    />
+                    <Switch
+                      id="context-size-toggle"
+                      checked={showContextSize}
+                      label={t("settingsModal.showContextSize")}
+                      onChange={setShowContextSize}
+                    />
+                  </div>
+                </Card>
 
+                <Card size="small" title={t("output")}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <Switch
+                      id="tokens-toggle"
+                      checked={!!showMessageTokens}
+                      label={t("settingsModal.showTokens")}
+                      onChange={setShowMessageTokens}
+                    />
+                    <Switch
+                      id="provider-logo-toggle"
+                      checked={!disableProviderLogo}
+                      label={t("settingsModal.showProviderLogo") ?? "Show provider logo"}
+                      onChange={(checked) => setDisableProviderLogo(!checked)}
+                    />
+                    <Switch
+                      id="metrics-toggle"
+                      checked={!!showMessageMetrics}
+                      label={t("settingsModal.showMetrics")}
+                      onChange={setShowMessageMetrics}
+                    />
+                    <Switch
+                      id="api-debug-toggle"
+                      checked={apiDebugEnabled}
+                      label={t("settingsModal.debug")}
+                      onChange={setApiDebugEnabled}
+                    />
+                  </div>
+                </Card>
 
-                <Switch
-                  id="provider-logo-toggle"
-                  checked={!disableProviderLogo}
-                  label={t("settingsModal.showProviderLogo") ?? "Show provider logo"}
-                  onChange={(checked) => setDisableProviderLogo(!checked)}
-                />
-
-                <Switch
-                  id="context-size-toggle"
-                  checked={showContextSize}
-                  label={t("settingsModal.showContextSize")}
-                  onChange={setShowContextSize}
-                />
-
-                <Switch
-                  id="metrics-toggle"
-                  checked={!!showMessageMetrics}
-                  label={t("settingsModal.showMetrics")}
-                  onChange={setShowMessageMetrics}
-                />
-
-                <Switch
-                  id="chat-dictation-toggle"
-                  checked={chatDictationEnabled}
-                  label={t("settingsModal.dictate")}
-                  onChange={setChatDictationEnabled}
-                />
-
-                <Switch
-                  id="api-debug-toggle"
-                  checked={apiDebugEnabled}
-                  label={t("settingsModal.debug")}
-                  onChange={setApiDebugEnabled}
-                />
-
-                <Card size="small" title={t("settingsModal.toolOutputContent") ?? "Tool output sent to AI"}>
+                <Card size="small" title={t("settingsModal.toolOutputContent") ?? "Tool output"}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {([
                       ["text", t("text") ?? "Text"],
