@@ -50,6 +50,7 @@ export const useModels = (
   const refreshVersion = useAppStore(a => a.modelsRefreshVersion);
   const setModels = useAppStore(a => a.setModels)
   const customHeaders = useAppStore(a => a.customHeaders)
+  const apiKeyEncryptionStatus = useAppStore(a => a.apiKeyEncryptionStatus);
   const gatewayEnabled = options?.gatewayEnabled !== false;
   const configuredHeaders = options?.headers;
   const cacheIdentity = options?.cacheIdentity;
@@ -59,6 +60,7 @@ export const useModels = (
   const selectedModel = useAppStore(a => a.selectedModel)
   const routingDecisionModel = useAppStore(a => favoriteRouterModel(a, "model"));
   const defaultSelectionRef = useRef<string | undefined>(undefined);
+  const defaultCandidateIdsRef = useRef<string[] | undefined>(undefined);
   const [searchParams] = useSearchParams();
   const lastSelectionRef = useRef<{ selectedModel?: string; models?: ModelOption[] }>({});
   const selectionRef = useRef<{
@@ -94,7 +96,9 @@ export const useModels = (
   }, [models, selectedModel]);
 
   useEffect(() => {
-    if (!storeHydrated) return;
+    // A locked startup has no provider headers yet; its anonymous catalog must not
+    // initialize the picker before the password prompt unlocks the real catalog.
+    if (!storeHydrated || apiKeyEncryptionStatus === "locked") return;
 
     let cancelled = false;
     let published = false;
@@ -107,18 +111,28 @@ export const useModels = (
 
       // Refreshing credentials/catalogs must not replace an explicit chat candidate selection.
       const state = appStore.getState();
-      if (!selectionRef.current.model && state.selectedChatModelIds !== undefined) return;
+      const defaultCandidates = state.selectedChatModelIds !== undefined
+        && state.selectedChatModelIds === defaultCandidateIdsRef.current;
+      if (!selectionRef.current.model && state.selectedChatModelIds !== undefined && !defaultCandidates) return;
 
       const latestUrlModel = selectionRef.current.model;
       // Preferences are durable lists; routing only controls the active picker selection.
       const defaults = state.userPreferredModel ?? [];
-      const preferredModel = latestUrlModel ?? state.selectedModel ?? defaults[0];
-      const fromDefaults = !latestUrlModel && (!state.selectedModel || state.selectedModel === defaultSelectionRef.current);
+      const fromDefaults = !latestUrlModel
+        && (defaultCandidates || !state.selectedModel || state.selectedModel === defaultSelectionRef.current);
+      // Reconsider defaults after a partial cache/credential refresh, but never
+      // mistake a deliberate user or conversation selection for our own fallback.
+      const preferredModel = latestUrlModel ?? (fromDefaults ? defaults[0] : state.selectedModel);
       if (fromDefaults && favoriteRouterModel(state, "model")) {
         const ids = defaults.map(id => resolveSelectableModelId(loadedModels, id))
           .filter((id): id is string => !!id && loadedModels.some(m => m.id === id && m.type === "language"));
-        if (ids.length) { state.setSelectedChatModelIds(ids); return; }
+        if (ids.length) {
+          state.setSelectedChatModelIds(ids);
+          defaultCandidateIdsRef.current = appStore.getState().selectedChatModelIds;
+          return;
+        }
       }
+      defaultCandidateIdsRef.current = undefined;
       const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel);
       if (resolvedPreferredModel) {
         if (fromDefaults) defaultSelectionRef.current = resolvedPreferredModel;
@@ -131,6 +145,7 @@ export const useModels = (
         ?? modelTypeFor(previousModels, lastSelectionRef.current.selectedModel)
         ?? "language";
       const fallbackModel = newestModelOfType(loadedModels, previousType);
+      if (fromDefaults) defaultSelectionRef.current = fallbackModel?.id;
       setSelectedModel(fallbackModel?.id);
     };
 
@@ -171,7 +186,7 @@ export const useModels = (
       cancelled = true;
     };
 
-  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, cacheIdentity, refreshVersion, providers, setModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
+  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, apiKeyEncryptionStatus, cacheIdentity, refreshVersion, providers, setModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;
@@ -187,6 +202,9 @@ export const useModels = (
     if (state.selectedChatModelIds !== undefined || state.selectedModel !== defaultSelectionRef.current) return;
     const ids = (state.userPreferredModel ?? []).map(id => resolveSelectableModelId(models ?? [], id))
       .filter((id): id is string => !!id && models?.some(m => m.id === id && m.type === "language") === true);
-    if (ids.length) state.setSelectedChatModelIds(ids);
+    if (ids.length) {
+      state.setSelectedChatModelIds(ids);
+      defaultCandidateIdsRef.current = appStore.getState().selectedChatModelIds;
+    }
   }, [models, modelsLoaded, routingDecisionModel, model, userPreferredModel, selectedModel]);
 };
