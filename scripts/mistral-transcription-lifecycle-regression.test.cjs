@@ -5,6 +5,11 @@ const path = require('node:path');
 const ts = require('typescript');
 const { renderer } = require('./react-test-renderer.cjs');
 
+const openAiTranscript = {};
+new Function('exports', ts.transpileModule(fs.readFileSync(path.resolve(__dirname,
+  '../packages/aihappey-core/src/features/transcriptions/realtime/openaiTranscript.ts'), 'utf8'),
+  { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText)(openAiTranscript);
+
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function harness({ pendingSetup = false } = {}) {
@@ -46,6 +51,7 @@ function harness({ pendingSetup = false } = {}) {
     './realtimeProviders': { parseProviderIdFromModelId: id => id.split('/')[0] },
     '../transcriptionErrors': { getTranscriptionErrorMessage: error => String(error) },
     '../../realtime/googleLiveConfig': { buildGoogleLiveTokenPayload: () => ({}) },
+    './openaiTranscript': openAiTranscript,
   };
   const file = path.resolve(__dirname, '../packages/aihappey-core/src/features/transcriptions/realtime/useRealtimeTranscriptionController.ts');
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), {

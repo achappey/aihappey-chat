@@ -4,6 +4,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
 
+const openAiTranscript = {};
+new Function('exports', ts.transpileModule(fs.readFileSync(path.resolve(__dirname,
+  '../packages/aihappey-core/src/features/transcriptions/realtime/openaiTranscript.ts'), 'utf8'),
+  { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText)(openAiTranscript);
+
 async function harness(provider = 'openai', delayPreview = false) {
   let events, release, stopped = 0;
   const writes = [], deleted = [], alerts = [];
@@ -19,6 +24,7 @@ async function harness(provider = 'openai', delayPreview = false) {
     './realtimeProviders': { parseProviderIdFromModelId: id => id.split('/')[0] },
     '../transcriptionErrors': { getTranscriptionErrorMessage: e => String(e) },
     '../../realtime/googleLiveConfig': { buildGoogleLiveTokenPayload: () => ({}) },
+    './openaiTranscript': openAiTranscript,
   };
   const file = path.resolve(__dirname, '../packages/aihappey-core/src/features/transcriptions/realtime/useRealtimeTranscriptionController.ts');
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
@@ -33,26 +39,29 @@ async function harness(provider = 'openai', delayPreview = false) {
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function settled(h) { for (let n = 0; n < 100 && !h.stopped(); n++) await pause(5); assert.equal(h.stopped(), 1); }
 
-test('OpenAI fatal error preserves finalized text even without speech timestamps and cancels pending previews', async () => {
+test('OpenAI fatal error preserves finalized text without speech timestamps and never saves provisional text', async () => {
   const h = await harness();
   h.events.onEvent({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'a', transcript: 'Confirmed words' });
-  h.events.onTranscriptText('Confirmed words unfinished draft');
+  h.events.onEvent({ type: 'conversation.item.input_audio_transcription.delta', item_id: 'draft', delta: 'unfinished draft' });
   h.events.onError('Disconnected'); h.events.onError('duplicate');
   await settled(h); await pause(450);
   assert.deepEqual(h.deleted, []); assert.equal(h.writes.at(-1).text, 'Confirmed words');
-  assert.equal(h.writes.at(-1).response.body.status, 'error'); assert.equal(h.writes.length, 1);
+  assert.equal(h.writes.at(-1).response.body.status, 'error');
+  assert.ok(h.writes.every(write => write.text === 'Confirmed words'), 'only authoritative text is persisted');
 });
-test('fatal checkpoint follows an in-flight preview write and late callbacks cannot overwrite it', async () => {
+test('fatal checkpoint follows an in-flight confirmed write and late callbacks cannot overwrite it', async () => {
   const h = await harness('openai', true);
   h.events.onEvent({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'a', transcript: 'Final' });
-  h.events.onTranscriptText('Final draft'); await pause(450);
+  h.events.onEvent({ type: 'conversation.item.input_audio_transcription.delta', item_id: 'draft', delta: 'draft' }); await pause(450);
   h.events.onError('Disconnected'); h.events.onTranscriptText('late preview');
   h.events.onEvent({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'late', transcript: 'late callback' });
   h.release(); await settled(h); await pause(450);
   assert.equal(h.writes.at(-1).text, 'Final'); assert.equal(h.writes.at(-1).response.body.status, 'error'); assert.deepEqual(h.deleted, []);
 });
 test('interim-only failed session is deleted rather than saved as confirmed', async () => {
-  const h = await harness(); h.events.onTranscriptText('unconfirmed'); h.events.onError('Disconnected');
+  const h = await harness();
+  h.events.onEvent({ type: 'conversation.item.input_audio_transcription.delta', item_id: 'draft', delta: 'unconfirmed' });
+  h.events.onError('Disconnected');
   await settled(h); await pause(450); assert.deepEqual(h.deleted, ['item']); assert.deepEqual(h.writes, []);
 });
 test('Google fatal error retains authoritative final instead of newer interim', async () => {
