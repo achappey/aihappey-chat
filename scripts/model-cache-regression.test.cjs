@@ -48,32 +48,41 @@ test("partial discovery refresh replaces successful sources, preserves failed on
   assert.equal(sources["direct:p"], undefined);
 });
 
-function harness(saved, network = deferred(), query = "") {
-  const render = renderer(), writes = [], requests = [];
+function harness(saved, network = deferred(), query = "", defaults) {
+  const render = renderer(), writes = [], requests = [], reads = [];
   const auth = load(authFile);
   const state = { models: [], modelsLoaded: false, modelsRefreshVersion: 0, customHeaders: {},
+    apiKeyEncryptionStatus: "none",
     selectedModel: "p/preferred", userPreferredModel: ["p/preferred"],
     setModels: models => { state.models = models; state.modelsLoaded = true; },
     setModelsLoadingProgress: progress => { state.modelsLoadingProgress = progress; },
-    setSelectedModel: value => { state.selectedModel = value; },
-    setSelectedChatModelIds: ids => { state.selectedChatModelIds = ids; state.selectedModel = ids[0]; },
+    setSelectedModel: value => { state.selectedModel = value; state.selectedChatModelIds = undefined; },
+    setSelectedChatModelIds: ids => {
+      state.selectedChatModelIds = [...new Set(ids)];
+      if (!ids.includes(state.selectedModel)) state.selectedModel = ids[0];
+    },
   };
-  const mocks = { react: render.react, "aihappey-state": { store: { getState: () => state }, useAppStore: selector => selector(state) },
+  const mocks = { react: render.react, "aihappey-state": {
+    ...load("packages/aihappey-state/src/slices/modelPreferences.ts"),
+    store: { getState: () => state, setState: patch => Object.assign(state, patch) },
+    useAppStore: selector => selector(state),
+  },
     "../chat/engine/favoriteRouter": { favoriteRouterModel: state => state.routingEnabled
       && state.models.some(model => model.type === "decision") ? "p/decision" : undefined },
     "react-router": { useSearchParams: () => [new URLSearchParams(query)] },
     "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => providers },
     "../provider-credentials/providerAuthHeaders": { ...auth, listModelsWithSplitProviderHeaders: options => { requests.push(options); return network.promise; } },
     "aihappey-models": { ...catalog, modelCacheScope: async context => context.headers["x-context"] ?? "scope",
-      localModelStore: { load: async () => structuredClone(saved), replace: async (...args) => { writes.push(args); } } },
+      localModelStore: { load: async scope => { reads.push(scope); return structuredClone(saved); }, replace: async (...args) => { writes.push(args); } } },
   };
   const providers = {};
   const filename = "packages/aihappey-core/src/features/models/useModels.ts";
   const code = ts.transpileModule(fs.readFileSync(filename, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const module = { exports: {} };
   new Function("require", "module", "exports", code)(id => { if (!(id in mocks)) throw Error("Unmocked import: " + id); return mocks[id]; }, module, module.exports);
-  const Component = () => { module.exports.useModels("https://gateway.test/models"); return null; };
-  return { state, writes, requests, network, render: () => render.render(Component, {}), unmount: () => render.render(() => null, {}) };
+  const useDefaultModel = defaults ? load("packages/aihappey-core/src/shell/bootstrap/useDefaultModel.ts", mocks).useDefaultModel : () => {};
+  const Component = () => { useDefaultModel(false, defaults); module.exports.useModels("https://gateway.test/models"); return null; };
+  return { state, writes, requests, reads, network, render: () => render.render(Component, {}), unmount: () => render.render(() => null, {}) };
 }
 
 test("repeat visits publish cached models while refresh is pending and refresh does not cancel itself after hydration", async () => {
@@ -153,4 +162,142 @@ test("unavailable defaults are filtered for routing; manual mode keeps the exist
     assert.deepEqual(h.state.userPreferredModel, ["p/missing", second.id]);
     h.unmount();
   }
+});
+
+test("locked startup waits for decrypted headers and then applies saved or app-configured defaults", async () => {
+  const first = { id: "p/first", type: "language" }, second = { id: "p/second", type: "language" };
+  const fallback = { id: "p/public", type: "language", created: 100 };
+  const ids = [second.id, first.id];
+  for (const configured of [false, true]) for (const routingEnabled of [false, true]) {
+    for (const saved of [undefined, snapshot(fallback)]) {
+      const h = harness(saved, undefined, "", configured ? { language: ids } : undefined);
+      h.state.selectedModel = undefined;
+      h.state.userPreferredModel = configured ? undefined : [...ids];
+      h.state.apiKeyEncryptionStatus = "locked";
+      h.state.routingEnabled = routingEnabled;
+      h.render(); await flush(); h.render(); await flush();
+      assert.equal(h.requests.length, 0, "Do not discover an anonymous catalog while the password prompt is open");
+      assert.equal(h.reads.length, 0, "Do not publish an incomplete catalog before credentials are ready");
+      assert.equal(h.state.modelsLoaded, false);
+      assert.equal(h.state.selectedModel, undefined);
+      assert.deepEqual(h.state.userPreferredModel, ids);
+
+      h.state.customHeaders = { "X-P-Key": "decrypted-key" };
+      h.state.apiKeyEncryptionStatus = "unlocked";
+      h.render(); await flush(); h.render();
+      assert.equal(h.requests.length, 1);
+      assert.equal(h.requests[0].customHeaders["X-P-Key"], "decrypted-key");
+      h.network.resolve({ data: [fallback, first, second, { id: "p/decision", type: "decision" }] });
+      await flush(); h.render();
+      assert.equal(h.state.selectedModel, second.id);
+      assert.deepEqual(h.state.selectedChatModelIds, routingEnabled ? ids : undefined);
+      assert.deepEqual(h.state.userPreferredModel, ids, "Discovery must never rewrite durable preferences");
+      h.unmount();
+    }
+  }
+});
+
+test("a cached automatic fallback yields to the preferred model when the full catalog arrives", async () => {
+  for (const routingEnabled of [false, true]) {
+    const fallback = { id: "p/public", type: "language", created: 100 };
+    const preferred = { id: "p/preferred", type: "language", created: 1 };
+    const decision = { id: "p/decision", type: "decision" };
+    const h = harness(snapshot(fallback, decision));
+    h.state.selectedModel = undefined; h.state.routingEnabled = routingEnabled;
+    h.render(); await flush(); h.render();
+    assert.equal(h.state.selectedModel, fallback.id);
+    h.network.resolve({ data: [fallback, preferred, decision] });
+    await flush(); h.render();
+    assert.equal(h.state.selectedModel, preferred.id);
+    assert.deepEqual(h.state.selectedChatModelIds, routingEnabled ? [preferred.id] : undefined);
+    assert.deepEqual(h.state.userPreferredModel, [preferred.id]);
+    h.unmount();
+  }
+});
+
+test("partial default candidates expand in preference order when more defaults are discovered", async () => {
+  const first = { id: "p/first", type: "language" }, second = { id: "p/second", type: "language" };
+  const decision = { id: "p/decision", type: "decision" };
+  for (const routingEnabled of [false, true]) {
+    const h = harness(snapshot(second, decision));
+    h.state.selectedModel = undefined; h.state.routingEnabled = routingEnabled;
+    h.state.userPreferredModel = [first.id, second.id];
+    h.render(); await flush(); h.render();
+    assert.equal(h.state.selectedModel, second.id);
+    h.network.resolve({ data: [second, first, decision] });
+    await flush(); h.render();
+    assert.deepEqual(h.state.selectedChatModelIds, routingEnabled ? [first.id, second.id] : undefined);
+    assert.equal(h.state.selectedModel, routingEnabled ? second.id : first.id);
+    assert.deepEqual(h.state.userPreferredModel, [first.id, second.id]);
+    h.unmount();
+  }
+});
+
+test("manual and conversation choices made during refresh replace automatic selection ownership", async () => {
+  const preferred = { id: "p/preferred", type: "language" }, manual = { id: "p/manual", type: "language" };
+  const fallback = { id: "p/public", type: "language", created: 100 };
+  const decision = { id: "p/decision", type: "decision" };
+  for (const candidates of [undefined, [manual.id], []]) {
+    const h = harness(snapshot(fallback, manual, decision));
+    h.state.selectedModel = undefined; h.state.routingEnabled = true;
+    h.render(); await flush(); h.render();
+    assert.equal(h.state.selectedModel, fallback.id);
+    if (candidates === undefined) h.state.setSelectedModel(manual.id);
+    else h.state.setSelectedChatModelIds(candidates);
+    h.render();
+    h.network.resolve({ data: [manual, preferred, decision] });
+    await flush(); h.render();
+    assert.deepEqual(h.state.selectedChatModelIds, candidates);
+    assert.equal(h.state.selectedModel, candidates?.length === 0 ? undefined : manual.id);
+    h.unmount();
+  }
+});
+
+test("an explicitly reselected default candidate list is not expanded by a later refresh", async () => {
+  const first = { id: "p/first", type: "language" }, second = { id: "p/second", type: "language" };
+  const decision = { id: "p/decision", type: "decision" };
+  const h = harness(snapshot(second, decision));
+  h.state.selectedModel = undefined; h.state.routingEnabled = true;
+  h.state.userPreferredModel = [first.id, second.id];
+  h.render(); await flush(); h.render();
+  h.state.setSelectedChatModelIds([second.id]); h.render();
+  h.network.resolve({ data: [first, second, decision] });
+  await flush(); h.render();
+  assert.deepEqual(h.state.selectedChatModelIds, [second.id]);
+  assert.equal(h.state.selectedModel, second.id);
+  h.unmount();
+});
+
+test("unlock preserves explicit URL, manual, and conversation selections", async () => {
+  const preferred = { id: "p/preferred", type: "language" }, manual = { id: "p/manual", type: "language" };
+  for (const choice of ["url", "manual", "conversation", "cleared"]) {
+    const h = harness(undefined, undefined, choice === "url" ? "model=p/manual" : "");
+    h.state.selectedModel = choice === "manual" ? manual.id : undefined;
+    if (choice === "conversation") h.state.setSelectedChatModelIds([manual.id]);
+    if (choice === "cleared") h.state.setSelectedChatModelIds([]);
+    h.state.apiKeyEncryptionStatus = "locked"; h.state.routingEnabled = true;
+    h.render(); await flush();
+    h.state.customHeaders = { "X-P-Key": "decrypted-key" };
+    h.state.apiKeyEncryptionStatus = "unlocked";
+    h.render(); await flush();
+    h.network.resolve({ data: [preferred, manual, { id: "p/decision", type: "decision" }] });
+    await flush(); h.render();
+    assert.equal(h.state.selectedModel, choice === "cleared" ? undefined : manual.id);
+    assert.deepEqual(h.state.selectedChatModelIds, choice === "conversation" ? [manual.id] : choice === "cleared" ? [] : undefined);
+    assert.deepEqual(h.state.userPreferredModel, [preferred.id]);
+    h.unmount();
+  }
+});
+
+test("locking keys cancels a pending discovery so it cannot publish or persist after lock", async () => {
+  const h = harness(undefined);
+  h.render(); await flush();
+  assert.equal(h.requests.length, 1);
+  h.state.apiKeyEncryptionStatus = "locked"; h.render();
+  h.network.resolve({ data: [{ id: "p/private", type: "language" }] });
+  await flush(); h.render();
+  assert.equal(h.state.modelsLoaded, false);
+  assert.deepEqual(h.state.models, []);
+  assert.equal(h.writes.length, 0);
+  h.unmount();
 });
