@@ -50,7 +50,7 @@ export const useModels = (
   const refreshVersion = useAppStore(a => a.modelsRefreshVersion);
   const setModels = useAppStore(a => a.setModels)
   const customHeaders = useAppStore(a => a.customHeaders)
-  const apiKeyEncryptionStatus = useAppStore(a => a.apiKeyEncryptionStatus);
+  const apiKeysLocked = useAppStore(a => a.apiKeyEncryptionStatus === "locked");
   const gatewayEnabled = options?.gatewayEnabled !== false;
   const configuredHeaders = options?.headers;
   const cacheIdentity = options?.cacheIdentity;
@@ -98,7 +98,7 @@ export const useModels = (
   useEffect(() => {
     // A locked startup has no provider headers yet; its anonymous catalog must not
     // initialize the picker before the password prompt unlocks the real catalog.
-    if (!storeHydrated || apiKeyEncryptionStatus === "locked") return;
+    if (!storeHydrated || apiKeysLocked) return;
 
     let cancelled = false;
     let published = false;
@@ -186,7 +186,7 @@ export const useModels = (
       cancelled = true;
     };
 
-  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, apiKeyEncryptionStatus, cacheIdentity, refreshVersion, providers, setModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
+  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, apiKeysLocked, cacheIdentity, refreshVersion, providers, setModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;
