@@ -146,11 +146,32 @@ for (const [name, Composer] of [["chat", MessageInput], ["realtime", RealtimeInp
 }
 
 test("Chat settings places the default-on context toggle directly between provider logo and metrics", () => {
-    const settings = read("packages/aihappey-core/src/features/user-settings/SettingsModal.tsx");
-    const ids = [...settings.matchAll(/id="([^"]+-toggle)"/g)].map(match => match[1]);
+    const { SettingsModal } = load("packages/aihappey-core/src/features/user-settings/SettingsModal.tsx", {
+        ...shared,
+        "./ModelContextSettings": { ModelContextSettings: "model-context" },
+        "./GeneralSettings": { GeneralSettings: "general" },
+        "./AiDefaultSettings": { AiDefaultSettings: "ai-defaults" },
+        "../chat/context/ChatContext": { useChatContext: () => ({ config: {} }) },
+        "./StorageSettings": { StorageSettings: "storage" },
+        "./AppsSettings": { AppsSettings: "apps" },
+        "../chat-settings/SideInferenceAgentsTab": { SideInferenceAgentsTab: "side-agents" },
+        "../provider-credentials/ProviderKeysModal": { ProviderKeysModal: "keys" },
+        "./export/ExportSettings": { ExportSettings: "export" },
+        "../../shell/connectors/CloudStorageAvailability": { useCloudStorageAvailable: () => false },
+    });
+    const store = createStore(ui.createUiSlice);
+    state = { ...store.getState(), toolOutputContentSettings: {} };
+    const render = () => SettingsModal({ open: true, onClose: empty });
+    const switches = nodes(render()).filter(node => node.type === "Switch");
+    const ids = switches.map(node => node.props.id);
     const index = ids.indexOf("provider-logo-toggle");
     assert.deepEqual(ids.slice(index, index + 3), ["provider-logo-toggle", "context-size-toggle", "metrics-toggle"]);
-    assert.match(settings, /id="context-size-toggle"\s+checked=\{showContextSize\}\s+label=\{t\("settingsModal.showContextSize"\)\}\s+onChange=\{setShowContextSize\}/);
+    const context = switches[index + 1];
+    assert.equal(context.props.checked, true);
+    assert.equal(context.props.label, "settingsModal.showContextSize");
+    context.props.onChange(false);
+    state = { ...store.getState(), toolOutputContentSettings: {} };
+    assert.equal(nodes(render()).find(node => node.props.id === "context-size-toggle").props.checked, false);
 });
 
 test("every browser locale has a localized context size label", () => {
