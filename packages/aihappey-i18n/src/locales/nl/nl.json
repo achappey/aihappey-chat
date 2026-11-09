@@ -473,6 +473,7 @@
             "homepage": "Homepage",
             "repository": "Repository",
             "license": "Licentie",
+            "licensePlaceholder": "Licentie van deze plugin, bijvoorbeeld MIT of Apache-2.0...",
             "keywords": "Labels",
             "addKeyword": "Label toevoegen",
             "serverNameRequired": "Servernaam is verplicht.",

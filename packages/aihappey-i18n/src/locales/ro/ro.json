@@ -1262,6 +1262,7 @@
       "homepage": "Pagină principală",
       "repository": "Depozit",
       "license": "Licență",
+      "licensePlaceholder": "Licența acestui plugin, de exemplu MIT sau Apache-2.0...",
       "keywords": "Etichete",
       "addKeyword": "Adaugă etichetă",
       "serverNameRequired": "Numele serverului este obligatoriu.",

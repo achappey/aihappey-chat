@@ -1432,6 +1432,7 @@
             "includeServer": "Συμπερίληψη στιγμιότυπου διακομιστή",
             "keywords": "Ετικέτες",
             "license": "Άδεια χρήσης",
+            "licensePlaceholder": "Άδεια χρήσης αυτού του προσθέτου, για παράδειγμα MIT ή Apache-2.0...",
             "namePlaceholder": "Σύντομο, μοναδικό όνομα για το πρόσθετο...",
             "newTitle": "Προσθήκη προσθέτου",
             "noExtensionNamespace": "Ρυθμίστε το pluginConfig.extensionNamespace στη ρίζα της εφαρμογής για να επεξεργαστείτε τα disabled, allowed_callers και defer_loading.",

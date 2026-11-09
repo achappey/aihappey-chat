@@ -1054,6 +1054,7 @@
             "homepage": "Trang chủ",
             "repository": "Kho lưu trữ",
             "license": "Giấy phép",
+            "licensePlaceholder": "Giấy phép cho plugin này, ví dụ MIT hoặc Apache-2.0...",
             "keywords": "Từ khóa",
             "addKeyword": "Thêm từ khóa",
             "serverNameRequired": "Tên máy chủ là bắt buộc.",

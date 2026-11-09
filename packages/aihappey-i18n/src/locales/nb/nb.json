@@ -1255,6 +1255,7 @@
             "homepage": "Hjemmeside",
             "repository": "Kodelager",
             "license": "Lisens",
+            "licensePlaceholder": "Lisens for programtillegget, for eksempel MIT eller Apache-2.0...",
             "keywords": "Emneord",
             "addKeyword": "Legg til emneord",
             "serverNameRequired": "Servernavn er obligatorisk.",

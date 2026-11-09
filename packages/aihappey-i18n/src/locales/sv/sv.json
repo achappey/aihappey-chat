@@ -1275,6 +1275,7 @@
       "homepage": "Webbplats",
       "repository": "Lagringsplats",
       "license": "Licens",
+      "licensePlaceholder": "Licens för pluginen, till exempel MIT eller Apache-2.0...",
       "keywords": "Etiketter",
       "addKeyword": "Lägg till etikett",
       "serverNameRequired": "Servernamn krävs.",

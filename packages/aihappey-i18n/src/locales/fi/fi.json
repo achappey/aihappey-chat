@@ -1244,6 +1244,7 @@
             "includeServer": "Sisällytä palvelimen tilannekuva",
             "keywords": "Tunnisteet",
             "license": "Lisenssi",
+            "licensePlaceholder": "Lisäosan lisenssi, esimerkiksi MIT tai Apache-2.0...",
             "namePlaceholder": "Lyhyt, yksilöllinen nimi lisäosalle...",
             "newTitle": "Lisää lisäosa",
             "noExtensionNamespace": "Määritä sovelluksen juuressa pluginConfig.extensionNamespace, jotta disabled-, allowed_callers- ja defer_loading-asetuksia voi muokata.",

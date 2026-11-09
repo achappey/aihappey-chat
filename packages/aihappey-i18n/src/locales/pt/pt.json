@@ -1040,6 +1040,7 @@
             "homepage": "Página inicial",
             "repository": "Repositório",
             "license": "Licença",
+            "licensePlaceholder": "Licença deste plugin, por exemplo MIT ou Apache-2.0...",
             "keywords": "Etiquetas",
             "addKeyword": "Adicionar etiqueta",
             "serverNameRequired": "O nome do servidor é obrigatório.",

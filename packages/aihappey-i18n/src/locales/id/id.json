@@ -1039,6 +1039,7 @@
             "homepage": "Beranda",
             "repository": "Repositori",
             "license": "Lisensi",
+            "licensePlaceholder": "Lisensi plugin ini, misalnya MIT atau Apache-2.0...",
             "keywords": "Label",
             "addKeyword": "Tambah label",
             "serverNameRequired": "Nama server wajib diisi.",

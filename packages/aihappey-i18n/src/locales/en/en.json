@@ -468,6 +468,7 @@
             "homepage": "Homepage",
             "repository": "Repository",
             "license": "License",
+            "licensePlaceholder": "License for this plugin, for example MIT or Apache-2.0...",
             "keywords": "Labels",
             "addKeyword": "Add label",
             "serverNameRequired": "Server name is required.",

@@ -1062,6 +1062,7 @@
             "includeServer": "Includi snapshot del server",
             "keywords": "Etichette",
             "license": "Licenza",
+            "licensePlaceholder": "Licenza di questo plugin, ad esempio MIT o Apache-2.0...",
             "namePlaceholder": "Nome breve e univoco per questo plugin...",
             "newTitle": "Aggiungi plugin",
             "noExtensionNamespace": "Configura pluginConfig.extensionNamespace nella radice dell’applicazione per modificare disabled, allowed_callers e defer_loading.",

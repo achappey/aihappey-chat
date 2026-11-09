@@ -1039,6 +1039,7 @@
             "homepage": "Page d’accueil",
             "repository": "Dépôt",
             "license": "Licence",
+            "licensePlaceholder": "Licence de ce plugin, par exemple MIT ou Apache-2.0...",
             "keywords": "Mots-clés",
             "addKeyword": "Ajouter un mot-clé",
             "serverNameRequired": "Le nom du serveur est obligatoire.",

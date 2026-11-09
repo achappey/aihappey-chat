@@ -1086,6 +1086,7 @@
             "homepage": "Homepage",
             "repository": "Repository",
             "license": "Lizenz",
+            "licensePlaceholder": "Lizenz dieses Plugins, zum Beispiel MIT oder Apache-2.0 …",
             "keywords": "Schlagwörter",
             "addKeyword": "Schlagwort hinzufügen",
             "serverNameRequired": "Der Servername ist erforderlich.",

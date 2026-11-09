@@ -1271,6 +1271,7 @@
             "homepage": "Ana sayfa",
             "repository": "Depo",
             "license": "Lisans",
+            "licensePlaceholder": "Bu eklentinin lisansı, örneğin MIT veya Apache-2.0...",
             "keywords": "Etiketler",
             "addKeyword": "Etiket ekle",
             "serverNameRequired": "Sunucu adı gerekli.",

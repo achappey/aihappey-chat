@@ -415,6 +415,7 @@
             "homepage": "Hjemmeside",
             "repository": "Repository",
             "license": "Licens",
+            "licensePlaceholder": "Licens til dette plugin, for eksempel MIT eller Apache-2.0...",
             "keywords": "Etiketter",
             "addKeyword": "Tilføj etiket",
             "serverNameRequired": "Servernavn er påkrævet.",

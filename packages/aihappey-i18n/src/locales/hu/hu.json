@@ -1341,6 +1341,7 @@
             "homepage": "Honlap",
             "repository": "Kódtár",
             "license": "Licenc",
+            "licensePlaceholder": "A bővítmény licence, például MIT vagy Apache-2.0...",
             "keywords": "Címkék",
             "addKeyword": "Címke hozzáadása",
             "serverNameRequired": "A szerver neve kötelező.",

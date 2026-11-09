@@ -965,6 +965,7 @@
                                        "homepage":  "Página principal",
                                        "repository":  "Repositorio",
                                        "license":  "Licencia",
+                                       "licensePlaceholder": "Licencia de este complemento, por ejemplo MIT o Apache-2.0...",
                                        "keywords":  "Etiquetas",
                                        "addKeyword":  "Añadir etiqueta",
                                        "serverNameRequired":  "El nombre del servidor es obligatorio.",

@@ -92,6 +92,7 @@ export const PluginEditModal = ({
   const [description, setDescription] = useState("");
   const [homepage, setHomepage] = useState("");
   const [repository, setRepository] = useState("");
+  const [license, setLicense] = useState("");
   const [authorName, setAuthorName] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
   const [authorUrl, setAuthorUrl] = useState("");
@@ -114,7 +115,7 @@ export const PluginEditModal = ({
     wasOpen.current = true;
     setActiveTab("general"); setName(plugin?.manifest.name ?? ""); setVersion(plugin?.manifest.version ?? "");
     setDescription(plugin?.manifest.description ?? ""); setHomepage(plugin?.manifest.homepage ?? "");
-    setRepository(plugin?.manifest.repository ?? "");
+    setRepository(plugin?.manifest.repository ?? ""); setLicense(plugin?.manifest.license ?? "");
     setAuthorName(authorIdentityReadOnly ? authorIdentityName ?? "" : plugin?.manifest.author?.name ?? "");
     setAuthorEmail(authorIdentityReadOnly ? authorIdentityEmail ?? "" : plugin?.manifest.author?.email ?? "");
     setAuthorUrl(authorIdentityReadOnly ? authorIdentityUrl ?? "" : plugin?.manifest.author?.url ?? ""); setKeywords(plugin?.manifest.keywords ?? []); setNewKeyword("");
@@ -236,6 +237,7 @@ export const PluginEditModal = ({
       description: _oldDescription,
       homepage: _oldHomepage,
       repository: _oldRepository,
+      license: _oldLicense,
       author: _oldAuthor,
       keywords: _oldKeywords,
       ...preserved
@@ -254,6 +256,7 @@ export const PluginEditModal = ({
       ...(Object.keys(author).length ? { author } : {}),
       ...(homepage.trim() ? { homepage: homepage.trim() } : {}),
       ...(repository.trim() ? { repository: repository.trim() } : {}),
+      ...(license.trim() ? { license: license.trim() } : {}),
       ...(keywords.length ? { keywords } : {}),
     };
   };
@@ -273,6 +276,7 @@ export const PluginEditModal = ({
           <theme.TextArea label={t("description")} placeholder={t("pluginsPage.editor.descriptionPlaceholder")} value={description} rows={5} onChange={(value: any) => setDescription(inputValue(value))} />
           <theme.Input type="url" label={t("pluginsPage.editor.homepage")} placeholder={t("pluginsPage.editor.homepagePlaceholder")} value={homepage} onChange={(value: any) => setHomepage(inputValue(value))} />
           <theme.Input type="url" label={t("pluginsPage.editor.repository")} placeholder={t("pluginsPage.editor.repositoryPlaceholder")} value={repository} onChange={(value: any) => setRepository(inputValue(value))} />
+          <theme.Input label={t("pluginsPage.editor.license")} placeholder={t("pluginsPage.editor.licensePlaceholder")} value={license} onChange={(value: any) => setLicense(inputValue(value))} />
         </div></theme.Tab>
         {!authorIdentityReadOnly ? <theme.Tab eventKey="author" icon="personalization" title={t("pluginsPage.editor.author")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
           <theme.Input label={t("pluginsPage.editor.authorName")} value={authorName} onChange={(value: any) => setAuthorName(inputValue(value))} />

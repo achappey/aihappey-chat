@@ -1040,6 +1040,7 @@
             "homepage": "Strona główna",
             "repository": "Repozytorium",
             "license": "Licencja",
+            "licensePlaceholder": "Licencja wtyczki, na przykład MIT lub Apache-2.0...",
             "keywords": "Etykiety",
             "addKeyword": "Dodaj etykietę",
             "serverNameRequired": "Nazwa serwera jest wymagana.",
