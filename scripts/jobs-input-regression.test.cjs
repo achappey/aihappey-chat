@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const ts = require("typescript");
 const React = require("react");
+const { load: loadBundled } = require("./credential-test-loader.cjs");
 
 const features = "packages/aihappey-core/src/features/";
 const attachments = features + "attachments/";
@@ -154,7 +155,7 @@ test("Jobs composer allows URL-only, file-only and text submissions, shows remov
     assert.deepEqual(sent, ["", "", "Summarize this"]);
 });
 
-function jobsHarness() {
+function jobsHarness(initialState = {}) {
     const h = hooks();
     const requests = [], saved = [], errors = [];
     const control = { failure: undefined };
@@ -177,17 +178,15 @@ function jobsHarness() {
         } }) },
         "aihappey-jobs": { useJobs: () => jobs },
         "aihappey-state": { useAppStore: selector => selector({
-            selectedAgentNames: ["agent"], agents: [], remoteAgentModels: [],
+            selectedAgentNames: ["remote:agent"], agents: [], remoteAgentModels: [{ id: "agent", source: "remote" }],
+            ...initialState,
         }) },
         "../provider-credentials/scopedRequest": { createCredentialScopedFetch: fetch => fetch },
         "../chat/context/ChatContext": { useChatContext: () => ({ config: {
             baseUrl: "https://example.com", endpoints: { responses: "/v1/responses" },
         } }) },
         "../agents/AgentSelect": { AgentSelect: "AgentSelect" },
-        "../agents/agentSelection": {
-            normalizeSelectedAgentKeys: () => [], resolveSelectedAgentEntries: () => [],
-            buildSelectedAgentRequest: () => ({ models: ["agent"], requestAgents: [] }),
-        },
+        "../agents/agentSelection": loadBundled(features + "agents/agentSelection.ts"),
         "../agents/agentResponseRequest": load(features + "agents/agentResponseRequest.ts"),
         "../chat/input/useChatFileDrop": { useChatFileDrop: () => ({ dropRef() {} }) },
         "../user-settings/UserMenuInline": { UserMenuInline: "UserMenuInline" },
@@ -207,6 +206,49 @@ function jobsHarness() {
     const input = () => one(h.render(JobsPage), "JobsInput").props;
     return { input, requests, saved, errors, control };
 }
+
+const localJobAgent = {
+    name: "Local researcher", description: "Research", instructions: "Cite sources.",
+    models: [{ id: "openai/model", options: { temperature: 0.2 } }],
+    mcpServers: { search: { type: "http", url: "https://search.example/mcp" } },
+};
+const secondJobAgent = { ...localJobAgent, name: "Local reviewer", models: [{ id: "anthropic/model" }] };
+const jobCatalog = [{ id: "remote-one", source: "remote" }, { id: "remote-two", source: "remote" }];
+
+for (const [label, selectedAgentNames, expected] of [
+    ["single local", ["local:Local researcher"], { agents: [localJobAgent] }],
+    ["multiple local", ["local:Local reviewer", "local:Local researcher"], { agents: [secondJobAgent, localJobAgent] }],
+    ["single remote", ["remote:remote-one"], { model: "remote-one" }],
+    ["multiple remote", ["remote:remote-two", "remote:remote-one"], { models: ["remote-two", "remote-one"] }],
+    ["mixed", ["local:Local researcher", "remote:remote-one"], { agents: [localJobAgent], model: "remote-one" }],
+    ["mixed multiple remote", ["remote:remote-one", "local:Local reviewer", "remote:remote-two"], {
+        agents: [secondJobAgent], models: ["remote-one", "remote-two"],
+    }],
+]) test(`Jobs sends ${label} selectors at the request root and stores the same request`, async () => {
+    const h = jobsHarness({ selectedAgentNames, agents: [localJobAgent, secondJobAgent], remoteAgentModels: jobCatalog });
+    await h.input().onSend("  Research this  ");
+    assert.deepEqual(h.requests, [{
+        input: [{ role: "user", content: [{ type: "input_text", text: "Research this" }] }],
+        background: true, store: true, stream: false,
+        ...expected,
+    }]);
+    assert.equal(h.saved[0][0], h.requests[0]);
+    assert.equal(Object.hasOwn(h.requests[0], "metadata"), false);
+    assert.deepEqual(h.errors, []);
+});
+
+test("Jobs rejects missing or stale selections before dispatch and retains attachments", async () => {
+    for (const selectedAgentNames of [[], ["local:deleted"], ["remote:deleted"]]) {
+        const h = jobsHarness({ selectedAgentNames });
+        h.input().onAddUrl(link);
+        await h.input().onSend("Research this");
+        assert.deepEqual(h.requests, []);
+        assert.deepEqual(h.saved, []);
+        assert.equal(h.errors.length, 1);
+        assert.deepEqual(h.input().urlAttachments, [link]);
+        assert.equal(h.input().disabled, false);
+    }
+});
 
 test("Jobs validates, deduplicates and removes page-local URLs, sends native file URLs and clears them after success", async () => {
     const h = jobsHarness();

@@ -61,6 +61,29 @@ const allEndpoints = () => [
     data.createDecisionsEndpointDoc('ai-sdk', 'agents'),
 ];
 
+test('agent Responses documentation uses root-level selectors and keeps application metadata separate', () => {
+    const doc = data.createAgentEndpointDoc('create-response', { apiBaseUrl: 'https://agents.example' });
+    const names = doc.parameters.map(parameter => parameter.name);
+    for (const name of ['model', 'models', 'agent', 'agents', 'workflowType', 'workflowMetadata', 'metadata']) {
+        assert.ok(names.includes(name), name);
+    }
+    assert.equal(names.includes('metadata.agents'), false);
+    assert.match(text(doc.description), /request root/);
+    assert.match(doc.parameters.find(parameter => parameter.name === 'metadata').description, /Application metadata only/);
+    const inline = JSON.parse(doc.requestExamples.find(example => example.id === 'agents-inline-background').code);
+    assert.equal(typeof inline.agent, 'object');
+    assert.equal(Array.isArray(inline.agent), false);
+    assert.equal(inline.background, true);
+    assert.equal(inline.stream, false);
+    assert.deepEqual(inline.metadata, { jobLabel: 'Research task' });
+    const mixed = JSON.parse(doc.requestExamples.find(example => example.id === 'agents-mixed-workflow').code);
+    assert.ok(mixed.agents[0].model.id);
+    assert.deepEqual(mixed.models, ['ReviewAgent']);
+    assert.equal(mixed.workflowType, 'groupchat');
+    assert.equal(mixed.workflowMetadata.groupchat.maximumIterationCount, 5);
+    assert.equal(mixed.metadata, undefined);
+});
+
 test('all eight views use existing layouts, have live testers, and route to the correct service', () => {
     let routes, activePath;
     const { DocsRoot } = load(docsRoot + 'DocsRoot.tsx', {
