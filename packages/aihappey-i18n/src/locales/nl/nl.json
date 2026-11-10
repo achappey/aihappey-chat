@@ -1,4 +1,10 @@
 ﻿{
+    "defaultModelUpdates": {
+        "message": "Sommige standaardmodellen zijn meer dan 30 dagen oud. Er zijn nieuwere standaardmodellen beschikbaar voor: {{types}}.",
+        "apply": "Nieuwere standaardmodellen toepassen",
+        "dismiss": "Sluiten",
+        "saveFailed": "Je standaardmodellen konden niet worden opgeslagen. Probeer het opnieuw."
+    },
     "mistralRealtime": {
         "title": "Realtime transcriptie",
         "hint": "Live spraak naar tekst, geen vertaling. Taal is optioneel (tweelettercode); laat leeg voor detectie. Instellingen gelden voordat audio start en staan los van bestandstranscriptie.",
