@@ -5,6 +5,7 @@ import { useAppStore } from "aihappey-state";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { MinimalNavBar } from "./MinimalNavBar";
 import { ConversationSearchModal } from "../../features/conversation-search";
+import { DefaultModelUpdatesWarning } from "../bootstrap/DefaultModelUpdatesWarning";
 
 export const SidebarLayout = () => {
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
@@ -67,6 +68,7 @@ export const SidebarLayout = () => {
             flexDirection: "column",
           }}
         >
+          <DefaultModelUpdatesWarning />
           <Outlet />
         </div>
       </div>
