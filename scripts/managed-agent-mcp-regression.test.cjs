@@ -451,6 +451,82 @@ test("real SDK streaming returns MCP results to agent backend and continues; pro
     hook.unmount();
 });
 
+for (const decision of ["approve", "reject", "BRRR"]) {
+test(`programmatic server batch preserves its suspended parent through ${decision} and continues once`, async () => {
+    const requests = [], errors = [], browserExecutions = [];
+    const continuation = createAgentChatContinuation();
+    const parent = fingerprint => ({ type: "program", id: "usage-program-item", call_id: "usage-program-call",
+        code: "const results = await Promise.all([0,1,2,3,4].map(i => tools['usage_' + i]({}))); text(results);", fingerprint });
+    const metadata = item => ({ openai: { type: item.type, responses_item: item } });
+    const chat = new Chat({
+        id: "programmatic-conversation",
+        transport: new ManagedAgentChatTransport({
+            fetch: async (_, options) => {
+                requests.push(JSON.parse(options.body));
+                assert.ok(requests.length <= 2, "a completed batch must not start a replacement program");
+                const chunks = [{ type: "start", messageId: "usage-history" }, { type: "start-step" }];
+                if (requests.length === 1) {
+                    // No program_output is required while native execution is suspended.
+                    for (const fingerprint of ["start-fingerprint", "done-fingerprint", "final-fingerprint"]) chunks.push({
+                        type: "tool-input-available", toolCallId: "usage-program-call", toolName: "program",
+                        input: { code: parent(fingerprint).code }, providerExecuted: true, providerMetadata: metadata(parent(fingerprint)),
+                    });
+                    for (let index = 0; index < 5; index++) {
+                        const item = { type: "function_call", id: `usage-item-${index}`, call_id: `usage-call-${index}`,
+                            name: `usage_${index}`, arguments: "{}", status: "completed",
+                            caller: { type: "program", caller_id: "usage-program-call" } };
+                        chunks.push(
+                            { type: "tool-input-available", toolCallId: item.call_id, toolName: item.name,
+                                input: {}, providerExecuted: true, providerMetadata: metadata(item) },
+                            { type: "tool-output-available", toolCallId: item.call_id, output: { value: index },
+                                providerExecuted: false, providerMetadata: metadata(item) },
+                            { type: "tool-approval-request", toolCallId: item.call_id, approvalId: item.call_id },
+                        );
+                    }
+                } else {
+                    const parts = requests[1].messages.at(-1).parts;
+                    const program = parts.filter(part => part.toolCallId === "usage-program-call");
+                    assert.equal(program.length, 1);
+                    assert.equal(program[0].state, "input-available");
+                    assert.equal(program[0].providerExecuted, true);
+                    assert.deepEqual(program[0].callProviderMetadata.openai.responses_item, parent("final-fingerprint"));
+                    assert.equal(Object.hasOwn(program[0], "output"), false);
+                    for (let index = 0; index < 5; index++) {
+                        const part = parts.find(part => part.toolCallId === `usage-call-${index}`);
+                        assert.equal(part.state, "approval-responded");
+                        assert.equal(part.approval.approved, decision !== "reject");
+                        assert.deepEqual(part.output, { value: index });
+                        assert.equal(part.callProviderMetadata.openai.responses_item.status, "completed");
+                        assert.equal(part.callProviderMetadata.openai.responses_item.caller.caller_id, "usage-program-call");
+                    }
+                    chunks.push({ type: "text-start", id: "answer" },
+                        { type: "text-delta", id: "answer", delta: "Last week: 401 requests, 760365 tokens." }, { type: "text-end", id: "answer" });
+                }
+                chunks.push({ type: "finish-step" }, { type: "finish", finishReason: requests.length === 1 ? "tool-calls" : "stop" });
+                return new Response(chunks.map(chunk => `data: ${JSON.stringify(chunk)}\n\n`).join("") + "data: [DONE]\n\n",
+                    { headers: { "Content-Type": "text/event-stream" } });
+            },
+        }),
+        onToolCall: ({ toolCall }) => { browserExecutions.push(toolCall); },
+        sendAutomaticallyWhen: options => continuation.shouldSend(options),
+        onError: error => errors.push(error),
+    });
+    await chat.sendMessage({ text: "Last week?" });
+    assert.equal(requests.length, 1);
+    assert.equal(approvalState.pendingToolApprovals(chat.messages).length, 5);
+    for (let index = 0; index < 5; index++) {
+        await chat.addToolApprovalResponse({ id: `usage-call-${index}`, approved: decision !== "reject", reason: decision });
+        if (index < 4) assert.equal(requests.length, 1, "wait for the entire batch's approval decisions");
+    }
+    for (let i = 0; i < 50 && (requests.length < 2 || chat.status !== "ready"); i++) await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual(errors, []);
+    assert.deepEqual(browserExecutions, [], "native programs and server-owned tools never execute in the browser");
+    assert.equal(requests.length, 2);
+    assert.ok(chat.messages.at(-1).parts.some(part => part.type === "text" && part.text.includes("401 requests")));
+    assert.equal(continuation.shouldSend({ messages: chat.messages }), false);
+});
+}
+
 for (const decision of ["approve", "reject", "BRRR", "streaming BRRR"]) {
 test(`post-execution ${decision} continues multiple MCP calls without re-execution`, async () => {
     const h = runtimeHarness();
