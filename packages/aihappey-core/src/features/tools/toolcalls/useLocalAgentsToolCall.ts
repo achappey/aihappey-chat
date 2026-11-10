@@ -2,7 +2,8 @@ import { createCredentialScopedFetch } from "../../provider-credentials/scopedRe
 import { useCallback } from "react";
 import { useAppStore } from "aihappey-state";
 import { createResponsesProvider } from "aihappey-ai";
-import type { ResponseApiCreateRequest, ResponseApiInputContent } from "aihappey-ai";
+import type { AgentResponseApiCreateRequest, ResponseApiInputContent } from "aihappey-ai";
+import { buildAgentResponseSelection } from "../../agents/agentResponseRequest";
 import type { FilesContextType } from "aihappey-files";
 import type { Agent } from "aihappey-types";
 import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
@@ -316,12 +317,15 @@ export function useLocalAgentsRuntime(files?: FilesContextType | null) {
         : config.getAccessToken;
       if (getAccessToken) headers.Authorization = `Bearer ${await getAccessToken()}`;
 
-      const request: ResponseApiCreateRequest = {
+      const request: AgentResponseApiCreateRequest = {
         input: [{ role: "user", content }],
         background,
         store: background,
         stream: false,
-        ...(localAgent ? { metadata: { agents: [localAgent] } } : { model: remoteAgent!.id }),
+        ...buildAgentResponseSelection({
+          requestAgents: localAgent ? [localAgent] : [],
+          models: remoteAgent ? [remoteAgent.id] : [],
+        }),
       };
       const client = createResponsesProvider({
         baseUrl: (config.agentEndpoint ?? config.baseUrl) + config.endpoints.responses,

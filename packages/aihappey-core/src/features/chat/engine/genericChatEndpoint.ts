@@ -2768,6 +2768,11 @@ export function wrapGenericChatFetch({
             models: rawBody.models,
             agent: rawBody.agent,
             agents: rawBody.agents,
+            ...(requestEndpoint === "/v1/responses" ? {
+              workflowType: rawBody.workflowType ?? rawBody.workflow_type,
+              workflowMetadata: rawBody.workflowMetadata ?? rawBody.workflow_metadata,
+              metadata: rawBody.metadata,
+            } : {}),
           }) : {}),
         };
         const providerRequestHeaders = rawBody?.providerRequestHeaders && typeof rawBody.providerRequestHeaders === "object"

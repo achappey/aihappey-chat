@@ -1,4 +1,5 @@
 import type { SharedV4Warning, ImageModelV4ProviderMetadata, ImageModelV4Usage } from "@ai-sdk/provider"
+import type { Agent } from "aihappey-types";
 
 export interface AiChatConfig {
   api?: string;
@@ -131,6 +132,16 @@ export interface ResponseApiCreateRequest {
   stream?: boolean;
   metadata?: Record<string, any>;
   [key: string]: any;
+}
+
+/** Agent-backend extensions belong at the request root, never in application metadata. */
+export interface AgentResponseApiCreateRequest extends ResponseApiCreateRequest {
+  agent?: Agent;
+  agents?: Agent[];
+  workflowType?: string;
+  workflow_type?: string;
+  workflowMetadata?: Record<string, unknown>;
+  workflow_metadata?: Record<string, unknown>;
 }
 
 export interface ResponseApiResponse {

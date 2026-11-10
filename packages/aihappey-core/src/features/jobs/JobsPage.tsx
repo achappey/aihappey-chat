@@ -1,7 +1,7 @@
 import { createCredentialScopedFetch } from "../provider-credentials/scopedRequest";
 import React, { useCallback, useState } from "react";
 import { createResponsesProvider } from "aihappey-ai";
-import type { ResponseApiCreateRequest, ResponseApiInputContent } from "aihappey-ai";
+import type { AgentResponseApiCreateRequest, ResponseApiInputContent } from "aihappey-ai";
 import { AgentFavoriteToggleButton, JobCard, ErrorAlerts, useTheme, WarningAlerts } from "aihappey-components";
 import { useJobs } from "aihappey-jobs";
 import { useAppStore } from "aihappey-state";
@@ -9,6 +9,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useChatContext } from "../chat/context/ChatContext";
 import { AgentSelect } from "../agents/AgentSelect";
 import { buildSelectedAgentRequest, normalizeSelectedAgentKeys, resolveSelectedAgentEntries } from "../agents/agentSelection";
+import { buildAgentResponseSelection } from "../agents/agentResponseRequest";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
@@ -107,7 +108,7 @@ export const JobsPage = () => {
     });
   };
 
-  const buildRequest = async (text: string): Promise<ResponseApiCreateRequest> => {
+  const buildRequest = async (text: string): Promise<AgentResponseApiCreateRequest> => {
     const selectedAgentRequest = buildSelectedAgentRequest(
       selectedAgentNames,
       agents,
@@ -119,12 +120,7 @@ export const JobsPage = () => {
     content.push(...await Promise.all(files.map(createFileContentPart)));
     content.push(...urlAttachments.map(({ url }) => ({ type: "input_file" as const, file_url: url })));
 
-    const metadata: Record<string, any> = {};
-    if (selectedAgentRequest.localAgents.length > 0) {
-      metadata.agents = selectedAgentRequest.localAgents;
-    }
-
-    const request: ResponseApiCreateRequest = {
+    const request: AgentResponseApiCreateRequest = {
       input: [
         {
           role: "user",
@@ -134,15 +130,10 @@ export const JobsPage = () => {
       background: true,
       store: true,
       stream: false,
-      ...(selectedAgentRequest.models.length === 1
-        ? { model: selectedAgentRequest.models[0] }
-        : selectedAgentRequest.models.length > 1
-          ? { models: selectedAgentRequest.models }
-          : {}),
-      ...(Object.keys(metadata).length ? { metadata } : {}),
+      ...buildAgentResponseSelection(selectedAgentRequest),
     };
 
-    if (!request.model && !request.models?.length && !metadata.agents?.length) {
+    if (!request.model && !request.models?.length && !request.agents?.length) {
       throw new Error(t("selectAgentForJob", "Select at least one agent for the job."));
     }
 
