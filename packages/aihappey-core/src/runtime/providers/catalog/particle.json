@@ -1,0 +1,14 @@
+{
+  "name": "Particle",
+  "description": "OpenAI-compatible inference for Particle-1, DeepSeek V4.1 Flash, and GLM 5.3 Flash with 1M-token context, reasoning, vision, and tool use.",
+  "urls": {
+    "homepage": "https://particle.ai",
+    "docs": "https://docs.particle.ai",
+    "console": "https://platform.particle.ai"
+  },
+  "category": "model_provider",
+  "apiBaseUrl": "https://api.particle.ai",
+  "chatEndpoints": [
+    "/v1/chat/completions"
+  ]
+}

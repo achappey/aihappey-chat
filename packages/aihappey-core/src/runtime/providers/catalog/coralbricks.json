@@ -1,0 +1,16 @@
+{
+  "name": "CoralBricks",
+  "description": "OpenAI-compatible inference for chat, interactive agents, long-running autonomous agents",
+  "urls": {
+    "homepage": "https://www.coralbricks.ai",
+    "docs": "https://www.coralbricks.ai/docs",
+    "console": "https://www.coralbricks.ai/api-keys",
+    "pricing": "https://www.coralbricks.ai/models"
+  },
+  "category": "inference_compute",
+  "apiBaseUrl": "https://inference.coralbricks.ai/v1",
+  "chatEndpoints": [
+    "/chat/completions",
+    "/responses"
+  ]
+}

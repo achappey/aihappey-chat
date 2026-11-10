@@ -1,5 +1,33 @@
 [
   {
+    "id": "frontiereai",
+    "file": "frontiereai.json"
+  },
+  {
+    "id": "joulecloud",
+    "file": "joulecloud.json"
+  },
+  {
+    "id": "raven",
+    "file": "raven.json"
+  },
+  {
+    "id": "juicefactory",
+    "file": "juicefactory.json"
+  },
+  {
+    "id": "paperinstruments",
+    "file": "paperinstruments.json"
+  },
+  {
+    "id": "coralbricks",
+    "file": "coralbricks.json"
+  },
+  {
+    "id": "particle",
+    "file": "particle.json"
+  },
+  {
     "id": "upivia",
     "file": "upivia.json"
   },
@@ -76,12 +104,24 @@
     "file": "connect0.json"
   },
   {
+    "id": "conway",
+    "file": "conway.json"
+  },
+  {
+    "id": "guidai",
+    "file": "guidai.json"
+  },
+  {
     "id": "manyfold",
     "file": "manyfold.json"
   },
   {
     "id": "harnessrouter",
     "file": "harnessrouter.json"
+  },
+  {
+    "id": "hatzai",
+    "file": "hatzai.json"
   },
   {
     "id": "lelapaai",
@@ -2770,5 +2810,9 @@
   {
     "id": "wrenai",
     "file": "wrenai.json"
+  },
+  {
+    "id": "creeksidecompute",
+    "file": "creeksidecompute.json"
   }
 ]

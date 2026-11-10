@@ -728,9 +728,19 @@
       "sha256": "98911af771121c8c22f7277e4820149697da9f48692bd03a0567c4f0152ff029"
     },
     {
+      "source": "providers/conway.json",
+      "file": "catalog/conway.json",
+      "sha256": "44026c3784c765ebc34b4f42b4150a5689751c758e80a16a016788d7bd3884ce"
+    },
+    {
       "source": "providers/copilot.json",
       "file": "catalog/copilot.json",
       "sha256": "74ba7914c7b794c914053898a3de923a4aec5c39a2eeb00e9b6ecc6da4beef87"
+    },
+    {
+      "source": "providers/coralbricks.json",
+      "file": "catalog/coralbricks.json",
+      "sha256": "8a58f934b393a84d9a759a5c4c5392f966cf9cf791d7b54270a3a183a1642fe9"
     },
     {
       "source": "providers/cortecs.json",
@@ -746,6 +756,11 @@
       "source": "providers/crazyrouter.json",
       "file": "catalog/crazyrouter.json",
       "sha256": "1ffbe1341fdf67992b29383e75eb74189f5bbcbcf3c4b4a4419e1c1b1ecc0f38"
+    },
+    {
+      "source": "providers/creeksidecompute.json",
+      "file": "catalog/creeksidecompute.json",
+      "sha256": "48fc3e467ad2fd294e1e1d51f673ccd58cbdf6cd106961a34aed085652e05e8b"
     },
     {
       "source": "providers/creora.json",
@@ -1078,6 +1093,11 @@
       "sha256": "3e0ff7c9e3ef8a2546013f16d3f89f96eecc66b73b7647cf31b55eea1c3f878e"
     },
     {
+      "source": "providers/frontiereai.json",
+      "file": "catalog/frontiereai.json",
+      "sha256": "c2d27e006a57edf4bb688c8448af2b90804b80950e6ecd411881147187570110"
+    },
+    {
       "source": "providers/fullai.json",
       "file": "catalog/fullai.json",
       "sha256": "31266a8f7b02fa52980b29dd748a54e275dd3dd62bb26aebb4870da7bbd6fd15"
@@ -1183,6 +1203,11 @@
       "sha256": "b5d6196f7262ab50a5780f6cc7f59c4e2422988604fd6f25965b40d2d5d7c402"
     },
     {
+      "source": "providers/guidai.json",
+      "file": "catalog/guidai.json",
+      "sha256": "22711942d4b6a441dbe97534edff64d50b8a855fae8f3c6e3ad57e3cc5cae1cd"
+    },
+    {
       "source": "providers/gwdg.json",
       "file": "catalog/gwdg.json",
       "sha256": "fd3a31518cafd3941e63cf132667e2958f0b18235e0d445245e7547a7fd73e13"
@@ -1201,6 +1226,11 @@
       "source": "providers/harnessrouter.json",
       "file": "catalog/harnessrouter.json",
       "sha256": "f84199733b8f3853e18a748e8bd63435562e072645341b14a87053e09fadef69"
+    },
+    {
+      "source": "providers/hatzai.json",
+      "file": "catalog/hatzai.json",
+      "sha256": "97e6dfa5de9cd3f26c40b2408697361b8b90f34cbe75b84237994fcb4c3b4e1c"
     },
     {
       "source": "providers/hcompany.json",
@@ -1345,7 +1375,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "53559c63c52b344ad1cbd404a312b06fa7d930f8eff50be59a0cd18b8399ea8f"
+      "sha256": "70f23661fee19679a01456bce9e9cc23955f869aa878ee0871c81059976a17bb"
     },
     {
       "source": "providers/infercom.json",
@@ -1453,9 +1483,19 @@
       "sha256": "36aec406b73b708c1d2f329bc46c3719240f70ab0bae687a8f9319ef500e51e5"
     },
     {
+      "source": "providers/joulecloud.json",
+      "file": "catalog/joulecloud.json",
+      "sha256": "7a771783aeb0985325bd2df2d46e65d43131a7b6adca357012f142af5dc70261"
+    },
+    {
       "source": "providers/json2video.json",
       "file": "catalog/json2video.json",
       "sha256": "81ce7ee34ed64806eb9dae387763f4dfff82c23d02f4411c043f363179870618"
+    },
+    {
+      "source": "providers/juicefactory.json",
+      "file": "catalog/juicefactory.json",
+      "sha256": "49362cf6486b6d37e03d8b23b5d7c03ceb723f9b6e0c9eea339eb8dda51da041"
     },
     {
       "source": "providers/kalpalabs.json",
@@ -2338,6 +2378,11 @@
       "sha256": "fb6f9a6499b611c69fc55206f93f3a306c586a89d3dd2c40a2c1c002b20f5384"
     },
     {
+      "source": "providers/paperinstruments.json",
+      "file": "catalog/paperinstruments.json",
+      "sha256": "2fdac087699467d5c57823f51dcdda32dbbcba440ce32da9cbb38fc6eeb357fd"
+    },
+    {
       "source": "providers/parallel.json",
       "file": "catalog/parallel.json",
       "sha256": "6857a1dffef0b5e34857080182263d8c321bcc09d294bf371047bd96dc758f9d"
@@ -2356,6 +2401,11 @@
       "source": "providers/parel.json",
       "file": "catalog/parel.json",
       "sha256": "c6485e601fa4030916ea5a5f6c4fa250d27358065a0f66d7fabc472e1fd58402"
+    },
+    {
+      "source": "providers/particle.json",
+      "file": "catalog/particle.json",
+      "sha256": "241d51aceefc25cdc9fa312d4acaa0fd471eea681789084f976f46c1c0ae0fcb"
     },
     {
       "source": "providers/paul.json",
@@ -2756,6 +2806,11 @@
       "source": "providers/ramprouter.json",
       "file": "catalog/ramprouter.json",
       "sha256": "9997766be304ab1c09d65b6e9e6dee7e749860a10670ece0c4151da78fb1a4f7"
+    },
+    {
+      "source": "providers/raven.json",
+      "file": "catalog/raven.json",
+      "sha256": "3df74ee122c08364a6cbbecb70a0e621832baf151dc81e98de4de3cef21441b4"
     },
     {
       "source": "providers/raxai.json",

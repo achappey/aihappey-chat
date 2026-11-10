@@ -1,0 +1,15 @@
+{
+  "name": "CreeksideCompute",
+  "description": "Fast inference for open-weight models with OpenAI-compatible Chat Completions, Responses and Anthropic Messages, streaming, tool calling and reasoning.",
+  "urls": {
+    "homepage": "https://creeksidecompute.ai",
+    "console": "https://creeksidecompute.ai/account"
+  },
+  "category": "inference_compute",
+  "apiBaseUrl": "https://api.creeksidecompute.ai/v1",
+  "chatEndpoints": [
+    "/v1/chat/completions",
+    "/v1/responses",
+    "/v1/messages"
+  ]
+}

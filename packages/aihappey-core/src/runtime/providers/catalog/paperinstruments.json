@@ -1,0 +1,14 @@
+{
+  "name": "PaperInstruments",
+  "description": "Ultramarine model API with native streaming Chat Completions, Responses, and Anthropic Messages support.",
+  "urls": {
+    "homepage": "https://paperinstruments.com"
+  },
+  "category": "model_provider",
+  "apiBaseUrl": "https://api.paperinstruments.com/v1",
+  "chatEndpoints": [
+    "/v1/chat/completions",
+    "/v1/responses",
+    "/v1/messages"
+  ]
+}

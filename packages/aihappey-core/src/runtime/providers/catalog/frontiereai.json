@@ -1,0 +1,13 @@
+{
+  "name": "FrontiereAI",
+  "description": "Frontière AI is an OpenAI-compatible gateway to open-source models, with per-model jurisdiction labels distinguishing EU-sovereign providers from US-operated fast access.",
+  "urls": {
+    "homepage": "https://getfrontiereai.eu",
+    "docs": "https://getfrontiereai.eu/openapi.json"
+  },
+  "category": "gateway_router",
+  "apiBaseUrl": "https://getfrontiereai.eu/api/v1",
+  "chatEndpoints": [
+    "/chat/completions"
+  ]
+}

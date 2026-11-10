@@ -1,0 +1,16 @@
+{
+  "name": "JuiceFactory",
+  "description": "Open text, vision and embedding models on owned hardware in Sweden. OpenAI-compatible inference without request logging or training on customer data.",
+  "urls": {
+    "homepage": "https://juicefactory.ai"
+  },
+  "providerCountry": "SE",
+  "inferenceRegions": [
+    "Europe"
+  ],
+  "category": "inference_compute",
+  "apiBaseUrl": "https://api.juicefactory.ai",
+  "chatEndpoints": [
+    "/v1/chat/completions"
+  ]
+}

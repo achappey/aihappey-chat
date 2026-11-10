@@ -1,0 +1,12 @@
+{
+  "name": "Raven",
+  "description": "OpenAI-compatible inference for chat, embeddings and reranking.",
+  "urls": {
+    "homepage": "https://raven.graphn.ai"
+  },
+  "category": "inference_compute",
+  "apiBaseUrl": "https://raven.graphn.ai/api/inference",
+  "chatEndpoints": [
+    "/v1/chat/completions"
+  ]
+}

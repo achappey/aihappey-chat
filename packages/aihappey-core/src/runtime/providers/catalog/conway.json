@@ -1,0 +1,13 @@
+{
+  "name": "Conway",
+  "description": "OpenAI-compatible multi-provider chat inference for OpenAI, Anthropic, Google, Moonshot and Qwen models, billed from Conway credits.",
+  "urls": {
+    "homepage": "https://conway.tech",
+    "docs": "https://docs.conway.tech/compute/inference"
+  },
+  "category": "gateway_router",
+  "apiBaseUrl": "https://inference.conway.tech/v1",
+  "chatEndpoints": [
+    "/chat/completions"
+  ]
+}
