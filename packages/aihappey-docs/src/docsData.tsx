@@ -234,7 +234,11 @@ export const createAgentEndpointDoc = (endpoint: AgentEndpoint, options: CreateS
         { name: "input", type: "string | array", required: true, description: t("agents.endpoints.createResponse.parameters.input") },
         { name: "model", type: "string", required: false, description: t("agents.endpoints.createResponse.parameters.model") },
         { name: "models", type: "array", required: false, description: t("agents.endpoints.createResponse.parameters.models") },
-        { name: "metadata.agents", type: "array", required: false, description: t("agents.endpoints.createResponse.parameters.agents") },
+        { name: "agent", type: "object", required: false, description: t("agents.endpoints.createResponse.parameters.agent") },
+        { name: "agents", type: "array", required: false, description: t("agents.endpoints.createResponse.parameters.agents") },
+        { name: "workflowType", type: "string", required: false, description: t("agents.endpoints.createResponse.parameters.workflowType") },
+        { name: "workflowMetadata", type: "object", required: false, description: t("agents.endpoints.createResponse.parameters.workflowMetadata") },
+        { name: "metadata", type: "object", required: false, description: t("agents.endpoints.createResponse.parameters.metadata") },
         { name: "stream", type: "boolean", required: false, description: t("agents.endpoints.createResponse.parameters.stream") },
         { name: "background", type: "boolean", required: false, description: t("agents.endpoints.createResponse.parameters.background") },
     ] : endpoint === "retrieve-response" || endpoint === "delete-response" ? [
@@ -289,6 +293,28 @@ export const createAgentEndpointDoc = (endpoint: AgentEndpoint, options: CreateS
                 id: `curl-agents-${endpoint}`, label: responseType === "text" ? "cURL streaming" : "cURL", language: "bash",
                 code: `curl${responseType === "text" ? " -N" : ""} -X ${methods[endpoint]} ${url} \\\n  -H "X-OpenAI-Key: $OPENAI_API_KEY"${isBodyEndpoint ? ' \\\n  -H "Content-Type: application/json"' : ""}${body ? ` \\\n  -d '${JSON.stringify(body, null, 2)}'` : ""}`,
             },
+            ...(endpoint === "create-response" ? [
+                {
+                    id: "agents-inline-background", label: "Inline agent job", language: "json" as const,
+                    code: JSON.stringify({
+                        agent: agentChatBody.agents[0],
+                        input: "Research this topic in the background.",
+                        background: true, store: true, stream: false,
+                        metadata: { jobLabel: "Research task" },
+                    }, null, 2),
+                },
+                {
+                    id: "agents-mixed-workflow", label: "Mixed workflow", language: "json" as const,
+                    code: JSON.stringify({
+                        agents: agentChatBody.agents,
+                        models: ["ReviewAgent"],
+                        workflowType: "groupchat",
+                        workflowMetadata: { groupchat: { maximumIterationCount: 5 } },
+                        input: "Research and review this topic.",
+                        stream: true,
+                    }, null, 2),
+                },
+            ] : []),
         ],
         responses: [{ status: "200", description: t(`agents.endpoints.${key}.responses.success`), example: { id: `agents-${endpoint}-response`, label: responseType === "text" ? "SSE" : "JSON", language: responseType === "text" ? "text" : "json", code: responseCode } }],
         errors: [
