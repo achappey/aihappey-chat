@@ -186,8 +186,9 @@ function jobsHarness() {
         "../agents/AgentSelect": { AgentSelect: "AgentSelect" },
         "../agents/agentSelection": {
             normalizeSelectedAgentKeys: () => [], resolveSelectedAgentEntries: () => [],
-            buildSelectedAgentRequest: () => ({ models: ["agent"], localAgents: [] }),
+            buildSelectedAgentRequest: () => ({ models: ["agent"], requestAgents: [] }),
         },
+        "../agents/agentResponseRequest": load(features + "agents/agentResponseRequest.ts"),
         "../chat/input/useChatFileDrop": { useChatFileDrop: () => ({ dropRef() {} }) },
         "../user-settings/UserMenuInline": { UserMenuInline: "UserMenuInline" },
         "../storage/storageErrorMessage": { useStorageErrorMessage: () => error => error.message },
