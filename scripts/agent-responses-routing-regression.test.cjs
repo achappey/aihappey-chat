@@ -98,7 +98,7 @@ test("Responses client serializes singular and plural root selectors without int
     const state = { remoteAgentModels: catalog, customProviders: {} };
     const sent = [];
     const fetcher = scopedFetch(state)(async (url, init) => {
-        sent.push({ url, body: JSON.parse(init.body), headers: new Headers(init.headers) });
+        sent.push({ url, body: init.body ? JSON.parse(init.body) : undefined, headers: new Headers(init.headers) });
         return Response.json({ id: "response-1" });
     });
     const client = createResponsesProvider({
