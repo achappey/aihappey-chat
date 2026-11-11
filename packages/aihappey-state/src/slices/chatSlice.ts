@@ -75,8 +75,8 @@ export function singleChatModelId(state: Pick<ChatSlice, "models" | "selectedMod
   const exists = (id?: string) => !!id && models.some(model => model.id === id);
   return exists(state.selectedModel) ? state.selectedModel
     : state.selectedChatModelIds?.find(exists)
-      ?? state.userPreferredModel?.find(exists)
-      ?? [...models].sort((a, b) => (b.created ?? 0) - (a.created ?? 0))[0]?.id;
+    ?? state.userPreferredModel?.find(exists)
+    ?? [...models].sort((a, b) => (b.created ?? 0) - (a.created ?? 0))[0]?.id;
 }
 
 export type ChatSlice = ApiKeyEncryptionState & {
@@ -220,7 +220,7 @@ export const createChatSlice: StateCreator<
   })),
   providerHeaders: defaultProviderHeaders,
   sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
-  temperature: 1,
+  temperature: undefined,
   experimentalThrottle: 500,
   models: [],
   modelsLoaded: false,
@@ -598,7 +598,7 @@ export const createChatSlice: StateCreator<
       providerMetadata: { ...defaultProviderMetadata },
       providerHeaders: { ...defaultProviderHeaders },
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
-      temperature: 1,
+      temperature: undefined,
       verbosity: DEFAULT_CHAT_VERBOSITY,
       selectedChatEndpointMode: undefined,
       effectiveChatEndpointMode: get().configuredChatEndpointMode ?? DEFAULT_CHAT_ENDPOINT_MODE,

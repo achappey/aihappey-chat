@@ -30,7 +30,7 @@ export class RemoteConversationStore implements ConversationStore {
       metadata: {
         ...conv.metadata,
         name: conv.metadata?.name ?? "Imported chat",
-        temperature: conv.metadata?.temperature ?? 1,
+     //   temperature: conv.metadata?.temperature ?? 1,
         mcpServers: conv.metadata?.mcpServers ?? [],
       },
     };

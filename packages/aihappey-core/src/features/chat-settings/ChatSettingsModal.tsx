@@ -474,7 +474,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const restoreDraftDefaults = useCallback(() => {
     setDraft((current) => ({
       ...current,
-      temperature: 1,
+      temperature: undefined,
       verbosity: DEFAULT_CHAT_VERBOSITY,
       toolAnnotations: { ...DEFAULT_CHAT_TOOL_ANNOTATIONS },
       ...(isRealtime ? {

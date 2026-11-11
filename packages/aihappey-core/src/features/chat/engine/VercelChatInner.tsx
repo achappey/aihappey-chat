@@ -586,7 +586,7 @@ export function VercelChatInner({
     ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
     response_format: location.state?.responseFormat ?? structuredOutputs,
     workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic, chatMode === "agent" ? workflowType : undefined, workflowDecisionModel),
-    temperature: location.state?.temperature ?? temperature,
+    //temperature: location.state?.temperature ?? temperature,
   }), [
     chatMode,
     requestModel,
@@ -977,7 +977,7 @@ export function VercelChatInner({
       ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
       response_format: location.state?.responseFormat ?? structuredOutputs,
       workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic, chatMode === "agent" ? workflowType : undefined, workflowDecisionModel),
-      temperature: location.state?.temperature ?? temperature,
+      //temperature: location.state?.temperature ?? temperature,
     },
     files,
     onFailure: (error) => addChatError(
