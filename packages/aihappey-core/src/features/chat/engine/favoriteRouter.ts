@@ -125,7 +125,7 @@ export const favoriteRouterContext = (messages: any[]) => messages.map(message =
 export function isDecisionInputLimitError(error: unknown) {
   return error instanceof Error && error.name !== "AbortError"
     && /^Decision failed \((400|413|422)\b/.test(error.message)
-    && /\b(?:context_length_exceeded|input_token_limit_exceeded|prompt_too_long|input_too_long)\b|\bdecision input exceeds the token limit\b|\bmaximum context length\b|\b(?:input|prompt) (?:is too long|exceeds (?:the )?(?:token limit|context window))\b/i.test(error.message);
+    && /\b(?:context_length_exceeded|input_token_limit_exceeded|prompt_too_long|input_too_long)\b|\bdecision input exceeds the token limit\b|\bmaximum context length (?:is \d+|of \d+|exceeded)\b|\b(?:input|prompt) (?:is too long|exceeds (?:the )?(?:token limit|context window))\b/i.test(error.message);
 }
 
 const nonnegativeTokens = (value: unknown): value is number =>
@@ -245,10 +245,7 @@ export async function decideFavorite({
     headers: Object.fromEntries(headers.entries()), fetch: config.fetch,
   });
   const conversation = favoriteRouterContext(messages);
-  const contexts = [conversation, ...(recoverInputLimit && kind === "model"
-    ? favoriteRouterRecoveryContexts(messages,
-      state.models?.find(item => item.id === model && item.type === "decision")?.context_window, conversation)
-    : [])];
+  const contexts = [conversation];
   const wireQuestions = toWireQuestions(questions);
   for (let attempt = 0; ; attempt++) {
     abortSignal.throwIfAborted();
@@ -261,7 +258,12 @@ export async function decideFavorite({
     } catch (error) {
       abortSignal.throwIfAborted();
       assertCurrent?.();
-      if (attempt + 1 >= contexts.length || !isDecisionInputLimitError(error)) throw error;
+      if (!isDecisionInputLimitError(error)) throw error;
+      if (attempt === 0 && recoverInputLimit && kind === "model") {
+        contexts.push(...favoriteRouterRecoveryContexts(messages,
+          state.models?.find(item => item.id === model && item.type === "decision")?.context_window, conversation));
+      }
+      if (attempt + 1 >= contexts.length) throw error;
       continue;
     }
     abortSignal.throwIfAborted();

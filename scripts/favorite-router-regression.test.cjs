@@ -310,6 +310,7 @@ test("context recovery recognizes only explicit input-limit failures with approp
     }
     for (const error of [new Error("Network failed"), new Error("Decision failed (400 invalid_request_error)"),
         new Error("Decision failed (400 output token limit exceeded)"), new Error("Decision failed (401 context_length_exceeded)"),
+        new Error("Decision failed (400 maximum context length must be a positive integer)"),
         new Error("Decision failed (503 context_length_exceeded)"), new DOMException("Decision failed (400 context_length_exceeded)", "AbortError"),
         "Decision failed (400 context_length_exceeded)"]) assert.equal(h.isDecisionInputLimitError(error), false);
 });
@@ -348,6 +349,10 @@ test("80% proportional recovery keeps a contiguous suffix of whole sanitized mes
     }
     assert.deepEqual(h.favoriteRouterRecoveryContexts([message("only")], 600), []);
     assert.deepEqual(h.favoriteRouterRecoveryContexts([{ role: "assistant", parts: [] }], 600), []);
+    const attachmentOnly = routingHistory();
+    attachmentOnly[4].parts = [{ type: "file", mediaType: "image/png", filename: "chart.png", url: "data:private" }];
+    assert.deepEqual(h.favoriteRouterRecoveryContexts(attachmentOnly, undefined), [h.favoriteRouterContext(attachmentOnly).slice(4)]);
+    assert.doesNotMatch(JSON.stringify(h.favoriteRouterRecoveryContexts(attachmentOnly, undefined)), /data:private/);
 });
 
 for (const failures of [0, 1, 2]) test(`chat model routing recovers after ${failures} input-limit failures without shrinking the real chat`, async () => {
