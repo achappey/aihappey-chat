@@ -512,6 +512,9 @@ export function useRealtimeTranscriptionController(args: {
 
     try {
       const merged = await buildOperationHeaders(config, customHeaders, selectedModel.id);
+      // Settings changes during a long recording apply to the next recording,
+      // not just to whichever renewal happens to be created afterward.
+      const openAiOptions = providerId === "openai" ? structuredClone(providerRealtimeMetadata) : undefined;
 
       const tokenClientFactory = await getRealtimeToken({
         baseUrl: config.baseUrl + config.endpoints.realtime,
@@ -576,7 +579,7 @@ export function useRealtimeTranscriptionController(args: {
                    }
                  : {
                      model: selectedModel.id,
-                     providerOptions: providerRealtimeMetadata,
+                      providerOptions: providerId === "openai" ? openAiOptions : providerRealtimeMetadata,
                    }
              ),
           providerRealtimeMetadata,
@@ -913,6 +916,12 @@ export function useRealtimeTranscriptionController(args: {
             }
             sessionInfoRef.current = session;
             if (created.id && providerId !== "smallestai" && providerId !== "openai") void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
+          },
+          onSessionRenewing: async () => {
+            if (!isCurrent() || run.stopping || providerId !== "openai") return;
+            persistUpdate.cancel();
+            const snapshot = computeSnapshot();
+            if (snapshot.text.trim()) await persistUpdateNow(created.id, snapshot);
           },
           onError: (message: string, err?: unknown) => {
             // Fatal: retain confirmed text, never promote an interim preview to a final.

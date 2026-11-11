@@ -1,5 +1,6 @@
 type TranscriptItem = {
   id: string;
+  connection: number;
   previousId?: string | null;
   partial: string;
   text?: string;
@@ -13,21 +14,34 @@ const timestamp = (value: unknown): number | undefined =>
 /** OpenAI finals replace drafts per item; completion arrival order is not speech order. */
 export class OpenAiTranscript {
   private readonly items = new Map<string, TranscriptItem>();
+  private connection = 0;
+  private offsetMs = 0;
 
   apply(event: any): boolean {
-    const id = event?.item_id;
-    if (typeof id !== "string" || !id) return false;
+    if (event?.type === "aihappey.transcription.connection") {
+      this.connection = event.connection;
+      this.offsetMs = timestamp(event.offset_ms) ?? 0;
+      // An unconfirmed draft belongs to its old connection, not the next one.
+      for (const item of this.items.values()) if (item.text === undefined) item.partial = "";
+      return true;
+    }
+    const rawId = event?.item_id;
+    if (typeof rawId !== "string" || !rawId) return false;
+    const id = `${this.connection}:${rawId}`;
     const type = event?.type;
     if (!["input_audio_buffer.committed", "input_audio_buffer.speech_started", "input_audio_buffer.speech_stopped",
       "conversation.item.input_audio_transcription.delta", "conversation.item.input_audio_transcription.completed"].includes(type)) return false;
-    const item = this.items.get(id) ?? { id, partial: "" };
+    const item = this.items.get(id) ?? { id, connection: this.connection, partial: "" };
     this.items.set(id, item);
     if (type === "input_audio_buffer.committed") {
-      if (event.previous_item_id === null || typeof event.previous_item_id === "string") item.previousId = event.previous_item_id;
+      if (event.previous_item_id === null) item.previousId = null;
+      else if (typeof event.previous_item_id === "string") item.previousId = `${this.connection}:${event.previous_item_id}`;
     } else if (type === "input_audio_buffer.speech_started") {
-      item.startMs = timestamp(event.audio_start_ms) ?? item.startMs;
+      const time = timestamp(event.audio_start_ms);
+      if (time !== undefined) item.startMs = this.offsetMs + time;
     } else if (type === "input_audio_buffer.speech_stopped") {
-      item.endMs = timestamp(event.audio_end_ms) ?? item.endMs;
+      const time = timestamp(event.audio_end_ms);
+      if (time !== undefined) item.endMs = this.offsetMs + time;
     } else if (type === "conversation.item.input_audio_transcription.delta") {
       if (item.text === undefined && typeof event.delta === "string") item.partial += event.delta;
     } else if (typeof event.transcript === "string") {
@@ -38,7 +52,8 @@ export class OpenAiTranscript {
   }
 
   snapshot() {
-    const byTime = [...this.items.values()].sort((a, b) => (a.startMs ?? Number.MAX_SAFE_INTEGER) - (b.startMs ?? Number.MAX_SAFE_INTEGER));
+    const byTime = [...this.items.values()].sort((a, b) => a.connection - b.connection
+      || (a.startMs ?? Number.MAX_SAFE_INTEGER) - (b.startMs ?? Number.MAX_SAFE_INTEGER));
     const ordered: TranscriptItem[] = [];
     const visited = new Set<string>();
     for (const item of byTime) {

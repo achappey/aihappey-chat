@@ -1,5 +1,5 @@
 import type { RealtimeResponse } from "aihappey-ai";
-import { startOpenAiRealtimeWebrtcSession } from "./openaiRealtimeWebrtc";
+import { startRenewingOpenAiTranscription } from "./openaiRealtimeTranscription";
 import type { OpenAiRealtimeWebrtcEvents } from "./openaiRealtimeWebrtc";
 import { startElevenLabsRealtimeWsSession } from "./startElevenLabsRealtimeWsSession";
 import { startDeepgramRealtimeWsSession } from "./startDeepgramRealtimeWsSession";
@@ -48,7 +48,7 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
     return { kind: "ws", stop: session.stop };
   }
   if (providerId === "openai") {
-    const session = await startOpenAiRealtimeWebrtcSession({ getEphemeralToken, events, ...capture });
+    const session = await startRenewingOpenAiTranscription({ getEphemeralToken, events, ...capture });
     return {
       kind: "webrtc",
       stop: session.stop,

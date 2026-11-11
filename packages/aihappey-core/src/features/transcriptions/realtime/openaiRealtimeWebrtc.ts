@@ -12,6 +12,8 @@ export type OpenAiRealtimeWebrtcEvents = {
   onEvent?: (event: any) => void;
   onTranscriptText?: (text: string) => void;
   onSessionCreated?: (session: any) => void;
+  /** Checkpoint confirmed text before replacing an OpenAI connection. */
+  onSessionRenewing?: () => Promise<void>;
   onError?: (message: string, err?: unknown) => void;
 };
 
@@ -28,7 +30,15 @@ export async function startOpenAiRealtimeWebrtcSession(args: {
 }): Promise<OpenAiRealtimeWebrtcSession> {
   const { events, signal } = args;
   signal?.throwIfAborted();
-  const token = await args.getEphemeralToken();
+  // Token clients may not support cancellation. Do not let a pending token keep
+  // Stop/navigation waiting, or let its late result open a new connection.
+  const tokenRequest = args.getEphemeralToken();
+  const token = signal ? await new Promise<RealtimeResponse>((resolve, reject) => {
+    const cancelled = () => reject(signal.reason);
+    signal.addEventListener("abort", cancelled, { once: true });
+    tokenRequest.then(resolve, reject).finally(() => signal.removeEventListener("abort", cancelled));
+    if (signal.aborted) cancelled();
+  }) : await tokenRequest;
   signal?.throwIfAborted();
 
   const pc = new RTCPeerConnection();
@@ -132,7 +142,7 @@ export async function startOpenAiRealtimeWebrtcSession(args: {
           notify?.();
           return;
         }
-        fail(event.error?.message ?? "OpenAI reported a realtime transcription error.");
+        fail(event.error?.message ?? "OpenAI reported a realtime transcription error.", event.error);
       } else if (type === "conversation.item.input_audio_transcription.failed") {
         fail(event.error?.message ?? "OpenAI could not finalize the transcription.");
       }

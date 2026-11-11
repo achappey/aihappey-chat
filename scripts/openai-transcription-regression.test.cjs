@@ -419,3 +419,145 @@ test('the transport also waits for readiness and shuts down normally without a c
   await session.stop(); assert.deepEqual(h.errors, []);
   assert.equal(h.counts().trackStops, 1);
 });
+
+function renewalHarness() {
+  let now = 0, nextTimer = 0, tokenRequests = 0, sourceStops = 0, permissions = 0;
+  let beforeOpen = async () => {}, beforeStop = async () => {};
+  const timers = new Map(), connections = [], errors = [], checkpoints = [], tokens = [];
+  const sourceTrack = { stop() { sourceStops++; } };
+  const stream = { getTracks: () => [sourceTrack], clone() {
+    const track = { readyState: 'live', stops: 0, stop() { this.stops++; this.readyState = 'ended'; } };
+    return { getTracks: () => [track] };
+  } };
+  const { startRenewingOpenAiTranscription } = load(path.join(source, 'openaiRealtimeTranscription.ts'), {
+    './openaiRealtimeWebrtc': { startOpenAiRealtimeWebrtcSession: async args => {
+      tokenRequests++; const token = await args.getEphemeralToken(); tokens.push(token.value);
+      await beforeOpen(args, connections.length);
+      args.signal.throwIfAborted();
+      const connection = { ...args, stops: 0, commits: 0,
+        async stop() {
+          if (this.stops++) return;
+          try { await beforeStop(args.events); }
+          finally { args.microphoneStream.getTracks().forEach(track => track.stop()); }
+        },
+        commitAudio() { this.commits++; },
+      };
+      connections.push(connection); return connection;
+    } },
+  }, {
+    performance: { now: () => now },
+    navigator: { mediaDevices: { getUserMedia: async () => { permissions++; return stream; } } },
+    setTimeout: (fn, ms) => { const id = ++nextTimer; timers.set(id, { fn, due: now + ms }); return id; },
+    clearTimeout: id => timers.delete(id),
+  });
+  return { connections, errors, checkpoints, tokens, timers,
+    start: (options = {}) => startRenewingOpenAiTranscription({
+      getEphemeralToken: async () => ({ value: 'fresh-' + tokenRequests }),
+      events: { onError: message => errors.push(message), onSessionRenewing: async () => { checkpoints.push(now); } }, ...options,
+    }),
+    advance(ms = 55 * 60 * 1000) {
+      now += ms;
+      for (const [id, timer] of [...timers]) if (timer.due <= now) { timers.delete(id); timer.fn(); }
+    },
+    beforeOpen(fn) { beforeOpen = fn; }, beforeStop(fn) { beforeStop = fn; },
+    counts: () => ({ tokenRequests, sourceStops, permissions }),
+  };
+}
+
+test('proactive OpenAI renewal uses fresh tokens, one microphone permission, and no fatal alert', async () => {
+  const h = renewalHarness(), session = await h.start();
+  h.advance(54 * 60 * 1000); await pause(5); assert.equal(h.connections.length, 1);
+  h.advance(60 * 1000); await pause(5);
+  assert.equal(h.connections.length, 2); assert.equal(h.connections[0].stops, 1);
+  assert.equal(h.connections[0].microphoneStream.getTracks()[0].stops, 1);
+  assert.equal(h.counts().sourceStops, 0);
+  session.commitAudio(); assert.equal(h.connections[1].commits, 1);
+  h.advance(); await pause(5); assert.equal(h.connections.length, 3);
+  assert.equal(new Set(h.tokens).size, 3); assert.equal(h.checkpoints.length, 2);
+  await Promise.all([session.stop(), session.stop()]); h.advance(); await pause(5);
+  assert.deepEqual(h.counts(), { tokenRequests: 3, sourceStops: 1, permissions: 1 });
+  assert.equal(h.connections.length, 3); assert.equal(h.timers.size, 0); assert.deepEqual(h.errors, []);
+});
+
+test('actual duration-limit errors recover once, but unrelated errors do not reconnect', async () => {
+  const h = renewalHarness(), session = await h.start(), old = h.connections[0].events;
+  old.onError('Your session hit the maximum duration of 60 minutes', { code: 'session_expired' });
+  old.onError('Your session hit the maximum duration of 60 minutes', { code: 'session_expired' });
+  h.advance(); await pause(5); assert.equal(h.connections.length, 2);
+  old.onError('obsolete'); assert.deepEqual(h.errors, []);
+  h.connections[1].events.onError('Authentication failed', { code: 'invalid_api_key' });
+  h.advance(); await pause(5); assert.equal(h.connections.length, 2);
+  assert.deepEqual(h.errors, ['Authentication failed']); await session.stop();
+});
+
+test('renewal checkpoints all finalized turns before replacement and waits for storage', async () => {
+  const h = renewalHarness(), c = controllerHarness({ transport: h }); await c.controller().start();
+  h.connections[0].events.onEvent(final('same-id', 'First hour.'));
+  h.connections[0].events.onEvent(delta('draft', 'unconfirmed'));
+  h.beforeStop(async events => { events.onEvent(final('last', 'Final old phrase.')); });
+  h.advance(); await pause(10);
+  assert.equal(h.connections.length, 2); assert.equal(c.stored.size, 1);
+  h.beforeStop(async () => {});
+  h.connections[1].events.onEvent(final('same-id', 'Second hour.'));
+  assert.equal(c.state.realtimeText, 'First hour. Final old phrase. Second hour.');
+  await c.controller().stop();
+  assert.equal(c.stored.get('item-1').text, 'First hour. Final old phrase. Second hour.');
+  assert.ok(c.writes.every(write => write.id === 'item-1'));
+  assert.equal(c.stored.get('item-1').response.body.status, 'completed');
+  assert.deepEqual(c.alerts, []); assert.deepEqual(c.deleted, []); c.unmount();
+});
+
+test('connection-local IDs, predecessor links and timestamps cannot reorder earlier connections', () => {
+  const { OpenAiTranscript } = load(path.join(source, 'openaiTranscript.ts'));
+  const transcript = new OpenAiTranscript();
+  transcript.apply({ type: 'aihappey.transcription.connection', connection: 1, offset_ms: 0 });
+  transcript.apply(final('a', 'Untimed old.'));
+  transcript.apply(delta('draft', 'abandoned draft'));
+  transcript.apply({ type: 'aihappey.transcription.connection', connection: 2, offset_ms: 3305000 });
+  transcript.apply({ type: 'input_audio_buffer.speech_started', item_id: 'b', audio_start_ms: 1000 });
+  transcript.apply({ type: 'input_audio_buffer.speech_stopped', item_id: 'b', audio_end_ms: 2000 });
+  transcript.apply({ type: 'input_audio_buffer.committed', item_id: 'b', previous_item_id: 'a' });
+  transcript.apply(final('b', 'Second new.')); transcript.apply(final('a', 'First new.'));
+  const result = transcript.snapshot();
+  assert.equal(result.text, 'Untimed old. First new. Second new.'); assert.equal(result.displayText, result.text);
+  assert.deepEqual(result.segments, [{ text: 'Second new.', startSecond: 3306, endSecond: 3307 }]);
+});
+
+test('Stop during renewal finalization prevents replacement and still saves the old final', async () => {
+  let release;
+  const pending = new Promise(resolve => { release = resolve; });
+  const h = renewalHarness(), c = controllerHarness({ transport: h }); await c.controller().start();
+  h.connections[0].events.onEvent(final('a', 'Retained.'));
+  h.beforeStop(async events => { await pending; events.onEvent(final('b', 'Last phrase.')); });
+  h.advance(); await pause(5); const stopping = c.controller().stop(); release(); await stopping;
+  assert.equal(h.connections.length, 1); assert.equal(h.counts().sourceStops, 1);
+  assert.equal(c.stored.get('item-1').text, 'Retained. Last phrase.'); assert.deepEqual(c.alerts, []); c.unmount();
+});
+
+test('failed replacement keeps the existing transcription and never retries indefinitely', async () => {
+  const h = renewalHarness(), c = controllerHarness({ transport: h }); await c.controller().start();
+  h.connections[0].events.onEvent(final('a', 'Keep the first hour.'));
+  h.beforeOpen(async () => { throw new Error('Replacement negotiation failed'); });
+  h.advance(); await pause(20); h.advance(); await pause(5);
+  assert.equal(h.counts().tokenRequests, 2); assert.equal(h.counts().sourceStops, 1);
+  assert.equal(c.stored.get('item-1').text, 'Keep the first hour.');
+  assert.equal(c.stored.get('item-1').response.body.status, 'error');
+  assert.deepEqual(c.deleted, []); assert.equal(c.state.realtimeStatus, 'error'); c.unmount();
+});
+
+test('renewal finalization failures retain confirmed text instead of reporting successful completion', async () => {
+  const h = renewalHarness(), c = controllerHarness({ transport: h }); await c.controller().start();
+  h.connections[0].events.onEvent(final('a', 'Keep confirmed words.'));
+  h.beforeStop(async () => { throw new Error('Finalization timed out'); });
+  h.advance(); await pause(20);
+  assert.equal(h.connections.length, 1);
+  assert.equal(c.stored.get('item-1').text, 'Keep confirmed words.');
+  assert.equal(c.stored.get('item-1').response.body.status, 'error'); c.unmount();
+});
+
+test('Stop cancels a pending OpenAI token without waiting for the token server', async () => {
+  const h = transportHarness({ token: new Promise(() => {}) });
+  const starting = h.start(); h.abort.abort();
+  await assert.rejects(starting, { name: 'AbortError' });
+  assert.deepEqual(h.counts(), { trackStops: 0, peerCloses: 0, channelCloses: 0 });
+});
