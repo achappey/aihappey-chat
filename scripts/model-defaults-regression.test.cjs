@@ -19,15 +19,17 @@ function load(filename, mocks = {}) {
 }
 const slices = "packages/aihappey-state/src/slices/";
 const preferences = load(slices + "modelPreferences.ts");
+const providerHeaders = load(slices + "providerHeaders.ts");
+const defaultHeaders = load(slices + "defaultProviderHeaders.ts");
 const ui = load(slices + "uiSlice.ts", { "aihappey-mcp": {}, "./modelPreferences": preferences });
 const options = load("packages/aihappey-state/src/persist.ts", {
   "zustand/middleware": { persist: (_, options) => options },
   "./slices/modelPreferences": preferences,
   "./slices/chatSlice": { DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS: {} },
-  "./slices/chatEndpoint": { normalizeBaseUrl: value => value, resolveEffectiveBaseUrl: value => value },
+  "./slices/chatEndpoint": load(slices + "chatEndpoint.ts"),
   "./slices/uiSlice": ui,
   "./slices/apiKeyEncryption": { resolveApiKeyEncryptionStatus: () => "unconfigured" },
-  "./slices/providerHeaders": { normalizeProviderHeaders: value => value },
+  "./slices/providerHeaders": providerHeaders,
   "./slices/defaultProviderTranscriptionMetadata": { normalizeProviderTranscriptionMetadata: value => value },
   "./slices/providerMetadataAliases": { normalizeSpaceXAiProviderMetadata: value => value },
 }).withPersist(() => ({}));
@@ -129,7 +131,7 @@ test("migration wraps the four legacy IDs, preserves array order/empty/unset, an
     userPreferredTranscriptionModel: "p/stt", userPreferredAudioModel: "p/realtime" };
   const migrated = options.migrate(saved, 38);
   assert.equal(options.name, "aihappey_store_v8");
-  assert.equal(options.version, 39);
+  assert.equal(options.version, 40);
   assert.deepEqual(migrated.userPreferredModel, ["p/old"]);
   assert.deepEqual(migrated.userPreferredImageModel, []);
   assert.deepEqual(migrated.userPreferredVideoModel, ["p/second", "p/first"]);
@@ -141,6 +143,65 @@ test("migration wraps the four legacy IDs, preserves array order/empty/unset, an
   for (const field of Object.values(preferences.MODEL_PREFERENCE_FIELDS))
     assert.deepEqual(serialized[field], migrated[field]);
   assert.equal(saved.userPreferredModel, " p/old ");
+});
+
+const chat = load(slices + "chatSlice.ts", {
+  "./defaultProviderMetadata": { defaultProviderMetadata: {} },
+  "./defaultProviderHeaders": defaultHeaders,
+  "./defaultProviderFileMetadata": { defaultProviderFileMetadata: {} },
+  "./defaultAgents": { SIDE_INFERENCE_DEFAULT_AGENT_NAMES: {} },
+  "./chatEndpoint": load(slices + "chatEndpoint.ts"),
+});
+function createPersistedChatStore(entries = new Map()) {
+  return createStore(persist(chat.createChatSlice, {
+    ...options,
+    storage: createJSONStorage(() => ({
+      getItem: key => entries.get(key) ?? null,
+      setItem: (key, value) => entries.set(key, value),
+      removeItem: key => entries.delete(key),
+    })),
+  }));
+}
+
+test("new Anthropic installations use 2026, persist selections, and explicitly reset to 2026", () => {
+  const entries = new Map();
+  const store = createPersistedChatStore(entries);
+  assert.equal(store.getState().providerHeaders.anthropic["anthropic-version"], "2026-10-21");
+  store.getState().setProviderHeaders({ anthropic: { "anthropic-version": "2023-06-01", "anthropic-beta": "custom" } });
+  const restarted = createPersistedChatStore(entries);
+  assert.deepEqual(restarted.getState().providerHeaders, store.getState().providerHeaders);
+  restarted.getState().resetChatSettings();
+  assert.deepEqual(restarted.getState().providerHeaders, { anthropic: { "anthropic-version": "2026-10-21" } });
+  assert.deepEqual(createPersistedChatStore(entries).getState().providerHeaders, restarted.getState().providerHeaders);
+});
+
+for (const version of [0, 26, 27, 39]) {
+  test(`existing Anthropic installation v${version} retains 2023, even without saved headers`, () => {
+    const entries = new Map([[options.name, JSON.stringify({ state: {}, version })]]);
+    const store = createPersistedChatStore(entries);
+    assert.equal(store.persist.hasHydrated(), true);
+    assert.equal(store.getState().providerHeaders.anthropic["anthropic-version"], "2023-06-01");
+    assert.deepEqual(createPersistedChatStore(entries).getState().providerHeaders, store.getState().providerHeaders);
+  });
+  for (const value of ["2023-06-01", "2026-10-21", "future-version"]) {
+    test(`Anthropic v${version} migration preserves explicit case-insensitive version ${value} and unrelated headers`, () => {
+      const saved = { providerHeaders: { Anthropic: { "AnThRoPiC-VeRsIoN": value, "anthropic-beta": "custom" }, openai: { "OpenAI-Beta": "custom" } } };
+      const before = structuredClone(saved);
+      const migrated = options.migrate(saved, version);
+      assert.deepEqual(migrated.providerHeaders.anthropic, before.providerHeaders.Anthropic);
+      assert.deepEqual(migrated.providerHeaders.openai, before.providerHeaders.openai);
+      assert.deepEqual(saved, before);
+    });
+  }
+}
+
+test("splitting legacy provider headers never injects first-run version defaults", () => {
+  assert.deepEqual(providerHeaders.splitLegacyProviderHeadersFromMetadata({ providerMetadata: {} }).providerHeaders, {});
+  const legacy = providerHeaders.splitLegacyProviderHeadersFromMetadata({
+    providerMetadata: { anthropic: { headers: { "Anthropic-Version": "2023-06-01" }, "anthropic-beta": "custom", max_tokens: 100 } },
+  });
+  assert.deepEqual(legacy.providerHeaders.anthropic, { "Anthropic-Version": "2023-06-01", "anthropic-beta": "custom" });
+  assert.deepEqual(legacy.providerMetadata.anthropic, { max_tokens: 100 });
 });
 
 test("all four preference setters store normalized independent ordered arrays", () => {

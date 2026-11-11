@@ -63,7 +63,7 @@ const providers = {
 };
 const credentials = { "X-Anthropic-Key": "anthropic-key", "X-OpenAI-Key": "openai-key", "X-OpenRouter-Key": "openrouter-key" };
 const settings = () => ({
-    anthropic: { "anthropic-beta": "advisor-tool-2026-03-01,context-management-2025-06-27", "X-Trace": "anthropic" },
+    anthropic: { "anthropic-version": "2026-10-21", "anthropic-beta": "advisor-tool-2026-03-01,context-management-2025-06-27", "X-Trace": "anthropic" },
     openai: { "OpenAI-Beta": "responses=test", "X-Trace": "openai" },
     openrouter: { "HTTP-Referer": "https://chat.test", "X-Title": "Chat", "X-Trace": "openrouter" },
 });
@@ -237,7 +237,7 @@ for (const [provider, endpoint] of [["anthropic", "/v1/messages"], ["openai", "/
             if (provider === "anthropic") {
                 assert.equal(request.headers.get("x-api-key"), "anthropic-key");
                 assert.equal(request.headers.get("Authorization"), null);
-                assert.equal(request.headers.get("anthropic-version"), "2023-06-01");
+                assert.equal(request.headers.get("anthropic-version"), "2026-10-21");
             } else assert.equal(request.headers.get("Authorization"), `Bearer ${provider}-key`);
             assert.equal(request.credentials, "omit");
         }

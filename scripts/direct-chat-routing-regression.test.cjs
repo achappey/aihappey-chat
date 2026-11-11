@@ -200,7 +200,7 @@ test("refresh ignores old routing storage and persistence retains gateway enable
         "./slices/chatEndpoint": endpointState,
         "./slices/uiSlice": { normalizeCustomProviders: value => value },
         "./slices/apiKeyEncryption": { resolveApiKeyEncryptionStatus: () => "none" },
-        "./slices/providerHeaders": { normalizeProviderHeaders: value => value, splitLegacyProviderHeadersFromMetadata: value => value },
+        "./slices/providerHeaders": { normalizeProviderHeaders: value => value ?? {}, splitLegacyProviderHeadersFromMetadata: value => value },
         "./slices/defaultProviderTranscriptionMetadata": { normalizeProviderTranscriptionMetadata: value => value },
         "./slices/providerMetadataAliases": { normalizeSpaceXAiProviderMetadata: value => value },
     }).withPersist(() => ({}));
