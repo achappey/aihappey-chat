@@ -169,6 +169,7 @@ export function favoriteRouterRecoveryContexts(
   const tokens = favoriteRouterConversationTokens(messages);
   if (nonnegativeTokens(contextWindow) && contextWindow > 0 && tokens !== undefined) {
     const weights = conversation.map(routerMessageWeight);
+    // Reserve 20% for instructions, candidates and differences from the chat tokenizer/usage.
     const budget = Math.floor(weights.reduce((sum, weight) => sum + weight, 0)
       * Math.min(1, .8 * (contextWindow / tokens)));
     let start = conversation.length;
