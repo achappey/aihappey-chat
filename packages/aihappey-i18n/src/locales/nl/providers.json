@@ -1029,6 +1029,7 @@
     }
   },
   "anthropic": {
+    "apiVersion": "Anthropic-versie",
     "maxUses": "Maximaal aantal keer",
     "betaHeader": "Beta",
     "other": {

@@ -437,6 +437,7 @@
     "summary": "Summary"
   },
   "anthropic": {
+    "apiVersion": "Anthropic version",
     "maxUses": "Maximum uses",
     "betaHeader": "Beta",
     "other": {

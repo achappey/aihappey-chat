@@ -36,7 +36,7 @@ export const withPersist = (
 ) =>
     persist(creator, {
     name: "aihappey_store_v8",
-    version: 39,
+    version: 40,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -425,6 +425,17 @@ export const withPersist = (
           ...safeState,
           enableMcpElicitation: true,
         };
+      }
+
+      // A missing header on an existing installation means the historical API version,
+      // not the new first-run default. Keep explicit selections, regardless of casing.
+      if (version < 40) {
+        const providerHeaders = normalizeProviderHeaders(safeState.providerHeaders);
+        const anthropic = providerHeaders.anthropic ?? {};
+        if (!Object.keys(anthropic).some((name) => name.toLowerCase() === "anthropic-version")) {
+          providerHeaders.anthropic = { ...anthropic, "anthropic-version": "2023-06-01" };
+        }
+        safeState.providerHeaders = providerHeaders;
       }
 
       return {

@@ -24,6 +24,7 @@ import { AnthropicToolSearchBm25Card } from "./cards/AnthropicToolSearchBm25Card
 import { AnthropicToolSearchRegexCard } from "./cards/AnthropicToolSearchRegexCard";
 import { AnthropicWebFetchCard } from "./cards/AnthropicWebFetchCard";
 import { AnthropicWebSearchCard } from "./cards/AnthropicWebSearchCard";
+import { AnthropicVersionCard } from "./cards/AnthropicVersionCard";
 import { withResolvedProviderTools } from "../providerToolConfig";
 import { ANTHROPIC_TOOL_TYPES, canonicalizeAnthropicTools } from "./anthropicToolConfig";
 
@@ -319,6 +320,7 @@ export const AnthropicChatConfigForm = ({
       <AnthropicSessionCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicSpeedCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicOtherCard config={resolvedConfig} updateConfig={submitConfig} />
+      <AnthropicVersionCard headers={headers} updateHeaders={updateHeaders} />
       <AnthropicBetaCard
         config={resolvedConfig}
         headers={headers}

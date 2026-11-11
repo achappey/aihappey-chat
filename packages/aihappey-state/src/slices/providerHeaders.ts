@@ -1,5 +1,3 @@
-import { defaultProviderHeaders } from "./defaultProviderHeaders";
-
 const ANTHROPIC_BETA_HEADER = "anthropic-beta";
 const OPENAI_BETA_HEADER = "OpenAI-Beta";
 
@@ -73,7 +71,6 @@ export const splitLegacyProviderHeadersFromMetadata = ({
 }) => {
   const nextProviderMetadata: Record<string, any> = {};
   const nextProviderHeaders: Record<string, Record<string, string>> = {
-    ...defaultProviderHeaders,
     ...normalizeProviderHeaders(providerHeaders),
   };
 

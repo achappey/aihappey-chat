@@ -38,6 +38,10 @@ export function createChatRouteHeaders({
   const nativeAuth = endpoint === "/v1/messages"
     ? createMessagesEndpointHeadersForProviderKey(credentials, directProviderKey, providers)
     : createProviderBearerHeadersForProviderKey(credentials, directProviderKey, providers);
-  new Headers(nativeAuth).forEach((value, name) => headers.set(name, value));
+  new Headers(nativeAuth).forEach((value, name) => {
+    // The native helper supplies a compatibility fallback, not an authentication policy.
+    if (name === "anthropic-version" && headers.has(name)) return;
+    headers.set(name, value);
+  });
   return Object.fromEntries(headers.entries());
 }
