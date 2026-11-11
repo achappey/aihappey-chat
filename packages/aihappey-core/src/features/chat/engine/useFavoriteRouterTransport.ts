@@ -87,6 +87,12 @@ export function useFavoriteRouterTransport(
               const winner = await decideFavorite({
                 state, kind, messages: decisionMessages(), config: requestConfig,
                 customHeaders: state.customHeaders, abortSignal: controller.signal,
+                recoverInputLimit: kind === "model",
+                assertCurrent: () => {
+                  if (before !== signature() || !requestConfigMatches()) {
+                    throw new Error("Favorite routing context or configuration changed. Please send the request again.");
+                  }
+                },
               });
               if (before !== signature() || !requestConfigMatches()) {
                 throw new Error("Favorite routing context or configuration changed. Please send the request again.");

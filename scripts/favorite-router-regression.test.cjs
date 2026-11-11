@@ -292,6 +292,167 @@ for (const [name, decide] of [
     assert.equal(h.state.favoriteRouterDeciding, false);
 });
 
+const inputLimitError = () => new Error('Decision failed (400 Decision request failed (400 Bad Request): {"error":{"message":"Decision input exceeds the token limit.","type":"invalid_request_error","param":null,"code":null}})');
+const routingHistory = () => [
+    message("a".repeat(80)),
+    { role: "assistant", parts: [{ type: "text", text: "b".repeat(80) }], metadata: { usage: { totalTokens: 999999 } } },
+    message("c".repeat(80)),
+    { role: "assistant", parts: [{ type: "text", text: "d".repeat(80) }], metadata: { usage: { totalTokens: 1000 } } },
+    message("e".repeat(80)),
+];
+const setRoutingCapacity = h => { h.state.models.find(item => item.type === "decision").context_window = 600; };
+
+test("context recovery recognizes only explicit input-limit failures with appropriate HTTP status", () => {
+    const h = helpers();
+    for (const error of [inputLimitError(), new Error("Decision failed (413 context_length_exceeded)"),
+        new Error("Decision failed (422 prompt is too long)"), new Error("Decision failed (400 maximum context length is 600)")]) {
+        assert.equal(h.isDecisionInputLimitError(error), true, error.message);
+    }
+    for (const error of [new Error("Network failed"), new Error("Decision failed (400 invalid_request_error)"),
+        new Error("Decision failed (400 output token limit exceeded)"), new Error("Decision failed (401 context_length_exceeded)"),
+        new Error("Decision failed (503 context_length_exceeded)"), new DOMException("Decision failed (400 context_length_exceeded)", "AbortError"),
+        "Decision failed (400 context_length_exceeded)"]) assert.equal(h.isDecisionInputLimitError(error), false);
+});
+
+test("recovery uses latest total or complete input/output aliases, never cumulative turn usage or coerced values", () => {
+    const h = helpers();
+    const history = routingHistory();
+    assert.equal(h.favoriteRouterConversationTokens(history), 1000);
+    for (const metadata of [
+        { totalTokens: 1000 }, { usage: { total_tokens: 1000 } },
+        { usage: { inputTokens: 900, outputTokens: 100 } }, { promptTokens: 900, completionTokens: 100 },
+        { usage: { input_tokens: 1000, output_tokens: 0 } }, { usage: { prompt_tokens: 900, completion_tokens: 100 } },
+        { usage: { totalTokens: 1000, inputTokens: 9, outputTokens: 1 } },
+    ]) {
+        history[3].metadata = metadata;
+        assert.equal(h.favoriteRouterConversationTokens(history), 1000);
+    }
+    for (const usage of [{ totalTokens: 0 }, { totalTokens: "1000" }, { totalTokens: NaN }, { totalTokens: Infinity },
+        { inputTokens: 1000 }, { inputTokens: -1, outputTokens: 1001 }, { inputTokens: Number.MAX_VALUE, outputTokens: Number.MAX_VALUE }]) {
+        history[3].metadata = { usage };
+        assert.equal(h.favoriteRouterConversationTokens(history), undefined);
+    }
+});
+
+test("80% proportional recovery keeps a contiguous suffix of whole sanitized messages, weighted by content", () => {
+    const h = helpers();
+    const history = routingHistory();
+    const full = h.favoriteRouterContext(history);
+    assert.deepEqual(h.favoriteRouterRecoveryContexts(history, 600), [full.slice(3), full.slice(4)]);
+    history[0].parts[0].text = "huge old message ".repeat(1000);
+    assert.deepEqual(h.favoriteRouterRecoveryContexts(history, 600)[0], h.favoriteRouterContext(history).slice(1));
+    history[4].parts[0].text = "huge latest message ".repeat(1000);
+    assert.deepEqual(h.favoriteRouterRecoveryContexts(history, 600), [h.favoriteRouterContext(history).slice(4)]);
+    for (const capacity of [undefined, null, 0, -1, NaN, Infinity, "600", 100000]) {
+        assert.deepEqual(h.favoriteRouterRecoveryContexts(routingHistory(), capacity), [full.slice(4)]);
+    }
+    assert.deepEqual(h.favoriteRouterRecoveryContexts([message("only")], 600), []);
+    assert.deepEqual(h.favoriteRouterRecoveryContexts([{ role: "assistant", parts: [] }], 600), []);
+});
+
+for (const failures of [0, 1, 2]) test(`chat model routing recovers after ${failures} input-limit failures without shrinking the real chat`, async () => {
+    let attempts = 0;
+    const h = harness(() => { if (attempts++ < failures) throw inputLimitError(); return response("b/model"); });
+    setRoutingCapacity(h);
+    // Identical IDs may advertise multiple capabilities; use the decision capability's budget.
+    h.state.models.unshift({ ...model("d/decide"), context_window: 1 });
+    const history = routingHistory();
+    history[4].parts.push({ type: "file", mediaType: "image/png", filename: "chart.png", url: "data:private", data: "secret-payload" });
+    const before = structuredClone(history);
+    await h.send(undefined, { messages: history });
+    const calls = h.helper.calls;
+    assert.deepEqual(calls.map(call => call.options.state.conversation.length), [5, 2, 1].slice(0, failures + 1));
+    for (const call of calls) {
+        assert.equal(call.modelId, "d/decide");
+        assert.deepEqual(call.options.questions, calls[0].options.questions);
+        assert.deepEqual(call.config.headers, calls[0].config.headers);
+        assert.equal(call.options.abortSignal, calls[0].options.abortSignal);
+        assert.doesNotMatch(JSON.stringify(call.options.state), /data:private|secret-payload/);
+    }
+    assert.equal(h.generation.length, 1);
+    assert.equal(h.generation[0].options.messages, history);
+    assert.deepEqual(history, before);
+    assert.equal(h.state.selectedModel, "b/model");
+    assert.deepEqual(h.state.selectedChatModelIds, ["a/model", "b/model"]);
+    assert.equal(h.state.favoriteRouterDeciding, false);
+});
+
+for (const missing of ["capacity", "usage", "only-last-fits", "no-reduction"]) test(`recovery skips redundant/calculated attempts: ${missing}`, async () => {
+    let attempts = 0;
+    const h = harness(() => { if (attempts++ === 0) throw inputLimitError(); return response("b/model"); });
+    setRoutingCapacity(h);
+    const history = routingHistory();
+    if (missing === "capacity") delete h.state.models.find(item => item.type === "decision").context_window;
+    if (missing === "usage") history.forEach(msg => { delete msg.metadata; });
+    if (missing === "only-last-fits") h.state.models.find(item => item.type === "decision").context_window = 1;
+    if (missing === "no-reduction") h.state.models.find(item => item.type === "decision").context_window = 100000;
+    await h.send(undefined, { messages: history });
+    assert.deepEqual(h.helper.calls.map(call => call.options.state.conversation.length), [5, 1]);
+});
+
+test("final context-limit failure propagates the last error without selection, dispatch, or additional retries", async () => {
+    const errors = [inputLimitError(), inputLimitError(), inputLimitError()];
+    let attempt = 0;
+    const h = harness(() => { throw errors[attempt++]; });
+    setRoutingCapacity(h);
+    await assert.rejects(h.send(undefined, { messages: routingHistory() }), error => error === errors[2]);
+    assert.deepEqual(h.helper.calls.map(call => call.options.state.conversation.length), [5, 2, 1]);
+    assert.equal(h.generation.length, 0);
+    assert.equal(h.state.selectedModel, "old/model");
+    assert.deepEqual(h.state.selectedChatModelIds, ["a/model", "b/model"]);
+    assert.equal(h.state.favoriteRouterDeciding, false);
+});
+
+for (const failure of [new Error("Network failed"), new Error("Decision failed (401 unauthorized)"),
+    new Error("Decision failed (400 invalid_request_error)"), new Error("Decision failed (400 output token limit exceeded)"),
+    response("unoffered/model"), { answers: {} }, { answers: { favorite: { type: "refusal", reason: "No" } } }]) {
+    for (const precedingLimits of [0, 1]) test(`non-limit failure stops immediately after ${precedingLimits} context failures: ${JSON.stringify(failure.message ?? failure)}`, async () => {
+        let attempts = 0;
+        const h = harness(() => {
+            if (attempts++ < precedingLimits) throw inputLimitError();
+            if (failure instanceof Error) throw failure;
+            return failure;
+        });
+        setRoutingCapacity(h);
+        await assert.rejects(h.send(undefined, { messages: routingHistory() }));
+        assert.equal(h.helper.calls.length, precedingLimits + 1);
+        assert.equal(h.generation.length, 0);
+        assert.equal(h.state.selectedModel, "old/model");
+        assert.equal(h.state.favoriteRouterDeciding, false);
+    });
+}
+
+for (const stopAt of [1, 2]) for (const reason of ["abort", "context", "config"]) test(`${reason} during recovery attempt ${stopAt} prevents further requests and dispatch`, async () => {
+    const controller = new AbortController();
+    let attempts = 0;
+    const h = harness(() => {
+        if (++attempts === stopAt) {
+            if (reason === "abort") controller.abort();
+            if (reason === "context") history[4].parts[0].text = "Edited while deciding";
+            if (reason === "config") h.setConfig({ baseUrl: "https://changed" });
+        }
+        throw inputLimitError();
+    });
+    setRoutingCapacity(h);
+    const history = routingHistory();
+    await assert.rejects(h.send(undefined, { messages: history, abortSignal: controller.signal }), reason === "abort" ? /abort/i : /changed/);
+    assert.equal(h.helper.calls.length, stopAt);
+    assert.equal(h.generation.length, 0);
+    assert.equal(h.state.selectedModel, "old/model");
+    assert.equal(h.state.favoriteRouterDeciding, false);
+});
+
+test("single-message and agent decisions do not repeat identical payloads or opt into chat model recovery", async () => {
+    for (const agentMode of [false, true]) {
+        const h = harness(() => { throw inputLimitError(); });
+        setRoutingCapacity(h);
+        if (agentMode) Object.assign(h.state, { chatMode: "agent", favoriteAgentRouter: true });
+        await assert.rejects(h.send(undefined, { messages: agentMode ? routingHistory() : [message("only")] }));
+        assert.equal(h.helper.calls.length, 1);
+        assert.equal(h.generation.length, 0);
+    }
+});
+
 test("invalid decision configuration and disappearing candidates do not silently become manual selection", async () => {
     for (const patch of [
         { sideInferenceAgentNames: { selectModelAgent: "missing" } },

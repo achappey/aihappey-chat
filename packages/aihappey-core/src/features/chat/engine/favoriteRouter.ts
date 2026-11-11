@@ -121,6 +121,66 @@ export const favoriteRouterContext = (messages: any[]) => messages.map(message =
     : { type: part.type, mediaType: part.mediaType, filename: part.filename, toolName: part.toolName }),
 }));
 
+// Match explicit input/context failures, not generic 400s, output limits, auth or network errors.
+export function isDecisionInputLimitError(error: unknown) {
+  return error instanceof Error && error.name !== "AbortError"
+    && /^Decision failed \((400|413|422)\b/.test(error.message)
+    && /\b(?:context_length_exceeded|input_token_limit_exceeded|prompt_too_long|input_too_long)\b|\bdecision input exceeds the token limit\b|\bmaximum context length\b|\b(?:input|prompt) (?:is too long|exceeds (?:the )?(?:token limit|context window))\b/i.test(error.message);
+}
+
+const nonnegativeTokens = (value: unknown): value is number =>
+  typeof value === "number" && Number.isFinite(value) && value >= 0;
+
+/** Latest recorded context size, never the sum of usage across conversation turns. */
+export function favoriteRouterConversationTokens(messages: any[]): number | undefined {
+  for (let index = messages.length - 1; index >= 0; index--) {
+    const message = messages[index];
+    if (message.role !== "assistant") continue;
+    const metadata = message.metadata;
+    const usage = metadata?.usage;
+    const total = usage?.totalTokens ?? usage?.total_tokens ?? metadata?.totalTokens ?? metadata?.total_tokens;
+    if (total != null) return nonnegativeTokens(total) && total > 0 ? total : undefined;
+    const input = usage?.inputTokens ?? usage?.promptTokens ?? usage?.input_tokens ?? usage?.prompt_tokens
+      ?? metadata?.inputTokens ?? metadata?.promptTokens ?? metadata?.input_tokens ?? metadata?.prompt_tokens;
+    const output = usage?.outputTokens ?? usage?.completionTokens ?? usage?.output_tokens ?? usage?.completion_tokens
+      ?? metadata?.outputTokens ?? metadata?.completionTokens ?? metadata?.output_tokens ?? metadata?.completion_tokens;
+    if (input != null || output != null) {
+      const sum = nonnegativeTokens(input) && nonnegativeTokens(output) ? input + output : undefined;
+      return nonnegativeTokens(sum) && sum > 0 ? sum : undefined;
+    }
+  }
+}
+
+type RouterConversation = ReturnType<typeof favoriteRouterContext>;
+
+/** UTF-16 string-value weights match Windows, without JSON-escaping/tokenizer differences. */
+const routerMessageWeight = (message: RouterConversation[number]) => Math.max(1,
+  [message.role, ...message.parts.flatMap((part: Record<string, unknown>) => Object.values(part))]
+    .reduce<number>((sum, value) => sum + (typeof value === "string" ? value.length : 0), 0));
+
+/** Distinct retry payloads only: a proportional whole-message suffix, then the last user message. */
+export function favoriteRouterRecoveryContexts(
+  messages: any[], contextWindow: unknown, conversation = favoriteRouterContext(messages),
+): RouterConversation[] {
+  let lastUser = conversation.length - 1;
+  while (lastUser >= 0 && conversation[lastUser].role !== "user") lastUser--;
+  if (lastUser < 0 || conversation.length === 1) return [];
+  const contexts: RouterConversation[] = [];
+  const tokens = favoriteRouterConversationTokens(messages);
+  if (nonnegativeTokens(contextWindow) && contextWindow > 0 && tokens !== undefined) {
+    const weights = conversation.map(routerMessageWeight);
+    const budget = Math.floor(weights.reduce((sum, weight) => sum + weight, 0)
+      * Math.min(1, .8 * (contextWindow / tokens)));
+    let start = conversation.length;
+    let used = 0;
+    while (start > 0 && used + weights[start - 1] <= budget) used += weights[--start];
+    // A non-reduction or a last-user-only suffix adds no useful intermediate attempt.
+    if (start > 0 && start <= lastUser && conversation.length - start > 1) contexts.push(conversation.slice(start));
+  }
+  contexts.push([conversation[lastUser]]);
+  return contexts;
+}
+
 export function replaceRoutedRequestBody(body: any, currentBody: any) {
   const next = { ...body };
   // Per-call bodies were assembled before the decision. Never reuse their route-specific fields.
@@ -133,7 +193,7 @@ export function replaceRoutedRequestBody(body: any, currentBody: any) {
 }
 
 export async function decideFavorite({
-  state, kind, messages, config, customHeaders, abortSignal, modelTypes,
+  state, kind, messages, config, customHeaders, abortSignal, modelTypes, recoverInputLimit = false, assertCurrent,
 }: {
   state: RouterState;
   kind: "model" | "agent";
@@ -147,6 +207,9 @@ export async function decideFavorite({
   abortSignal: AbortSignal;
   /** Explicit primitive scope; omitted by chat to preserve its configured mixed-model scope. */
   modelTypes?: string[];
+  /** Opted into by chat model selection only, not standalone/agent/primitive decisions. */
+  recoverInputLimit?: boolean;
+  assertCurrent?: () => void;
 }) {
   if (kind === "agent") {
     const ids = resolveSelectedAgentEntries(state.favoriteAgentIds, state.agents, state.remoteAgentModels)
@@ -180,17 +243,33 @@ export async function decideFavorite({
     baseUrl: config.baseUrl.replace(/\/+$/, "") + (config.endpoints.decisions ?? defaultEndpoints.decisions),
     headers: Object.fromEntries(headers.entries()), fetch: config.fetch,
   });
-  const response = await client.decisionModel(model).doDecide({
-    state: {
-      conversation: favoriteRouterContext(messages),
-    },
-    questions: toWireQuestions(questions), abortSignal,
-  });
-  abortSignal.throwIfAborted();
-  const answer = response?.answers?.favorite;
-  if (!isValidDecisionResponse(response, questions) || answer?.type !== "choice"
-    || !candidates.some(candidate => candidate.id === answer.choice)) {
-    throw new Error("Favorite router did not return a valid favorite selection.");
+  const conversation = favoriteRouterContext(messages);
+  const contexts = [conversation, ...(recoverInputLimit && kind === "model"
+    ? favoriteRouterRecoveryContexts(messages,
+      state.models?.find(item => item.id === model && item.type === "decision")?.context_window, conversation)
+    : [])];
+  const wireQuestions = toWireQuestions(questions);
+  for (let attempt = 0; ; attempt++) {
+    abortSignal.throwIfAborted();
+    assertCurrent?.();
+    let response;
+    try {
+      response = await client.decisionModel(model).doDecide({
+        state: { conversation: contexts[attempt] }, questions: wireQuestions, abortSignal,
+      });
+    } catch (error) {
+      abortSignal.throwIfAborted();
+      assertCurrent?.();
+      if (attempt + 1 >= contexts.length || !isDecisionInputLimitError(error)) throw error;
+      continue;
+    }
+    abortSignal.throwIfAborted();
+    assertCurrent?.();
+    const answer = response?.answers?.favorite;
+    if (!isValidDecisionResponse(response, questions) || answer?.type !== "choice"
+      || !candidates.some(candidate => candidate.id === answer.choice)) {
+      throw new Error("Favorite router did not return a valid favorite selection.");
+    }
+    return answer.choice;
   }
-  return answer.choice;
 }
