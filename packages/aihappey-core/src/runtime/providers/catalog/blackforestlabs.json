@@ -1,6 +1,6 @@
 {
   "name": "BlackForestLabs",
-  "description": "Black Forest Labs is the AI company behind FLUX, the state-of-the-art image generation model. Try FLUX.2, FLUX Kontext, and more via our API.",
+  "description": "Black Forest Labs is the AI company behind FLUX image and video models. Generate and edit images with FLUX 3 Image, Image Klein, and FLUX.2, or generate, edit, and upscale video through its API.",
   "urls": {
     "homepage": "https://bfl.ai",
     "docs": "https://docs.bfl.ai",

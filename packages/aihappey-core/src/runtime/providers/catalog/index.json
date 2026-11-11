@@ -2556,6 +2556,10 @@
     "file": "inferencenet.json"
   },
   {
+    "id": "infer",
+    "file": "infer.json"
+  },
+  {
     "id": "condensechat",
     "file": "condensechat.json"
   },

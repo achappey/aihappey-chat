@@ -1,0 +1,13 @@
+{
+  "name": "INFER",
+  "description": "OpenAI-compatible API for decentralized AI inference, with dynamic model discovery and streaming chat completions.",
+  "urls": {
+    "homepage": "https://inferexchange.com",
+    "console": "https://inferexchange.com/dashboard/keys",
+    "docs": "https://docs.inferexchange.com/api-reference"
+  },
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "World"
+  ]
+}
