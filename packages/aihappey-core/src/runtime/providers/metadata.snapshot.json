@@ -998,6 +998,11 @@
       "sha256": "99bdf17370b3aaac648b72f88e0784b56c4b091afcad7a946ba678c99db58f1e"
     },
     {
+      "source": "providers/evroc.json",
+      "file": "catalog/evroc.json",
+      "sha256": "fc1c2a7ab3093334480fc97e1dd848084d57909024695eb91a7024244259180c"
+    },
+    {
       "source": "providers/exa.json",
       "file": "catalog/exa.json",
       "sha256": "d87258f264c6c014a73e6ee89514459a6bd8465c0a153fb63743f0561dba29ba"
@@ -1238,6 +1243,11 @@
       "sha256": "ec01c2c32ed4a1931ca65a9bafca1831d9dd3c87d3087ee0438258bad811db66"
     },
     {
+      "source": "providers/heabsy.json",
+      "file": "catalog/heabsy.json",
+      "sha256": "e00d6f1d6879630a69954d9d832086fa0ba3ce8efe5ad2e100d7c692523e4a91"
+    },
+    {
       "source": "providers/hedra.json",
       "file": "catalog/hedra.json",
       "sha256": "e42476cc3be6e0af2e6867e17ef883a3dcd35b51796565a29863b966c5c8c361"
@@ -1375,7 +1385,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "79ab40e7bad47379cb5cd8b962143e2cc5c129c8d4ba92eebf5386e9a0b048ff"
+      "sha256": "87e773af2a784c566e3df266ec7697d567ded33197ae4c9b396045070ecffa34"
     },
     {
       "source": "providers/infercom.json",
@@ -1771,6 +1781,11 @@
       "source": "providers/lunos.json",
       "file": "catalog/lunos.json",
       "sha256": "a438f1b4f4187303b415ffaa4a6c184dfe8ebfa65881501f6725b0d4c525bf5f"
+    },
+    {
+      "source": "providers/lutheos.json",
+      "file": "catalog/lutheos.json",
+      "sha256": "7053bffd72c85d9cb2086ace33c70d1b7acd17029ecc47784977be4ff581f788"
     },
     {
       "source": "providers/lxg2it.json",
@@ -2506,6 +2521,11 @@
       "source": "providers/poolside.json",
       "file": "catalog/poolside.json",
       "sha256": "086c73545acdd9d6ac9a3ab42028af8eb0b949face3018e2a3f32ac024053f4c"
+    },
+    {
+      "source": "providers/porten.json",
+      "file": "catalog/porten.json",
+      "sha256": "c8314267891a5a6bc5fa473f73357113e5fa7dc8cf802ecba353df1cdaa382c2"
     },
     {
       "source": "providers/portkey.json",

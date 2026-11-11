@@ -1,0 +1,15 @@
+{
+  "name": "Porten",
+  "description": "OpenAI-compatible inference routed across a network of GPU nodes, with region and hardware pinning.",
+  "urls": {
+    "homepage": "https://porten.ai",
+    "docs": "https://porten.ai/docs/api-reference",
+    "pricing": "https://porten.ai/pricing",
+    "console": "https://porten.ai/build/keys"
+  },
+  "category": "inference_compute",
+  "apiBaseUrl": "https://porten.ai/v1",
+  "chatEndpoints": [
+    "chat/completions"
+  ]
+}

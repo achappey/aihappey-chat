@@ -64,6 +64,14 @@
     "file": "zeroentropy.json"
   },
   {
+    "id": "lutheos",
+    "file": "lutheos.json"
+  },
+  {
+    "id": "heabsy",
+    "file": "heabsy.json"
+  },
+  {
     "id": "epho",
     "file": "epho.json"
   },
@@ -2368,6 +2376,10 @@
     "file": "runpod.json"
   },
   {
+    "id": "porten",
+    "file": "porten.json"
+  },
+  {
     "id": "portkey",
     "file": "portkey.json"
   },
@@ -2806,6 +2818,10 @@
   {
     "id": "kiosapi",
     "file": "kiosapi.json"
+  },
+  {
+    "id": "evroc",
+    "file": "evroc.json"
   },
   {
     "id": "gigachat",

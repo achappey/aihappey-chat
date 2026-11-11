@@ -1,0 +1,16 @@
+{
+  "name": "Lutheos",
+  "description": "Private AI inference platform providing OpenAI- and Anthropic-compatible APIs for open-weight and abliterated language models with zero data retention.",
+  "urls": {
+    "homepage": "https://lutheos.com",
+    "console": "https://lutheos.com/overview",
+    "pricing": "https://lutheos.com/pricing",
+    "docs": "https://lutheos.com/docs",
+    "privacyPolicy": "https://lutheos.com/privacy",
+    "termsOfService": "https://lutheos.com/terms"
+  },
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "World"
+  ]
+}

@@ -1,0 +1,18 @@
+
+{
+  "name": "Heabsy",
+  "description": "European AI inference platform offering OpenAI- and Anthropic-compatible APIs, sovereign GPU infrastructure, and access to open and proprietary models.",
+  "urls": {
+    "homepage": "https://heabsy.com",
+    "console": "https://platform.heabsy.com",
+    "pricing": "https://heabsy.com/models",
+    "docs": "https://api.heabsy.com/docs",
+    "privacyPolicy": "https://heabsy.com/privacy",
+    "termsOfService": "https://heabsy.com/terms"
+  },
+  "providerCountry": "SK",
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "World"
+  ]
+}
