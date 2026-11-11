@@ -1,0 +1,12 @@
+{
+  "name": "InferenceClub",
+  "description": "A community-run inference network providing an OpenAI-compatible API for chat, images, transcription, speech, music, and video on member-operated hardware.",
+  "urls": {
+    "homepage": "https://inference.club",
+    "docs": "https://inference.club/docs"
+  },
+  "category": "gateway_router",
+  "inferenceRegions": [
+    "World"
+  ]
+}

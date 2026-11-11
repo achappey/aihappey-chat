@@ -1,0 +1,13 @@
+{
+  "name": "OPInference",
+  "description": "One OpenAI-compatible API for text, image, video, speech, transcription and music.",
+  "urls": {
+    "homepage": "https://opinference.com",
+    "docs": "https://docs.opinference.com/docs/api-reference"
+  },
+  "category": "gateway_router",
+  "apiBaseUrl": "https://api.opinference.com/v1",
+  "chatEndpoints": [
+    "/v1/chat/completions"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Inferel",
+  "description": "OpenAI- and Anthropic-compatible inference for frontier and open-source models, with live per-token pricing, prompt caching, and asynchronous image and video generation.",
+  "urls": {
+    "homepage": "https://inferel.ai",
+    "console": "https://console.inferel.ai",
+    "docs": "https://docs.inferel.ai"
+  },
+  "category": "inference_compute",
+  "apiBaseUrl": "https://inference.inferel.ai/v1"
+}

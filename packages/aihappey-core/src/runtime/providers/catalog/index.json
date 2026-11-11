@@ -1,5 +1,9 @@
 [
   {
+    "id": "inferel",
+    "file": "inferel.json"
+  },
+  {
     "id": "frontiereai",
     "file": "frontiereai.json"
   },
@@ -2814,5 +2818,13 @@
   {
     "id": "creeksidecompute",
     "file": "creeksidecompute.json"
+  },
+  {
+    "id": "opinference",
+    "file": "opinference.json"
+  },
+  {
+    "id": "inferenceclub",
+    "file": "inferenceclub.json"
   }
 ]

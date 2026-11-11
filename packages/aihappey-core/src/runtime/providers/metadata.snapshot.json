@@ -1375,12 +1375,22 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "70f23661fee19679a01456bce9e9cc23955f869aa878ee0871c81059976a17bb"
+      "sha256": "79ab40e7bad47379cb5cd8b962143e2cc5c129c8d4ba92eebf5386e9a0b048ff"
     },
     {
       "source": "providers/infercom.json",
       "file": "catalog/infercom.json",
       "sha256": "6aba5d7498072b881b37695ec601e2d10c154e461622a90fb6d9dcf145383a9e"
+    },
+    {
+      "source": "providers/inferel.json",
+      "file": "catalog/inferel.json",
+      "sha256": "880b3a68abdb99cb2a7e30b27f24214ee681da2b697472544449c8d7277048b8"
+    },
+    {
+      "source": "providers/inferenceclub.json",
+      "file": "catalog/inferenceclub.json",
+      "sha256": "a5718b461f79a80d4ac27abcd52e3db4edd4e89099d38d2fb78e9b9daffbe6eb"
     },
     {
       "source": "providers/inferencenet.json",
@@ -2328,6 +2338,11 @@
       "sha256": "fce7c3f6cadb5c600093eabed83f016e46ad90f4aeaabc096b971384b352c59d"
     },
     {
+      "source": "providers/opinference.json",
+      "file": "catalog/opinference.json",
+      "sha256": "b0cb00e6c8a5be5d296ccd59952f9e39a691004aead72388abe35b1d8a1b4c4a"
+    },
+    {
       "source": "providers/opperai.json",
       "file": "catalog/opperai.json",
       "sha256": "c4a729a43d32b76490ac4150270fe8e9d8aeb7bd9e0e5bd66ac9b86bbb02617e"
@@ -2620,7 +2635,7 @@
     {
       "source": "pricing/providers/google.json",
       "file": "catalog/pricing/google.json",
-      "sha256": "91065288b5666d32d149a19b7f4fcd5528af747b1d7f83f5ca070c94ec88504a"
+      "sha256": "d97361c21af4e58d89720413714123d50f5136d22fdc17ba653d889fdef813be"
     },
     {
       "source": "pricing/providers/greenpt.json",
