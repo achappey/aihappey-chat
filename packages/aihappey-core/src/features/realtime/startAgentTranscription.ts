@@ -31,6 +31,14 @@ export async function startAgentTranscription(args: {
     const stop = async () => {
         if (stopped) return; stopped = true;
         turns.dispose(); clearInterval(poll); clearTimeout(startupTimeout);
+        if (provider === "deepl" && session && !signal.aborted) {
+            try { await session.stop(); }
+            finally {
+                connection.abort(); stream?.getTracks().forEach(track => track.stop()); await context?.close();
+                signal.removeEventListener("abort", abort);
+            }
+            return;
+        }
         connection.abort();
         stream?.getTracks().forEach(track => track.stop());
         await context?.close(); await session?.stop();
@@ -90,7 +98,7 @@ export async function startAgentTranscription(args: {
                     args.onEvent(event);
                     // Mistral's cumulative final includes discarded/muted input.
                     // Its turn handler must keep the stream cursor even while muted.
-                    if (!muted || provider === "mistral") turns.event(event);
+                    if (!muted || provider === "mistral" || provider === "deepl") turns.event(event);
                 } },
                 onError: (message, error) => { if (!signal.aborted && !stopped) args.onError(new Error(`${message}${error instanceof Error ? `: ${error.message}` : ""}`)); },
             },

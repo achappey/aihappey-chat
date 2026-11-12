@@ -66,7 +66,7 @@ export const DeepLRealtimeTranscriptionConfigForm = ({ config, updateConfig }: {
                 const choices = key === "formality" ? ["default", "formal", "informal"] : ["auto", "fixed"];
                 const value = config[key] ?? choices[0];
                 return <theme.Select key={key} label={t(`deeplRealtime.${key}`)} values={[value]} valueTitle={value}
-                    options={choices.map(value => ({ value, label: value }))} onChange={value => updateConfig({ ...config, [key]: value })}>
+                    options={choices.map(value => ({ value, label: value }))} onChange={(value: string) => updateConfig({ ...config, [key]: value })}>
                     {choices.map(value => <option key={value} value={value}>{value}</option>)}
                 </theme.Select>;
             })}
@@ -74,7 +74,7 @@ export const DeepLRealtimeTranscriptionConfigForm = ({ config, updateConfig }: {
                 onChange={event => updateConfig({ ...config, spoken_terms_id: event.target.value.trim() || undefined })} />
             <theme.Input id="deepl-glossaries" label={t("deeplRealtime.glossaries")} value={(config.glossary_ids ?? (config.glossary_id ? [config.glossary_id] : [])).join(", ")}
                 onChange={event => {
-                    const next = { ...config, glossary_ids: event.target.value.split(",").map(value => value.trim()).filter(Boolean) };
+                    const next: Record<string, any> = { ...config, glossary_ids: event.target.value.split(",").map(value => value.trim()).filter(Boolean) };
                     delete next.glossary_id; updateConfig(next);
                 }} />
         </div>

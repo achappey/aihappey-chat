@@ -21,6 +21,8 @@ export class AgentTranscriptionTurns {
     private mistralText = "";
     private mistralThrough = 0;
     private mistralDone = false;
+    private deepLDiscardThrough = -1;
+    private deepLDraftThrough = -1;
     constructor(private provider: string, private callbacks: {
         // start means confirmed, non-empty NEW transcription, never acoustic activity.
         start: () => void; preview: (text: string) => void; turn: (text: string) => void;
@@ -104,6 +106,7 @@ export class AgentTranscriptionTurns {
         clearTimeout(this.timer);
         const text = this.mistralText.slice(this.mistralThrough).trim();
         this.mistralThrough = this.mistralText.length;
+        this.deepLDiscardThrough = Math.max(this.deepLDiscardThrough, this.deepLDraftThrough);
         this.partial = ""; this.active = false;
         if (text && !this.disposed && !this.muted) this.callbacks.turn(text);
     }
@@ -142,7 +145,7 @@ export class AgentTranscriptionTurns {
     dispose() { this.disposed = true; this.reset(); }
     event(event: any) {
         if (this.disposed || event?.__synthetic) return;
-        if (this.muted && this.provider !== "mistral") return;
+        if (this.muted && !["mistral", "deepl"].includes(this.provider)) return;
         if (event?.event_id) {
             if (this.seenEvents.has(event.event_id)) return;
             this.seenEvents.add(event.event_id);
@@ -151,7 +154,14 @@ export class AgentTranscriptionTurns {
         switch (this.provider) {
             case "deepl":
                 if (type === "deepl.transcript") {
+                    this.deepLDraftThrough = Math.max(this.deepLDraftThrough, ...event.concluded.map((segment: any) => segment.end_time),
+                        ...event.tentative.map((segment: any) => segment.end_time));
+                    if (this.muted) {
+                        this.deepLDiscardThrough = this.deepLDraftThrough;
+                        break;
+                    }
                     for (const segment of event.concluded) {
+                        if (segment.end_time <= this.deepLDiscardThrough) continue;
                         const key = `deepl:${segment.start_time}:${segment.end_time}:${segment.text}`;
                         if (!this.seen.has(key)) {
                             this.seen.add(key); this.finals.push(segment.text);
@@ -160,7 +170,7 @@ export class AgentTranscriptionTurns {
                     }
                     // An empty replacement removes a stale draft, too. Only
                     // concluded text can become a chat turn after quiet time.
-                    this.partial = event.tentative.map((segment: any) => segment.text).join("");
+                    this.partial = event.tentative.filter((segment: any) => segment.end_time > this.deepLDiscardThrough).map((segment: any) => segment.text).join("");
                     if (this.partial.trim()) this.start();
                     this.callbacks.preview(this.finals.join("") + this.partial);
                     this.schedule();
