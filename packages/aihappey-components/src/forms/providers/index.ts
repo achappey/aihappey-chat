@@ -11,6 +11,7 @@ export * from "./groq";
 export * from "./spacexai";
 export * from "./together";
 export * from "./mistral";
+export * from "./speechmatics";
 export * from "./jina";
 export * from "./cohere";
 export * from "./voyageai";

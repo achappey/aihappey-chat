@@ -1,4 +1,17 @@
 ﻿{
+    "speechmaticsRealtime": {
+        "title": "Speechmatics real-time transcription",
+        "hint": "Global routing selects the nearest region; pin EU, US, or AU for residency. Standard/Enhanced and Linden 1 use the selected language (English by default). Melia 1/Oak 1 always use multilingual mode. Language hints apply only to Melia 1/Oak 1; maximum delay applies only to regular transcription. Agent STT uses VAD turns without automatically sending chat messages. File transcription settings are separate.",
+        "region": "Region",
+        "languageHints": "Melia 1 / Oak 1 language hints (comma-separated ISO codes)",
+        "diarization": "Speaker diarization",
+        "none": "None",
+        "speaker": "Speaker",
+        "locale": "Output locale (optional)",
+        "delay": "Regular transcription maximum delay (seconds)",
+        "sentences": "Agent STT: split segments into sentences",
+        "ttl": "Temporary key lifetime (seconds; default 60)"
+    },
     "defaultModelUpdates": {
         "message": "Some of your default models are over 30 days old. Newer defaults are available for: {{types}}.",
         "apply": "Apply newer defaults",

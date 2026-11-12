@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { SpeechmaticsRealtimeTranscriptionConfigForm } from "../forms/providers/speechmatics/SpeechmaticsRealtimeTranscriptionConfigForm";
 import { useTranslation } from "aihappey-i18n";
 import {
     FireworksTranscriptionConfigForm,
@@ -306,6 +307,12 @@ export const TranscriptionSettingsModal: React.FC<
                     )}
 
 
+                    {enabledProviders.includes("Speechmatics") && (
+                        <theme.Tab eventKey="speechmatics" title="Speechmatics">
+                            <SpeechmaticsRealtimeTranscriptionConfigForm config={realtimeProviderMetadata.speechmatics ?? {}}
+                                updateConfig={speechmatics => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, speechmatics })} />
+                        </theme.Tab>
+                    )}
                     {enabledProviders.includes("Mistral") && (
                         <theme.Tab eventKey="mistral" title="Mistral">
                             <MistralRealtimeTranscriptionConfigForm config={realtimeProviderMetadata.mistral ?? {}}

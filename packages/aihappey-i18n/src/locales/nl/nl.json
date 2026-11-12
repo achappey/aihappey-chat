@@ -1,4 +1,17 @@
 ﻿{
+    "speechmaticsRealtime": {
+        "title": "Speechmatics realtime transcriptie",
+        "hint": "Globale routering kiest de dichtstbijzijnde regio; kies EU, US of AU voor gegevensresidentie. Standard/Enhanced en Linden 1 gebruiken de gekozen taal (standaard Engels). Melia 1/Oak 1 zijn altijd meertalig. Taalhints gelden alleen voor Melia 1/Oak 1; maximale vertraging alleen voor reguliere transcriptie. Agent STT gebruikt VAD-beurten zonder automatisch chatberichten te verzenden. Bestandstranscriptie heeft aparte instellingen.",
+        "region": "Regio",
+        "languageHints": "Melia 1 / Oak 1 taalhints (ISO-codes, kommagescheiden)",
+        "diarization": "Sprekerherkenning",
+        "none": "Geen",
+        "speaker": "Spreker",
+        "locale": "Uitvoerlandinstelling (optioneel)",
+        "delay": "Maximale vertraging reguliere transcriptie (seconden)",
+        "sentences": "Agent STT: segmenten splitsen in zinnen",
+        "ttl": "Geldigheidsduur tijdelijke sleutel (seconden; standaard 60)"
+    },
     "defaultModelUpdates": {
         "message": "Sommige standaardmodellen zijn meer dan 30 dagen oud. Er zijn nieuwere standaardmodellen beschikbaar voor: {{types}}.",
         "apply": "Nieuwere standaardmodellen toepassen",

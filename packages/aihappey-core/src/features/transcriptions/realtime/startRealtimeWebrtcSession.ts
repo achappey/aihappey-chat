@@ -11,6 +11,7 @@ import { startCartesiaRealtimeWsSession } from "./startCartesiaRealtimeWsSession
 import { startSmallestAiRealtimeWsSession } from "./startSmallestAiRealtimeWsSession";
 import { startMistralRealtimeWsSession } from "./startMistralRealtimeWsSession";
 import { startDeepLRealtimeWsSession } from "./startDeepLRealtimeWsSession";
+import { startSpeechmaticsRealtimeWsSession } from "./startSpeechmaticsRealtimeWsSession";
 
 export type RealtimeTranscriptionSession = {
   /** Provider-specific implementation detail (WebRTC / WebSocket). */
@@ -43,6 +44,11 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
   const { providerId, getEphemeralToken, events, selectedModel, providerRealtimeMetadata } = args;
 
   const capture = { microphoneStream: args.microphoneStream, signal: args.signal };
+  if (providerId === "speechmatics") {
+    const session = await startSpeechmaticsRealtimeWsSession({ ...capture, getEphemeralToken,
+      modelId: selectedModel, config: providerRealtimeMetadata?.speechmatics ?? {}, events });
+    return { kind: "ws", stop: session.stop };
+  }
   if (providerId === "deepl") {
     const session = await startDeepLRealtimeWsSession({ ...capture, getEphemeralToken, modelId: selectedModel, events });
     return { kind: "ws", stop: session.stop };
