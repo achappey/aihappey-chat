@@ -53,6 +53,7 @@ function harness({ pendingSetup = false } = {}) {
     '../../realtime/googleLiveConfig': { buildGoogleLiveTokenPayload: () => ({}) },
     './openaiTranscript': openAiTranscript,
     './deepLRealtime': { DeepLTranscript: class {} },
+    './speechmaticsRealtime': { SpeechmaticsTranscript: class {} },
   };
   const file = path.resolve(__dirname, '../packages/aihappey-core/src/features/transcriptions/realtime/useRealtimeTranscriptionController.ts');
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), {
