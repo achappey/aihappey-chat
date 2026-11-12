@@ -11,6 +11,7 @@ import { getTranscriptionErrorMessage } from "../transcriptionErrors";
 import { ModelOption } from "aihappey-types";
 import { buildGoogleLiveTokenPayload } from "../../realtime/googleLiveConfig";
 import { OpenAiTranscript } from "./openaiTranscript";
+import { DeepLTranscript } from "./deepLRealtime";
 
 const describeError = (e: unknown) => {
   if (!e) return "unknown";
@@ -60,6 +61,7 @@ export function useRealtimeTranscriptionController(args: {
   // A fatal-error checkpoint must run after any already-started preview writes.
   const persistenceWritesRef = useRef<Promise<unknown>>(Promise.resolve());
   const openAiTranscriptRef = useRef(new OpenAiTranscript());
+  const deepLTranscriptRef = useRef(new DeepLTranscript());
   // Session ownership survives model/storage rerenders. Late callbacks from an
   // old transport must never mutate a restarted session's buffers or history.
   const activeRunRef = useRef<{
@@ -125,13 +127,13 @@ export function useRealtimeTranscriptionController(args: {
   );
 
   const persistUpdate = useMemo(
-    () => debounce(async (id: string, next: { text: string; segments: Array<{ text: string; startSecond: number; endSecond: number }>; durationInSeconds?: number; session?: any }) => {
+    () => debounce(async (id: string, next: { text: string; segments: Array<{ text: string; startSecond: number; endSecond: number }>; language?: string; durationInSeconds?: number; session?: any }) => {
       if (!selectedModel || fatalErrorHandledRef.current) return;
       const write = persistenceWritesRef.current.catch(() => {}).then(() => persistence.current.transcriptions.update(id, {
         transcription: {
           text: next.text,
           segments: next.segments,
-          language: undefined,
+          language: next.language,
           durationInSeconds: next.durationInSeconds,
           warnings: [],
           response: {
@@ -153,6 +155,7 @@ export function useRealtimeTranscriptionController(args: {
       id: string,
       next: {
         text: string;
+        language?: string;
         segments: Array<{ text: string; startSecond: number; endSecond: number }>;
         durationInSeconds?: number;
         session?: any;
@@ -164,7 +167,7 @@ export function useRealtimeTranscriptionController(args: {
         transcription: {
           text: next.text,
           segments: next.segments,
-          language: undefined,
+          language: next.language,
           durationInSeconds: next.durationInSeconds,
           warnings: [],
           response: {
@@ -182,6 +185,10 @@ export function useRealtimeTranscriptionController(args: {
 
   const computeSnapshot = useCallback(
     (opts?: { preferText?: string }) => {
+      if (providerId === "deepl") {
+        const { displayText: _, ...snapshot } = deepLTranscriptRef.current.snapshot();
+        return { ...snapshot, session: sessionInfoRef.current ?? undefined };
+      }
       if (providerId === "openai") {
         const { displayText: _, ...snapshot } = openAiTranscriptRef.current.snapshot();
         return { ...snapshot, session: sessionInfoRef.current ?? undefined };
@@ -404,7 +411,7 @@ export function useRealtimeTranscriptionController(args: {
     if (!sessionRef.current) {
       persistUpdate.cancel();
       // Repeated Stop/unmount must not erase the last completed OpenAI result.
-      if (startupRef.current || providerId !== "openai") resetRealtimeSessionState();
+      if (startupRef.current || !["openai", "deepl"].includes(providerId ?? "")) resetRealtimeSessionState();
       return;
     }
 
@@ -421,7 +428,7 @@ export function useRealtimeTranscriptionController(args: {
       try {
         try { await session.stop(); }
         catch (error) {
-          if (run?.providerId !== "openai") throw error;
+          if (!["openai", "deepl"].includes(run?.providerId ?? "")) throw error;
           const message = getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") });
           run.error ??= message;
           persistence.current.onErrorAlert?.(message);
@@ -429,7 +436,7 @@ export function useRealtimeTranscriptionController(args: {
         if (run) run.acceptingEvents = false;
         await smallestAiWritesRef.current;
         if (providerId === "mistral") { persistUpdate.cancel(); await persistenceWritesRef.current; }
-        if (run?.providerId === "openai") {
+        if (["openai", "deepl"].includes(run?.providerId ?? "") && run) {
           persistUpdate.cancel();
           finalText = run.snapshot().text;
           // Save after transport finalization and after all preceding writes.
@@ -448,6 +455,7 @@ export function useRealtimeTranscriptionController(args: {
         bufferRef.current = "";
         segmentsRef.current = new Map();
         openAiTranscriptRef.current = new OpenAiTranscript();
+        deepLTranscriptRef.current = new DeepLTranscript();
         sessionInfoRef.current = null;
         elevenCommitCounterRef.current = 0;
         deepgramCommitCounterRef.current = 0;
@@ -463,7 +471,7 @@ export function useRealtimeTranscriptionController(args: {
         cartesiaTurnStartMsRef.current = 0;
         cartesiaStartedAtRef.current = 0;
         resetRealtimeSessionState();
-        if (run?.providerId === "openai") {
+        if (["openai", "deepl"].includes(run?.providerId ?? "") && run) {
           setRealtimeSessionState({ realtimeText: finalText,
             ...(run.error ? { realtimeStatus: "error", realtimeError: run.error } : {}) });
         }
@@ -497,6 +505,11 @@ export function useRealtimeTranscriptionController(args: {
     activeRunRef.current = run;
     if (providerId === "openai") {
       openAiTranscriptRef.current = new OpenAiTranscript();
+      sessionInfoRef.current = null;
+      bufferRef.current = "";
+    }
+    if (providerId === "deepl") {
+      deepLTranscriptRef.current = new DeepLTranscript();
       sessionInfoRef.current = null;
       bufferRef.current = "";
     }
@@ -588,6 +601,17 @@ export function useRealtimeTranscriptionController(args: {
           onEvent: (event: any) => {
               if (!isCurrent()) return;
             try {
+              if (providerId === "deepl") {
+                if (event.type !== "deepl.transcript") return;
+                deepLTranscriptRef.current.apply(event);
+                const snapshot = deepLTranscriptRef.current.snapshot();
+                bufferRef.current = snapshot.displayText;
+                setRealtimeSessionState({ realtimeText: snapshot.displayText, realtimeStatus: run.stopping ? "stopping" : "connected" });
+                persistUpdate.cancel();
+                if (event.concluded.length) void persistUpdateNow(created.id, computeSnapshot()).catch(error =>
+                  persistence.current.onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") })));
+                return;
+              }
               if (providerId === "openai") {
                 if (!openAiTranscriptRef.current.apply(event)) return;
                 const snapshot = openAiTranscriptRef.current.snapshot();
@@ -895,7 +919,7 @@ export function useRealtimeTranscriptionController(args: {
             }
           },
           onTranscriptText: (deltaText: string) => {
-            if (!isCurrent() || providerId === "openai") return;
+            if (!isCurrent() || providerId === "openai" || providerId === "deepl") return;
              // OpenAI emits deltas; WebSocket providers emit full-text snapshots.
              const next =
                providerId === "mistral" || providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google" || providerId === "cartesia" || providerId === "smallestai"
@@ -915,7 +939,7 @@ export function useRealtimeTranscriptionController(args: {
               googleSessionStartedAtRef.current = Date.now();
             }
             sessionInfoRef.current = session;
-            if (created.id && providerId !== "smallestai" && providerId !== "openai") void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
+            if (created.id && providerId !== "smallestai" && providerId !== "openai" && providerId !== "deepl") void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
           },
           onSessionRenewing: async () => {
             if (!isCurrent() || run.stopping || providerId !== "openai") return;
@@ -940,7 +964,7 @@ export function useRealtimeTranscriptionController(args: {
 
             // Snapshot before stop clears segment state. Serialized persistence prevents
             // an older in-flight preview from overwriting this authoritative checkpoint.
-            if (providerId === "openai") {
+            if (providerId === "openai" || providerId === "deepl") {
               // The shared stop owner saves confirmed text once, including a
               // finalization failure, and never races a second delete/save path.
               if (!sessionRef.current) {
@@ -972,7 +996,7 @@ export function useRealtimeTranscriptionController(args: {
       // If a fatal error arrived during startup (common with ElevenLabs invalid_request),
       // ensure we do NOT keep a live session around that would block subsequent starts.
       if (startup.signal.aborted || fatalErrorHandledRef.current) {
-        if (providerId === "openai" && !startup.signal.aborted && activeRunRef.current === run) {
+        if ((providerId === "openai" || providerId === "deepl") && !startup.signal.aborted && activeRunRef.current === run) {
           sessionRef.current = session;
           await stop();
           return;
@@ -1001,7 +1025,7 @@ export function useRealtimeTranscriptionController(args: {
       // Also bubble to page-level alerts when provided.
       if (!run.error) onErrorAlert?.(message);
       run.error = message;
-      if (providerId === "openai" && !sessionRef.current) {
+      if ((providerId === "openai" || providerId === "deepl") && !sessionRef.current) {
         run.acceptingEvents = false;
         persistUpdate.cancel();
         const confirmedText = run.snapshot().text;
@@ -1014,10 +1038,10 @@ export function useRealtimeTranscriptionController(args: {
         setRealtimeSessionState({ realtimeStatus: "error", realtimeError: message, realtimeText: confirmedText });
       } else await stop();
     } finally {
-      if (startup.signal.aborted && createdId && !sessionRef.current && (!fatalErrorHandledRef.current || providerId === "openai") && !run.finished) {
+      if (startup.signal.aborted && createdId && !sessionRef.current && (!fatalErrorHandledRef.current || providerId === "openai" || providerId === "deepl") && !run.finished) {
         persistUpdate.cancel();
         try {
-          if (providerId === "openai") {
+          if (providerId === "openai" || providerId === "deepl") {
             const confirmedText = run.snapshot().text;
             await run.save(run.error ? "error" : "completed");
             setRealtimeSessionState({ realtimeText: confirmedText,
