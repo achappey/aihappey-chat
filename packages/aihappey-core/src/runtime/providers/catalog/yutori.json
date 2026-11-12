@@ -6,7 +6,8 @@
     "docs": "https://docs.yutori.com",
     "pricing": "https://yutori.com/pricing",
     "privacyPolicy": "https://yutori.com/privacy",
-    "termsOfService": "https://yutori.com/tos"
+    "termsOfService": "https://yutori.com/tos",
+    "console": "https://platform.yutori.com/sign-up?redirect_url=/"
   },
   "providerCountry": "US",
   "category": "app_tools",

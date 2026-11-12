@@ -716,6 +716,7 @@ import provider711 from "./catalog/creeksidecompute.json";
 import provider712 from "./catalog/opinference.json";
 import provider713 from "./catalog/inferenceclub.json";
 import provider714 from "./catalog/situra.json";
+import provider715 from "./catalog/palabraai.json";
 
 export const PROVIDER_CATALOG = {
   "pyrois": provider0,
@@ -1433,4 +1434,5 @@ export const PROVIDER_CATALOG = {
   "opinference": provider712,
   "inferenceclub": provider713,
   "situra": provider714,
+  "palabraai": provider715,
 } as Record<string, Omit<Provider, "createGatewayMetadata">>;

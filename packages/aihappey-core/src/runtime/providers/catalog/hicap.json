@@ -3,6 +3,7 @@
   "description": "Managed Capacity Infrastructure. Smarter. Cheaper. Faster.",
   "urls": {
     "homepage": "https://hicap.ai",
+    "pricing": "https://hicap.ai/models",
     "docs": "https://docs.hicap.ai",
     "termsOfService": "https://hicap.ai/terms",
     "privacyPolicy": "https://hicap.ai/privacy",

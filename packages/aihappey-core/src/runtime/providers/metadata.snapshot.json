@@ -5,7 +5,7 @@
     {
       "source": "providers/302ai.json",
       "file": "catalog/302ai.json",
-      "sha256": "2f817de4276b8ce2870f620963f287561e92bdea18f4fc7d84d0e4aec274c1a7"
+      "sha256": "2ca2f371dd2431bdce2536df6592cca16abe90eeb2c94ddbc17e1198e0b19188"
     },
     {
       "source": "providers/abacusai.json",
@@ -1285,7 +1285,7 @@
     {
       "source": "providers/hicap.json",
       "file": "catalog/hicap.json",
-      "sha256": "7c610c71c5b015e3a3ed2ea26843bf9076c13fc6c542037a80ab13beb0ff5276"
+      "sha256": "8ed3ff2a570e0fdfc31b9789dc0e829b25ce8e4ce28de76e9db99db4aa8dc1cf"
     },
     {
       "source": "providers/hinow.json",
@@ -1390,7 +1390,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "63fb6306f4f8b06ad924cf6269d28530c72d86607fbbf5aa31afbd02a54c67d5"
+      "sha256": "dc0b4051197d56d8e5440a3474f49d10f23b1d563feb0c4e95ec445ab388e746"
     },
     {
       "source": "providers/infer.json",
@@ -1610,7 +1610,7 @@
     {
       "source": "providers/lazu.json",
       "file": "catalog/lazu.json",
-      "sha256": "98965df1b15edf23a6b170545137fff6583c35b7bc2f10bd3e923e5a41cea03a"
+      "sha256": "f66933def3fc1949add0bbeb2cbca8a2de3755d7cb2066e38c38d21c251f4805"
     },
     {
       "source": "providers/lectoai.json",
@@ -2080,7 +2080,7 @@
     {
       "source": "providers/naceai.json",
       "file": "catalog/naceai.json",
-      "sha256": "f0aea4b2b2a79784c96d1648649b2a6978c719766daaaf4e3728402f3a1416c7"
+      "sha256": "d0fbf43369ca15df5af0e1268d1e1df009045ba920ea4b8788733fc409cd93e6"
     },
     {
       "source": "providers/nagaai.json",
@@ -2310,7 +2310,7 @@
     {
       "source": "providers/opeai.json",
       "file": "catalog/opeai.json",
-      "sha256": "545cb848898ee5646611aa67ef00a2d9430071e1109ef4f053c2e639a84f56c7"
+      "sha256": "9200cabe75d0ca0f206e034bf5a4dffbc7e0147387c0a6ae43a70f197f944777"
     },
     {
       "source": "providers/openadapter.json",
@@ -2418,6 +2418,11 @@
       "sha256": "fb6f9a6499b611c69fc55206f93f3a306c586a89d3dd2c40a2c1c002b20f5384"
     },
     {
+      "source": "providers/palabraai.json",
+      "file": "catalog/palabraai.json",
+      "sha256": "f889d38d96b8fbe6a9c6340deacfaf16a8c7c16323fd7b9d9166e1ac3f750767"
+    },
+    {
       "source": "providers/paperinstruments.json",
       "file": "catalog/paperinstruments.json",
       "sha256": "1c849cb94ceea090f07643dc6642a462c4a85cb127d946cc758bb334dd482bde"
@@ -2425,7 +2430,7 @@
     {
       "source": "providers/parallel.json",
       "file": "catalog/parallel.json",
-      "sha256": "6857a1dffef0b5e34857080182263d8c321bcc09d294bf371047bd96dc758f9d"
+      "sha256": "fc294b44146484f908d737ac73bfe0c33e91e9f2a6a44b465018d338df33dc68"
     },
     {
       "source": "providers/paraloncloud.json",
@@ -3580,7 +3585,7 @@
     {
       "source": "providers/upivia.json",
       "file": "catalog/upivia.json",
-      "sha256": "fbdec2fd6b619ef7d128d0b0e54b96f351e9edcb45aaa6f54fb6567d02c09e64"
+      "sha256": "90de8c39da86ea5cfff88232f4705d5ed7912675dd17a7f761be1804d86c8569"
     },
     {
       "source": "providers/upstage.json",
@@ -3795,7 +3800,7 @@
     {
       "source": "providers/yutori.json",
       "file": "catalog/yutori.json",
-      "sha256": "32c5f36001137afb19af69a6e8743f35e6f64b01d5e006eeb59003fbfc2764f9"
+      "sha256": "3c69aa0f53f7ed936ce58187547c24c69898c8921b4564de23ce821e28a8d0a5"
     },
     {
       "source": "providers/zai.json",
@@ -3810,7 +3815,7 @@
     {
       "source": "providers/zebracat.json",
       "file": "catalog/zebracat.json",
-      "sha256": "dd63b63081307a420bd4d0ce7a0fad9ea012670edc22ba3047459cdc9aa75dac"
+      "sha256": "bf57b648602bc1dab3a375b1f000e02fd18f5f068315b50a8f36000bb1108d8a"
     },
     {
       "source": "providers/zenlayer.json",

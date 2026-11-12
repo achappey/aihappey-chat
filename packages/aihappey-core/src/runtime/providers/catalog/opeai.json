@@ -3,6 +3,7 @@
   "description": "Collect top AI tools and conversation experiences, and make intelligence touchable. Whether it's creativity, travel, or learning, it's easy to achieve every target.",
   "urls": {
     "homepage": "https://ope.ai",
+    "pricing": "https://p-docs.ope.ai/docs/en/api/model-pricing",
     "docs": "https://docs.ope.ai",
     "privacyPolicy": "https://ope.ai/website/policy?type=privacy",
     "termsOfService": "https://ope.ai/website/policy?type=service",

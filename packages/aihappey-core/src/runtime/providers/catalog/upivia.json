@@ -3,7 +3,9 @@
   "description": "Governed AI agents with persistent chat sessions, service dispatch, workflows, and budget controls.",
   "urls": {
     "homepage": "https://www.upivia.com",
-    "docs": "https://www.upivia.com/docs/api-reference"
+    "docs": "https://www.upivia.com/docs/api-reference",
+    "pricing": "https://www.upivia.com/pricing",
+    "console": "https://www.upivia.com/signin"
   },
   "category": "app_tools",
   "apiBaseUrl": "https://www.upivia.com/api/v1/"

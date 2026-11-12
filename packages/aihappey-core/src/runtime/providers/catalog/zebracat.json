@@ -3,6 +3,7 @@
   "description": "Level up your video game with our AI video generator. Utilize powerful AI technology to produce eye-catching videos in minutes with Zebracat.",
   "urls": {
     "homepage": "https://www.zebracat.ai",
+    "console": "https://studio.zebracat.ai/login/",
     "docs": "https://docs.zebracat.ai",
     "pricing": "https://www.zebracat.ai/api",
     "privacyPolicy": "https://www.zebracat.ai/privacy-policy",

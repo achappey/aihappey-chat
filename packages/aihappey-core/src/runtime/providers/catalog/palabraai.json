@@ -1,0 +1,15 @@
+{
+  "name": "PalabraAI",
+  "description": "Real-time speech-to-speech translation, speech-to-text, and text-to-speech APIs.",
+  "urls": {
+    "homepage": "https://palabra.ai",
+    "docs": "https://docs.palabra.ai",
+    "console": "https://platform.palabra.ai",
+    "pricing": "https://palabra.ai/pricing"
+  },
+  "providerCountry": "GB",
+  "category": "media_voice",
+  "inferenceRegions": [
+    "World"
+  ]
+}

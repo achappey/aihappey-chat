@@ -2858,5 +2858,9 @@
   {
     "id": "situra",
     "file": "situra.json"
+  },
+  {
+    "id": "palabraai",
+    "file": "palabraai.json"
   }
 ]
