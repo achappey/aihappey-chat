@@ -600,7 +600,6 @@ export function useRealtimeTranscriptionController(args: {
           // Parse raw events to build segments (start/end from speech events, text from completed transcript)
           onEvent: (event: any) => {
               if (!isCurrent()) return;
-            try {
               if (providerId === "deepl") {
                 if (event.type !== "deepl.transcript") return;
                 deepLTranscriptRef.current.apply(event);
@@ -612,6 +611,7 @@ export function useRealtimeTranscriptionController(args: {
                   persistence.current.onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") })));
                 return;
               }
+            try {
               if (providerId === "openai") {
                 if (!openAiTranscriptRef.current.apply(event)) return;
                 const snapshot = openAiTranscriptRef.current.snapshot();

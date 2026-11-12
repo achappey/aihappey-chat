@@ -79,30 +79,62 @@ test('DeepL muted drafts and late conclusions cannot return as a new chat turn',
   handler.event(update([segment('New', 250, 350)], [])); await pause(930); assert.deepEqual(turns, ['New']); handler.dispose();
 });
 
-test('DeepL library persists confirmed translation, drains final output and never saves tentative preview or credentials', async () => {
+async function libraryHarness({ model = 'deepl/voice-realtime/translate-to/nl', stopError = false } = {}) {
   const view = renderer(); let controller, events, stopped = 0;
-  const writes = [], deletes = [];
+  const writes = [], deletes = [], alerts = [];
   const state = { customHeaders: {}, providerRealtimeMetadata: {}, setRealtimeSessionState(patch) { Object.assign(state, patch); }, resetRealtimeSessionState() {} };
   const mocks = { react: view.react, 'aihappey-state': { useAppStore: select => select(state) },
     'aihappey-i18n': { useTranslation: () => ({ t: value => value }) }, 'aihappey-ai': { getRealtimeToken: async () => async () => ({}) },
     '../../provider-credentials/scopedRequest': { buildOperationHeaders: async () => ({}) },
     './startRealtimeWebrtcSession': { startRealtimeWebrtcSession: async args => {
       events = args.events; events.onSessionCreated({ provider: 'deepl' });
-      return { stop: async () => { stopped++; events.onEvent(update([segment(' wereld', 100, 200)], [])); } };
+      return { stop: async () => { stopped++; if (stopError) throw new Error('Finalization failed'); events.onEvent(update([segment(' wereld', 100, 200)], [])); } };
     } }, '../../realtime/googleLiveConfig': { buildGoogleLiveTokenPayload() {} },
     '../transcriptionErrors': { getTranscriptionErrorMessage: String } };
   const { useRealtimeTranscriptionController } = load(path.join(root, 'transcriptions/realtime/useRealtimeTranscriptionController.ts'), mocks);
   const args = { config: { baseUrl: 'https://gateway/', endpoints: { realtime: 'token' } },
-    selectedModel: { id: 'deepl/voice-realtime/translate-to/nl', tags: ['real-time'] },
+    selectedModel: { id: model, tags: ['real-time'] }, onErrorAlert: value => alerts.push(value),
     transcriptions: { async add() { return { id: 'record' }; }, async update(id, patch) { writes.push(structuredClone(patch.transcription)); }, async delete(id) { deletes.push(id); } } };
   function Component() { controller = useRealtimeTranscriptionController(args); return null; }
   view.render(Component, {}); await controller.start();
+  return { controller, events, state, writes, deletes, alerts, stopped: () => stopped, rerender: () => view.render(Component, {}) };
+}
+
+test('DeepL library persists confirmed translation, drains final output and never saves tentative preview or credentials', async () => {
+  const { controller, events, state, writes, deletes, stopped, rerender } = await libraryHarness();
   events.onEvent(update([segment('Hallo')], [segment(' wrong draft', 100, 200)])); await pause(10);
   assert.equal(state.realtimeText, 'Hallo wrong draft'); assert.equal(writes.at(-1).text, 'Hallo');
-  view.render(Component, {}); await controller.stop(); await controller.stop();
-  assert.equal(stopped, 1); assert.equal(writes.at(-1).text, 'Hallo wereld');
+  rerender(); await controller.stop(); await controller.stop();
+  assert.equal(stopped(), 1); assert.equal(writes.at(-1).text, 'Hallo wereld');
   assert.equal(writes.at(-1).language, 'nl'); assert.equal(writes.at(-1).response.body.status, 'completed');
   assert.deepEqual(deletes, []); assert.ok(!JSON.stringify(writes).includes('wrong draft'));
+});
+
+test('DeepL finalization failure retains confirmed text as errored instead of promoting preview', async () => {
+  const h = await libraryHarness({ stopError: true });
+  h.events.onEvent(update([segment('Confirmed')], [segment(' draft', 100, 200)]));
+  await h.controller.stop();
+  assert.equal(h.writes.at(-1).text, 'Confirmed'); assert.equal(h.writes.at(-1).response.body.status, 'error');
+  assert.equal(h.state.realtimeStatus, 'error'); assert.equal(h.state.realtimeText, 'Confirmed'); assert.deepEqual(h.deletes, []);
+});
+
+test('DeepL source-only model retains detected source language and fatal failure discards interim-only sessions', async () => {
+  const source = await libraryHarness({ model: 'deepl/voice-realtime', stopError: true });
+  source.events.onEvent(update([segment('Hello')], [segment(' draft', 100, 200)], 'en'));
+  source.events.onError('Disconnected'); source.events.onError('duplicate'); await pause(30);
+  assert.equal(source.writes.at(-1).text, 'Hello'); assert.equal(source.writes.at(-1).language, 'en');
+  assert.equal(source.writes.at(-1).response.body.status, 'error'); assert.equal(source.stopped(), 1);
+  const draft = await libraryHarness({ stopError: true });
+  draft.events.onEvent(update([], [segment('only draft')])); draft.events.onError('Disconnected'); await pause(30);
+  assert.deepEqual(draft.deletes, ['record']); assert.deepEqual(draft.writes, []);
+});
+
+test('DeepL cancellation before token completion never opens a socket or microphone', async () => {
+  const { startDeepLRealtimeWsSession } = load(path.join(root, 'transcriptions/realtime/startDeepLRealtimeWsSession.ts'));
+  let release;
+  const token = new Promise(resolve => { release = resolve; }); const abort = new AbortController();
+  const starting = startDeepLRealtimeWsSession({ modelId: 'deepl/voice-realtime', signal: abort.signal, getEphemeralToken: () => token });
+  abort.abort(); release({}); await assert.rejects(starting, error => error.name === 'AbortError');
 });
 
 test('DeepL WebSocket sends paced PCM JSON and waits beyond end-of-transcript for end-of-stream', async () => {
