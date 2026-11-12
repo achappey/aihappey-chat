@@ -52,6 +52,7 @@ const providerForms: Record<string, Record<string, React.ComponentType<any>>> = 
         murfai: forms.MurfAISpeechConfigForm, stepfun: forms.StepFunSpeechConfigForm,
     },
     transcription: {
+        deepl: forms.DeepLRealtimeTranscriptionConfigForm,
         cartesia: forms.CartesiaRealtimeTranscriptionConfigForm,
         azure: forms.AzureTranscriptionConfigForm, deepgram: forms.DeepgramTranscriptionConfigForm,
         deepinfra: forms.DeepInfraTranscriptionConfigForm, elevenlabs: forms.ElevenLabsTranscriptionConfigForm,
@@ -151,7 +152,7 @@ export const ProviderTypeSettings: React.FC<{ providerKey: string; type: string;
             extra.realtimeConfig = realtime?.[key] ?? {};
             extra.updateRealtimeConfig = updateRealtimeConfig;
         }
-        if (["google", "cartesia"].includes(key)) return <Form config={realtime?.[key] ?? {}} updateConfig={updateRealtimeConfig} />;
+        if (["google", "cartesia", "deepl"].includes(key)) return <Form config={realtime?.[key] ?? {}} updateConfig={updateRealtimeConfig} />;
     }
     return <Form config={config} updateConfig={updateConfig} {...extra} />;
 };

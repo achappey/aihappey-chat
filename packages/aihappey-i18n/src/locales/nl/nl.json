@@ -5,6 +5,15 @@
         "dismiss": "Sluiten",
         "saveFailed": "Je standaardmodellen konden niet worden opgeslagen. Probeer het opnieuw."
     },
+    "deeplRealtime": {
+        "title": "DeepL realtime transcriptie en vertaling",
+        "hint": "Het standaard Voice-model slaat de brontranscriptie op. Een taalspecifiek model slaat die vertaling op. Toegang tot DeepL Voice is vereist. Audio is mono PCM16 op 16 kHz; er wordt geen spraak gegenereerd.",
+        "sourceLanguage": "Brontaal (optionele BCP 47-code; leeg voor detectie)",
+        "source_language_mode": "Brontaalmodus (auto: aanwijzing; fixed: verplicht)",
+        "formality": "Formaliteit van de vertaling",
+        "spokenTerms": "Spoken Terms-verzameling-ID (optioneel)",
+        "glossaries": "Woordenlijst-ID's, hoogste prioriteit eerst (kommagescheiden)"
+    },
     "mistralRealtime": {
         "title": "Realtime transcriptie",
         "hint": "Live spraak naar tekst, geen vertaling. Taal is optioneel (tweelettercode); laat leeg voor detectie. Instellingen gelden voordat audio start en staan los van bestandstranscriptie.",

@@ -52,6 +52,35 @@ export const CartesiaRealtimeTranscriptionConfigForm = ({ config, updateConfig }
     </theme.Card>;
 };
 
+/** Shared controlled settings for transcription pages and portable agent models. */
+export const DeepLRealtimeTranscriptionConfigForm = ({ config, updateConfig }: {
+    config: Record<string, any>; updateConfig: (config: Record<string, any>) => void;
+}) => {
+    const theme = useTheme();
+    const { t } = useTranslation();
+    return <theme.Card size="small" title={t("deeplRealtime.title")} description={t("deeplRealtime.hint")}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <theme.Input id="deepl-source-language" label={t("deeplRealtime.sourceLanguage")} value={config.source_language ?? ""}
+                onChange={event => updateConfig({ ...config, source_language: event.target.value.trim() || undefined })} />
+            {(["source_language_mode", "formality"] as const).map(key => {
+                const choices = key === "formality" ? ["default", "formal", "informal"] : ["auto", "fixed"];
+                const value = config[key] ?? choices[0];
+                return <theme.Select key={key} label={t(`deeplRealtime.${key}`)} values={[value]} valueTitle={value}
+                    options={choices.map(value => ({ value, label: value }))} onChange={value => updateConfig({ ...config, [key]: value })}>
+                    {choices.map(value => <option key={value} value={value}>{value}</option>)}
+                </theme.Select>;
+            })}
+            <theme.Input id="deepl-spoken-terms" label={t("deeplRealtime.spokenTerms")} value={config.spoken_terms_id ?? ""}
+                onChange={event => updateConfig({ ...config, spoken_terms_id: event.target.value.trim() || undefined })} />
+            <theme.Input id="deepl-glossaries" label={t("deeplRealtime.glossaries")} value={(config.glossary_ids ?? (config.glossary_id ? [config.glossary_id] : [])).join(", ")}
+                onChange={event => {
+                    const next = { ...config, glossary_ids: event.target.value.split(",").map(value => value.trim()).filter(Boolean) };
+                    delete next.glossary_id; updateConfig(next);
+                }} />
+        </div>
+    </theme.Card>;
+};
+
 export interface TranscriptionSettingsModalProps {
     open: boolean;
 
@@ -118,6 +147,12 @@ export const TranscriptionSettingsModal: React.FC<
                 }
             >
                 <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
+                    {enabledProviders.includes("DeepL") && (
+                        <theme.Tab eventKey="deepl" title="DeepL">
+                            <DeepLRealtimeTranscriptionConfigForm config={realtimeProviderMetadata.deepl ?? {}}
+                                updateConfig={deepl => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, deepl })} />
+                        </theme.Tab>
+                    )}
 
                     {enabledProviders.includes("Azure") && (
                         <theme.Tab eventKey="azure" title="Azure">

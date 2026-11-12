@@ -5,6 +5,15 @@
         "dismiss": "Dismiss",
         "saveFailed": "Your defaults could not be saved. Please try again."
     },
+    "deeplRealtime": {
+        "title": "DeepL real-time transcription and translation",
+        "hint": "The default Voice model saves source transcription. A language-specific model saves that translation. DeepL Voice access is required. Audio is mono PCM16 at 16 kHz; no speech is generated.",
+        "sourceLanguage": "Source language (optional BCP 47 code; blank for detection)",
+        "source_language_mode": "Source language mode (auto: hint; fixed: required)",
+        "formality": "Translation formality",
+        "spokenTerms": "Spoken Terms collection ID (optional)",
+        "glossaries": "Glossary IDs, highest priority first (comma-separated)"
+    },
     "mistralRealtime": {
         "title": "Real-time transcription",
         "hint": "Live speech to text, not translation. Language is optional (two-letter code); leave blank for detection. Settings apply before audio starts and are separate from file transcription.",
