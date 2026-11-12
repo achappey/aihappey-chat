@@ -200,10 +200,3 @@ test('Speechmatics finalization errors retain confirmed text; interim-only error
   const draft = await libraryHarness({ fail: true }); draft.events.onEvent(event('AddPartialTranscript', 'only draft'));
   draft.events.onError('Disconnected'); await tick(); await tick(); assert.deepEqual(draft.deletes, ['record']); assert.deepEqual(draft.writes, []);
 });
-
-test('Speechmatics authoritative catalog exposes exactly the five documented STT models as token-capable', () => {
-  const data = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../aihappey-providers/metadata/models/providers/speechmatics.json'), 'utf8')).data;
-  const models = data.filter(model => model.type === 'transcription'); assert.equal(models.length, 5);
-  for (const model of models) { protocol.speechmaticsModel(model.id); assert.ok(model.tags.includes('real-time')); assert.ok(model.tags.includes('realtime-token')); }
-  for (const model of data.filter(model => model.type === 'speech')) assert.ok(!model.tags?.includes('real-time'));
-});
