@@ -1,5 +1,9 @@
 [
   {
+    "id": "deepdub",
+    "file": "deepdub.json"
+  },
+  {
     "id": "nabrah",
     "file": "nabrah.json"
   },
@@ -2882,5 +2886,13 @@
   {
     "id": "kugelaudio",
     "file": "kugelaudio.json"
+  },
+  {
+    "id": "vocalstack",
+    "file": "vocalstack.json"
+  },
+  {
+    "id": "gnani",
+    "file": "gnani.json"
   }
 ]

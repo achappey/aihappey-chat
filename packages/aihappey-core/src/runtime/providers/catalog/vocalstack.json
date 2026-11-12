@@ -1,0 +1,16 @@
+{
+  "name": "VocalStack",
+  "description": "Audio transcription, live transcription, and translation API.",
+  "urls": {
+    "homepage": "https://vocalstack.com",
+    "docs": "https://api.vocalstack.com",
+    "pricing": "https://vocalstack.com/pricing",
+    "console": "https://vocalstack.com",
+    "termsOfService": "https://vocalstack.com/terms",
+    "privacyPolicy": "https://vocalstack.com/privacy"
+  },
+  "category": "media_voice",
+  "inferenceRegions": [
+    "World"
+  ]
+}

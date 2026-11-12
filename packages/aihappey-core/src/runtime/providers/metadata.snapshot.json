@@ -838,6 +838,11 @@
       "sha256": "69533f99d963990c6d575bdc62de01d48c256013323f242050e99eca69e0654a"
     },
     {
+      "source": "providers/deepdub.json",
+      "file": "catalog/deepdub.json",
+      "sha256": "1a517cc4f0837602189c09f788c7a740fae8409a7d8fdd7b03739bbb75733cae"
+    },
+    {
       "source": "providers/deepgram.json",
       "file": "catalog/deepgram.json",
       "sha256": "c05cec6234d3acb06d04713cd031f305cbdb45015189d1a50a4088a85b4c26cf"
@@ -1158,6 +1163,11 @@
       "sha256": "4f31655d01cdc85799512f919195b72f4fba83b97d39e69ef789246e9a31dd55"
     },
     {
+      "source": "providers/gnani.json",
+      "file": "catalog/gnani.json",
+      "sha256": "c5d105a3207c3330c5e2a92bbf511dbca1e3360e1e2697ce52d0d58af0f7d23e"
+    },
+    {
       "source": "providers/gonkagate.json",
       "file": "catalog/gonkagate.json",
       "sha256": "643a49b50bff858922807ba206af3b5e938c2a780bc6a6334f4e74a17f737620"
@@ -1390,7 +1400,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "6cc2e8d655b2e5dd61ae2579431f60dc5176d0eefe2ae644f1d91c5c864a9de5"
+      "sha256": "3f56b3dc460dd56cfa284c3a244fdfbd9b28b2229f720cdbfc645ec3fa24a4bf"
     },
     {
       "source": "providers/infer.json",
@@ -3686,6 +3696,11 @@
       "source": "providers/vlmrun.json",
       "file": "catalog/vlmrun.json",
       "sha256": "67310cba61a7f087e43ed18fc3ec7a9e645477f3e2efde791dc6588b32d1cfdd"
+    },
+    {
+      "source": "providers/vocalstack.json",
+      "file": "catalog/vocalstack.json",
+      "sha256": "187e0ece35f7c2493b0d2b820163eaf28408a5358cb59de5efbc2a37e3b29201"
     },
     {
       "source": "providers/vogent.json",

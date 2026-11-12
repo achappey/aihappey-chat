@@ -1,0 +1,11 @@
+{
+  "name": "Gnani",
+  "description": "Speech-to-text, text-to-speech and voice cloning for Indian languages.",
+  "urls": {
+    "homepage": "https://www.gnani.ai",
+    "docs": "https://docs.gnani.ai/api/introduction/introduction",
+    "console": "https://app.gnani.ai/voice"
+  },
+  "providerCountry": "IN",
+  "category": "media_voice"
+}

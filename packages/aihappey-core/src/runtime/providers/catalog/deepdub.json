@@ -1,0 +1,15 @@
+{
+  "name": "Deepdub",
+  "description": "Expressive text-to-speech with voice cloning and accent control.",
+  "icons": [],
+  "urls": {
+    "homepage": "https://deepdub.ai",
+    "docs": "https://docs.deepdub.ai"
+  },
+  "providerCountry": "IL",
+  "category": "media_voice",
+  "inferenceRegions": [
+    "US",
+    "EU"
+  ]
+}
