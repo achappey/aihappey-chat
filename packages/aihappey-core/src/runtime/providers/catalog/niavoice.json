@@ -1,0 +1,10 @@
+{
+  "name": "NiaVoice",
+  "description": "Nia provides multilingual speech synthesis, transcription, translation, chat, embeddings and live voice APIs, including Indian languages and Arabic dialects.",
+  "urls": {
+    "homepage": "https://niavoices.com",
+    "docs": "https://niavoices.com/docs"
+  },
+  "category": "media_voice",
+  "apiBaseUrl": "https://niavoices.com"
+}

@@ -1564,6 +1564,10 @@
     "file": "softref.json"
   },
   {
+    "id": "niavoice",
+    "file": "niavoice.json"
+  },
+  {
     "id": "nimbleway",
     "file": "nimbleway.json"
   },
