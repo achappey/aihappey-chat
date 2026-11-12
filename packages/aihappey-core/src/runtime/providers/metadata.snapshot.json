@@ -1215,7 +1215,7 @@
     {
       "source": "providers/guidai.json",
       "file": "catalog/guidai.json",
-      "sha256": "07bbb7024a8d91ea3d783bacbb620096b17f892660d0f2296dcc757b0ec59dd8"
+      "sha256": "b8f6e12d906a74494587bd85a402479e1b73f77b5ac7c9763896d12843fe2f69"
     },
     {
       "source": "providers/gwdg.json",
@@ -3175,7 +3175,7 @@
     {
       "source": "providers/shuttleai.json",
       "file": "catalog/shuttleai.json",
-      "sha256": "af33e95e025f49a964d330b5367e098214f23076862030d1816015cb8da4c3a9"
+      "sha256": "c9523c312431425324e1968263a77798a5f7ffe5b810b5b40e51ad7fd1353d0b"
     },
     {
       "source": "providers/siliconflow.json",
@@ -3335,7 +3335,7 @@
     {
       "source": "providers/sundaypyjamas.json",
       "file": "catalog/sundaypyjamas.json",
-      "sha256": "92f5f23ea0f8fddeb2a82635d18b1cc6864655ceff604ecb88280eac49a295ed"
+      "sha256": "886fee8871ccca2f37429282ebf043b06b75dc3fb7a6d6ddd98755580d7ac945"
     },
     {
       "source": "providers/sunoapi.json",
@@ -3490,7 +3490,7 @@
     {
       "source": "providers/toapis.json",
       "file": "catalog/toapis.json",
-      "sha256": "0f989c91d99619a8d6dd8fd79411a7ab73a6d74b2f555693f044ff624c1dacf0"
+      "sha256": "4d707ef4cb7cc6056dd687a8775b1fb5b90fc24a4a3a06f7924364d38432fcca"
     },
     {
       "source": "providers/together.json",
@@ -3790,7 +3790,7 @@
     {
       "source": "providers/yourvoic.json",
       "file": "catalog/yourvoic.json",
-      "sha256": "c4ba59f3bb21b7f1879093700f0806da875467493d0d9bc29e0c6d0428387d2a"
+      "sha256": "837afb43391c5d20198f80c711647936dfcaabaffdf27aa8c33e3f3b90aba73a"
     },
     {
       "source": "providers/yutori.json",

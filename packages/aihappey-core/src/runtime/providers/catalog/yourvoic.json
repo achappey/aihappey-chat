@@ -10,7 +10,9 @@
     "homepage": "https://yourvoic.com",
     "docs": "https://yourvoic.com/api/docs",
     "pricing": "https://yourvoic.com/api/docs/pricing",
-    "privacyPolicy": "https://yourvoic.com/privacy"
+    "privacyPolicy": "https://yourvoic.com/privacy",
+    "console": "https://yourvoic.com/api/user/settings",
+    "termsOfService": "https://yourvoic.com/terms"
   },
   "providerCountry": "IN",
   "category": "media_voice",

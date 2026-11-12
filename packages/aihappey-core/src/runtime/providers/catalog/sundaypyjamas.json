@@ -4,7 +4,8 @@
   "urls": {
     "homepage": "https://sundaypyjamas.com",
     "docs": "https://docs.sundaypyjamas.com",
-    "console": "https://suite.sundaypyjamas.com"
+    "console": "https://suite.sundaypyjamas.com",
+    "pricing": "https://sundaypyjamas.com/pricing"
   },
   "category": "app_tools",
   "apiBaseUrl": "https://suite.sundaypyjamas.com/api/v1"

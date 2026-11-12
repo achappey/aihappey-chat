@@ -9,7 +9,10 @@
   "urls": {
     "homepage": "https://toapis.com",
     "pricing": "https://toapis.com/en/pricing",
-    "docs": "https://docs.toapis.com"
+    "docs": "https://docs.toapis.com",
+    "console": "https://admin.toapis.com/console",
+    "privacyPolicy": "https://toapis.com/en/privacy",
+    "termsOfService": "https://toapis.com/en/terms"
   },
   "providerCountry": "CN",
   "category": "gateway_router",

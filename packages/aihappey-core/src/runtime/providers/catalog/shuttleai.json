@@ -3,7 +3,10 @@
   "description": "ShuttleAI provides a simple, scalable, and cost-effective solution for integrating AI models into your applications.",
   "urls": {
     "homepage": "https://shuttleai.com",
-    "docs": "https://docs.shuttleai.com"
+    "docs": "https://docs.shuttleai.com",
+    "console": "https://shuttleai.com/dashboard",
+    "pricing": "https://shuttleai.com/plans",
+    "privacyPolicy": "https://shuttleai.com/privacy"
   },
   "providerCountry": "US",
   "category": "gateway_router",
