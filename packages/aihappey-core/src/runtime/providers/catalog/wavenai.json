@@ -1,0 +1,15 @@
+{
+  "name": "WavenAI",
+  "description": "Cloud transcription, narration and voice cloning with Kokoro, Chatterbox, Parakeet and Voxtral.",
+  "urls": {
+    "homepage": "https://waven.ai",
+    "docs": "https://waven.ai/docs",
+    "pricing": "https://waven.ai/pricing",
+    "console": "https://waven.ai/dashboard"
+  },
+  "providerCountry": "US",
+  "category": "media_voice",
+  "inferenceRegions": [
+    "World"
+  ]
+}

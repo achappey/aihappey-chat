@@ -1390,7 +1390,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "6447ac0ddf7ea1ad43d1df71f31e53365331268036959e71b18847d2693d7c15"
+      "sha256": "6cc2e8d655b2e5dd61ae2579431f60dc5176d0eefe2ae644f1d91c5c864a9de5"
     },
     {
       "source": "providers/infer.json",
@@ -1581,6 +1581,11 @@
       "source": "providers/krutrim.json",
       "file": "catalog/krutrim.json",
       "sha256": "c11463fa5c7e9ba0320a0b6f70d3f27a45df38ad261559c1e21174e6db2760c0"
+    },
+    {
+      "source": "providers/kugelaudio.json",
+      "file": "catalog/kugelaudio.json",
+      "sha256": "4d5a8858ce45ce9a6f3d52399001439b06fb410aebe7e9878ffff28fdfa182d8"
     },
     {
       "source": "providers/kumorouter.json",
@@ -2076,6 +2081,11 @@
       "source": "providers/myrouter.json",
       "file": "catalog/myrouter.json",
       "sha256": "922ff30d31fd6eba04ac2e396970157d047a8a16d50e4e9a008b88796307982e"
+    },
+    {
+      "source": "providers/nabrah.json",
+      "file": "catalog/nabrah.json",
+      "sha256": "18f4ee2fea65b9f4878fd1533ac2574daa807a764f8dc0203ccadf940544090c"
     },
     {
       "source": "providers/naceai.json",
@@ -3273,6 +3283,11 @@
       "sha256": "2f25dfe2cc88b525914e3f7e95204aff56ec37a27426bab1e36eabb98332163d"
     },
     {
+      "source": "providers/speakai.json",
+      "file": "catalog/speakai.json",
+      "sha256": "e61640dd6cc5e2bbba13e7c59081aeddee6c6f48f3d3f7fb49f892ccd358436f"
+    },
+    {
       "source": "providers/speechactors.json",
       "file": "catalog/speechactors.json",
       "sha256": "0407c5faf5b3b02f0c0702ec09301b98be035e1286b03e9dc1f826ade6a82f9d"
@@ -3711,6 +3726,11 @@
       "source": "providers/waslo.json",
       "file": "catalog/waslo.json",
       "sha256": "152fcc855d26a4b268fb52e4001d389df7252631a4dcf0ea67cc78fda5b46f1f"
+    },
+    {
+      "source": "providers/wavenai.json",
+      "file": "catalog/wavenai.json",
+      "sha256": "9f9e274d8aa5c8062c2d379cf80282f68da7e43e421825c1bc5da100f8524302"
     },
     {
       "source": "providers/wavespeed.json",

@@ -1,0 +1,10 @@
+{
+  "name": "Nabrah",
+  "description": "Arabic-first speech synthesis and transcription API.",
+  "urls": {
+    "homepage": "https://www.nabrah.ai",
+    "docs": "https://www.nabrah.ai/en/docs/api-reference"
+  },
+  "category": "media_voice",
+  "apiBaseUrl": "https://api.nabrah.ai/api"
+}

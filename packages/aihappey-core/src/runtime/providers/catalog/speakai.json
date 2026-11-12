@@ -1,0 +1,11 @@
+{
+  "name": "Speak AI",
+  "description": "Speak AI provides audio and video transcription, AI chat over your media library, and live transcription over Socket.IO with short-lived browser tokens.",
+  "urls": {
+    "homepage": "https://www.speakai.co",
+    "docs": "https://docs.speakai.co",
+    "console": "https://app.speakai.co/developers/apikeys"
+  },
+  "category": "media_voice",
+  "apiBaseUrl": "https://api.speakai.co/v1"
+}

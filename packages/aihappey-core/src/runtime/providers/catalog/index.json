@@ -1,5 +1,9 @@
 [
   {
+    "id": "nabrah",
+    "file": "nabrah.json"
+  },
+  {
     "id": "pyrois",
     "file": "pyrois.json"
   },
@@ -2756,6 +2760,10 @@
     "file": "wavespeed.json"
   },
   {
+    "id": "wavenai",
+    "file": "wavenai.json"
+  },
+  {
     "id": "lightcone",
     "file": "lightcone.json"
   },
@@ -2866,5 +2874,13 @@
   {
     "id": "palabraai",
     "file": "palabraai.json"
+  },
+  {
+    "id": "speakai",
+    "file": "speakai.json"
+  },
+  {
+    "id": "kugelaudio",
+    "file": "kugelaudio.json"
   }
 ]

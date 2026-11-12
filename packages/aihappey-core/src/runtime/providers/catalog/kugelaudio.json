@@ -1,0 +1,17 @@
+{
+  "name": "KugelAudio",
+  "description": "Text-to-speech API using KugelAudio's Kugel models.",
+  "icons": [
+    {
+      "src": "https://kugelaudio.com/favicon.ico"
+    }
+  ],
+  "urls": {
+    "homepage": "https://kugelaudio.com",
+    "docs": "https://docs.kugelaudio.com/api-reference/tts/generate"
+  },
+  "category": "media_voice",
+  "inferenceRegions": [
+    "World"
+  ]
+}
