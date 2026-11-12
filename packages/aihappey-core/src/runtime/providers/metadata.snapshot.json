@@ -95,7 +95,7 @@
     {
       "source": "providers/ai21.json",
       "file": "catalog/ai21.json",
-      "sha256": "4382637deffff9089d8f820de8421be253967df229199bef46b878ec13ff02cd"
+      "sha256": "e514b5a8ee1b5d2ea6212724bc8dec1e0a77739f977b7e91bf84175f895228bc"
     },
     {
       "source": "providers/aiapiworld.json",
@@ -225,7 +225,7 @@
     {
       "source": "providers/ambient.json",
       "file": "catalog/ambient.json",
-      "sha256": "7348d1492b723233dd93472e6ad93c5244e000f4d94eceafcba86d65d14d9e28"
+      "sha256": "ff5623ae319731b64044b54d1fb72c85b73d5f35983f8b4e98cf55e2d341de6f"
     },
     {
       "source": "providers/amnt.json",
@@ -535,7 +535,7 @@
     {
       "source": "providers/cailos.json",
       "file": "catalog/cailos.json",
-      "sha256": "2649bbb8cf79a4201eb0d4508eb7031120e9bc04d4c11fbe1f958983245a181a"
+      "sha256": "120994a6999f62e7223e4a16c24f269b688e3f51a17d9ce542c411b6d9fca5f5"
     },
     {
       "source": "providers/callmissed.json",
@@ -740,7 +740,7 @@
     {
       "source": "providers/copilot.json",
       "file": "catalog/copilot.json",
-      "sha256": "74ba7914c7b794c914053898a3de923a4aec5c39a2eeb00e9b6ecc6da4beef87"
+      "sha256": "0855e2c53386de045a04bcb00f484d6f4fd10dcd0e37b67cb5ec762d6e23f02c"
     },
     {
       "source": "providers/coralbricks.json",
@@ -1060,7 +1060,7 @@
     {
       "source": "providers/fortytwo.json",
       "file": "catalog/fortytwo.json",
-      "sha256": "4f79a794f856371b881a67d0a23229b8b7617be5f6eec4c31b8e8659d06721a6"
+      "sha256": "b485cb6478f2a1acc4e6e1e2ce939f41b36cae10361d0d983d72bd999aca16f5"
     },
     {
       "source": "providers/founden.json",
@@ -2225,7 +2225,7 @@
     {
       "source": "providers/novai.json",
       "file": "catalog/novai.json",
-      "sha256": "40838d23786bcf4824cffb2bf0cca98a6730131c351c497a3ba64c0f53d9d60d"
+      "sha256": "80258a7c41bcee2125cede94a536ce93735be009c29bfffd5fc795735c2c3b5b"
     },
     {
       "source": "providers/novita.json",
@@ -3160,7 +3160,7 @@
     {
       "source": "providers/shannonai.json",
       "file": "catalog/shannonai.json",
-      "sha256": "773b41db5ca5cf097a903f520e2e1ea9d7b2e7ac1b77e2dbf7e018c1de7cfa99"
+      "sha256": "8a98edbb04a3a7bc319c9a8cea570f39c84d11024bfd5e4e9a023a2c4fdfe7ee"
     },
     {
       "source": "providers/shareai.json",
@@ -3375,7 +3375,7 @@
     {
       "source": "providers/synthetic.json",
       "file": "catalog/synthetic.json",
-      "sha256": "b26fa217f9c4faa8ef35b4bd5cde08944441bbd512efe1a3bc4a6ec073e91ff2"
+      "sha256": "f57eff8e6bf1ac7cc10b1d317e6dcc567c37fc9543ba9097bdf9582caf9160a9"
     },
     {
       "source": "providers/tapas.json",

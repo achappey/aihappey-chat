@@ -8,6 +8,8 @@
   ],
   "urls": {
     "homepage": "https://fortytwo.network",
+    "console": "https://platform.fortytwo.network/login",
+    "pricing": "https://docs.fortytwo.network/docs/pricing",
     "docs": "https://docs.fortytwo.network",
     "privacyPolicy": "https://docs.fortytwo.network/docs/legal-privacy-notice",
     "termsOfService": "https://docs.fortytwo.network/docs/legal-legal-notice"

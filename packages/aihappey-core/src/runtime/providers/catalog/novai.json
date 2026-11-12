@@ -4,7 +4,9 @@
   "urls": {
     "homepage": "https://aiapi-pro.com",
     "docs": "https://aiapi-pro.com/docs",
-    "pricing": "https://aiapi-pro.com/pricing.html"
+    "pricing": "https://aiapi-pro.com/pricing.html",
+    "privacyPolicy": "https://aiapi-pro.com/privacy",
+    "termsOfService": "https://aiapi-pro.com/terms"
   },
   "providerCountry": "HK",
   "category": "inference_compute",

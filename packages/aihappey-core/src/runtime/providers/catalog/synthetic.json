@@ -8,6 +8,7 @@
   ],
   "urls": {
     "homepage": "https://synthetic.new",
+    "console": "https://synthetic.new/users/login",
     "docs": "https://dev.synthetic.new/docs/api/overview",
     "pricing": "https://synthetic.new/pricing",
     "privacyPolicy": "https://synthetic.new/policies/privacy",

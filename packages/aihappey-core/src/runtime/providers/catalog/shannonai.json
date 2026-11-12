@@ -8,8 +8,11 @@
   ],
   "urls": {
     "homepage": "https://shannon-ai.com",
+    "console": "https://shannon-ai.com/login",
     "docs": "https://shannon-ai.com/docs",
-    "pricing": "https://shannon-ai.com/plan"
+    "pricing": "https://shannon-ai.com/plan",
+    "privacyPolicy": "https://shannon-ai.com/privacy",
+    "termsOfService": "https://shannon-ai.com/research/terms-of-service"
   },
   "providerCountry": "US",
   "category": "model_provider",

@@ -7,9 +7,9 @@
     }
   ],
   "urls": {
-    "homepage": "https://www.microsoft.com/en-us/microsoft-365-copilot",
+    "homepage": "https://www.microsoft.com/en-us/copilot",
     "docs": "https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/api/ai-services/chat/overview",
-    "pricing": "https://www.microsoft.com/en-us/microsoft-365-copilot/pricing",
+    "pricing": "https://www.microsoft.com/en-us/copilot/pricing/business",
     "privacyPolicy": "https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-privacy",
     "termsOfService": "https://learn.microsoft.com/en-us/legal/m365-copilot-apis/terms-of-use"
   },
