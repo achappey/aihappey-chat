@@ -1440,7 +1440,7 @@
     {
       "source": "providers/infraxa.json",
       "file": "catalog/infraxa.json",
-      "sha256": "1acdaaff91168b1c3cfd526a536e497fb7747824a7ee911beb77e8bf9ba571f8"
+      "sha256": "12a090ddc80cd7d57bd90e68b33edbba05ec129ab006c15c689c79e56aa829a8"
     },
     {
       "source": "providers/infron.json",
@@ -2185,7 +2185,7 @@
     {
       "source": "providers/nodion.json",
       "file": "catalog/nodion.json",
-      "sha256": "457c825efb312a038839cd5b7ecc5637564c5fe9efcf188a319019dc73d032a5"
+      "sha256": "4f0c8d44cdb4435a44c667606431adbb4939b7c6d4fc45f511dfb731564ad937"
     },
     {
       "source": "providers/noiz.json",
