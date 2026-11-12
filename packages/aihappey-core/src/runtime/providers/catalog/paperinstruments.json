@@ -2,7 +2,8 @@
   "name": "PaperInstruments",
   "description": "Ultramarine model API with native streaming Chat Completions, Responses, and Anthropic Messages support.",
   "urls": {
-    "homepage": "https://paperinstruments.com"
+    "homepage": "https://paperinstruments.com",
+    "docs": "https://docs.paperinstruments.com/docs"
   },
   "category": "model_provider",
   "apiBaseUrl": "https://api.paperinstruments.com/v1",

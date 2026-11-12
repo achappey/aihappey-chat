@@ -8,6 +8,7 @@
   ],
   "urls": {
     "homepage": "https://ttsreader.com",
+    "docs": "https://ttsreader.com/api/",
     "privacyPolicy": "https://ttsreader.com/docs/legal/privacy",
     "termsOfService": "https://ttsreader.com/docs/legal/terms"
   },

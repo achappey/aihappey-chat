@@ -1,0 +1,14 @@
+{
+  "name": "Situra",
+  "description": "Situra is an AI gateway offering project-level data residency controls and OpenAI- and Anthropic-compatible APIs.",
+  "urls": {
+    "homepage": "https://situra.ai",
+    "docs": "https://situra.ai/developers",
+    "pricing": "https://situra.ai/pricing"
+  },
+  "providerCountry": "ES",
+  "category": "gateway_router",
+  "inferenceRegions": [
+    "Europe"
+  ]
+}

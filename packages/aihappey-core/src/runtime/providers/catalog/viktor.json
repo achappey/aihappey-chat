@@ -2,7 +2,8 @@
   "name": "Viktor",
   "description": "An AI employee with connected tools and skills, available through OpenAI and Anthropic compatible APIs.",
   "urls": {
-    "homepage": "https://viktor.com"
+    "homepage": "https://viktor.com",
+    "docs": "https://viktor.com/docs"
   },
   "category": "app_tools",
   "apiBaseUrl": "https://api.viktor.com/api/compat/v1"

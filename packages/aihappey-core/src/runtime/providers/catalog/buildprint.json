@@ -2,7 +2,8 @@
   "name": "Buildprint",
   "description": "AI agents for Bubble apps and Buildprint projects.",
   "urls": {
-    "homepage": "https://buildprint.ai"
+    "homepage": "https://buildprint.ai",
+    "docs": "https://docs.buildprint.ai/api-reference/getting-started-9tpqr"
   },
   "category": "app_tools",
   "apiBaseUrl": "https://api.buildprint.ai/api/v1"

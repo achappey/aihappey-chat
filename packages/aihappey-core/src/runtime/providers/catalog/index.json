@@ -1,5 +1,9 @@
 [
   {
+    "id": "pyrois",
+    "file": "pyrois.json"
+  },
+  {
     "id": "inferel",
     "file": "inferel.json"
   },
@@ -2236,6 +2240,10 @@
     "file": "inceptionlabs.json"
   },
   {
+    "id": "blade",
+    "file": "blade.json"
+  },
+  {
     "id": "commandcode",
     "file": "commandcode.json"
   },
@@ -2846,5 +2854,9 @@
   {
     "id": "inferenceclub",
     "file": "inferenceclub.json"
+  },
+  {
+    "id": "situra",
+    "file": "situra.json"
   }
 ]

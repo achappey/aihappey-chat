@@ -7,7 +7,8 @@
     }
   ],
   "urls": {
-    "homepage": "https://hunyuan.tencent.com"
+    "homepage": "https://hunyuan.tencent.com",
+    "docs": "https://www.tencentcloud.com/document/product/1284/75976?lang=en"
   },
   "providerCountry": "CN",
   "category": "gateway_router",

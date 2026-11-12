@@ -2,7 +2,8 @@
   "name": "JuiceFactory",
   "description": "Open text, vision and embedding models on owned hardware in Sweden. OpenAI-compatible inference without request logging or training on customer data.",
   "urls": {
-    "homepage": "https://juicefactory.ai"
+    "homepage": "https://juicefactory.ai",
+    "docs": "https://juicefactory.ai/en/tech"
   },
   "providerCountry": "SE",
   "inferenceRegions": [

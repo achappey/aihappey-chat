@@ -1,0 +1,22 @@
+{
+  "name": "Blade",
+  "description": "European-hosted, OpenAI-compatible inference for chat, audio, video, and document models.",
+  "icons": [
+    {
+      "src": "https://blade.sh/favicon.ico"
+    }
+  ],
+  "urls": {
+    "homepage": "https://blade.sh",
+    "docs": "https://blade.sh/docs/api-reference/"
+  },
+  "inferenceRegions": [
+    "Europe"
+  ],
+  "category": "gateway_router",
+  "apiBaseUrl": "https://api.models.blade.sh/v1",
+  "chatEndpoints": [
+    "/v1/chat/completions",
+    "/v1/responses"
+  ]
+}

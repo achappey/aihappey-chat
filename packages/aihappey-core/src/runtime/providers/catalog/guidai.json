@@ -2,7 +2,8 @@
   "name": "GUID.AI",
   "description": "OpenAI-compatible gateway for chat completions, legacy text completions and the Responses API with SSE streaming.",
   "urls": {
-    "homepage": "https://www.guid.ai"
+    "homepage": "https://www.guid.ai",
+    "docs": "https://www.guid.ai/help"
   },
   "category": "gateway_router",
   "apiBaseUrl": "https://www.guid.ai/v1",

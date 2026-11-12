@@ -2,7 +2,8 @@
   "name": "Kiosapi",
   "description": "Kiosapi is an Indonesian AI gateway offering hosted agents and access to AI models.",
   "urls": {
-    "homepage": "https://kiosapi.id"
+    "homepage": "https://kiosapi.id",
+    "docs": "https://docs.kiosapi.com/"
   },
   "providerCountry": "ID",
   "category": "gateway_router",

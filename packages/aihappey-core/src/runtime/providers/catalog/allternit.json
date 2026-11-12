@@ -2,7 +2,8 @@
   "name": "Allternit",
   "description": "Hosted agents with account-scoped conversations, tools, and streaming replies.",
   "urls": {
-    "homepage": "https://allternit.com"
+    "homepage": "https://allternit.com",
+    "docs": "https://github.com/Allternit/allternit-platform"
   },
   "category": "app_tools",
   "apiBaseUrl": "https://api.allternit.com/v1"

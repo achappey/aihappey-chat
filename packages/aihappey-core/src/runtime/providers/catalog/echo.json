@@ -13,6 +13,7 @@
   ],
   "category": "app_tools",
   "urls": {
-    "homepage": "https://en.wikipedia.org/wiki/Echo_Protocol"
+    "homepage": "https://www.rfc-editor.org/info/rfc862/",
+    "docs": "https://datatracker.ietf.org/doc/rfc862/"
   }
 }

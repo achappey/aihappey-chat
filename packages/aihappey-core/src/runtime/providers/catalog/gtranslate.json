@@ -7,7 +7,8 @@
     }
   ],
   "urls": {
-    "homepage": "https://github.com/d4n3436/GTranslate"
+    "homepage": "https://github.com/d4n3436/GTranslate",
+    "docs": "https://github.com/d4n3436/GTranslate/blob/master/README.md"
   },
   "providerCountry": "US",
   "category": "app_tools",

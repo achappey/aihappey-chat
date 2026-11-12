@@ -1,11 +1,6 @@
 {
   "name": "Hanzo",
   "description": "The complete AI infrastructure: 390+ models, agent SDK, LLM gateway, MCP tools, vector DB, IAM, KMS, and deploy-anywhere cloud. Open source. Backed by Techstars.",
-  "icons": [
-    {
-      "src": "https://hanzo.ai/brand/hanzo-logo.png"
-    }
-  ],
   "urls": {
     "homepage": "https://hanzo.ai",
     "docs": "https://docs.hanzo.ai",

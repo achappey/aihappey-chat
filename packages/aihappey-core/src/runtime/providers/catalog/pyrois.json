@@ -1,0 +1,12 @@
+{
+  "name": "Pyrois",
+  "description": "Dedicated open-weight inference endpoints on managed GPU capacity.",
+  "urls": {
+    "homepage": "https://pyrois.ai"
+  },
+  "providerCountry": "CH",
+  "category": "inference_compute",
+  "chatEndpoints": [
+    "/v1/chat/completions"
+  ]
+}

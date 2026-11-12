@@ -2,7 +2,8 @@
   "name": "HatzAI",
   "description": "Hatz AI provides access to models through native Chat Completions with recursive tool calling and server-side tools, OpenAI-compatible Responses, and Anthropic-compatible Messages.",
   "urls": {
-    "homepage": "https://www.hatz.ai"
+    "homepage": "https://www.hatz.ai",
+    "docs": "https://api-docs.hatz.ai/"
   },
   "category": "gateway_router",
   "apiBaseUrl": "https://ai.hatz.ai/v1"
