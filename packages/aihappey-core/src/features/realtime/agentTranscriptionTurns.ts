@@ -78,6 +78,7 @@ export class AgentTranscriptionTurns {
     }
     private schedule() {
         clearTimeout(this.timer);
+        if (this.provider === "deepl" && this.partial) return;
         if (this.provider === "mistral") {
             if (!this.speaking && !this.muted && this.mistralText.slice(this.mistralThrough).trim())
                 this.timer = setTimeout(() => this.finishMistral(), 900);
@@ -152,14 +153,17 @@ export class AgentTranscriptionTurns {
                 if (type === "deepl.transcript") {
                     for (const segment of event.concluded) {
                         const key = `deepl:${segment.start_time}:${segment.end_time}:${segment.text}`;
-                        this.append(segment.text, key);
+                        if (!this.seen.has(key)) {
+                            this.seen.add(key); this.finals.push(segment.text);
+                            if (segment.text.trim()) this.start();
+                        }
                     }
                     // An empty replacement removes a stale draft, too. Only
                     // concluded text can become a chat turn after quiet time.
                     this.partial = event.tentative.map((segment: any) => segment.text).join("");
-                    if (this.partial.trim() || this.finals.length)
-                        this.preview(this.partial);
-                    if (!this.partial) this.callbacks.preview(this.finals.join(""));
+                    if (this.partial.trim()) this.start();
+                    this.callbacks.preview(this.finals.join("") + this.partial);
+                    this.schedule();
                 }
                 break;
             case "mistral":

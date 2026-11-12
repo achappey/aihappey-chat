@@ -430,7 +430,7 @@ export function useRealtimeTranscriptionController(args: {
         catch (error) {
           if (!["openai", "deepl"].includes(run?.providerId ?? "")) throw error;
           const message = getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") });
-          run.error ??= message;
+          if (run) run.error ??= message;
           persistence.current.onErrorAlert?.(message);
         }
         if (run) run.acceptingEvents = false;
