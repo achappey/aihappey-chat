@@ -28,15 +28,29 @@ const expected = {
     nb: ["1 minutt siden", "om 1 minutt"],
 };
 
-test("timeago export patch adds declaration targets without changing runtime exports", () => {
-    const metadata = JSON.parse(fs.readFileSync(path.join(root, "node_modules/timeago.js/package.json"), "utf8"));
-    assert.deepEqual(metadata.exports, {
-        ".": { types: "./dist/index.d.ts", import: "./dist/index.mjs", require: "./dist/index.cjs" },
-        "./lib/*": { types: "./dist/*.d.ts", import: "./dist/esm/*.js", require: "./dist/lib/*.js" },
-        "./esm/*": { types: "./dist/*.d.ts", import: "./dist/esm/*.js" },
-    });
-    for (const entry of Object.values(metadata.exports)) {
-        assert.equal(Object.keys(entry)[0], "types", "TypeScript must see types before runtime conditions");
+test("timeago upstream exports expose existing declarations before runtime targets", () => {
+    const packageRoot = path.join(root, "node_modules/timeago.js");
+    const metadata = JSON.parse(fs.readFileSync(path.join(packageRoot, "package.json"), "utf8"));
+    for (const [subpath, conditions] of [
+        [".", ["import", "require"]],
+        ["./lib/*", ["import", "require"]],
+        ["./esm/*", ["import"]],
+    ]) {
+        const entry = metadata.exports[subpath];
+        assert.ok(entry, `Missing export: ${subpath}`);
+        for (const condition of conditions) {
+            const branch = typeof entry[condition] === "object" ? entry[condition] : entry;
+            assert.equal(Object.keys(branch)[0], "types", `${subpath}: declarations must precede ${condition} runtime resolution`);
+            const runtime = branch === entry ? entry[condition] : branch.default;
+            for (const target of [branch.types, runtime]) {
+                assert.equal(typeof target, "string", `${subpath}: missing ${condition} target`);
+                const names = subpath.includes("*") ? locales.map(locale => `lang/${locale}`) : [""];
+                for (const name of names) {
+                    const resolved = path.join(packageRoot, target.replace("*", name));
+                    assert.ok(fs.existsSync(resolved), `Export target must exist: ${resolved}`);
+                }
+            }
+        }
     }
 });
 
